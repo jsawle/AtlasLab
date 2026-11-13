@@ -1,24 +1,25 @@
 // Atlas: a white-label build of the MapMaker classroom map app.
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
-import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.38";
+import { CSV_VERSION, PALETTE_HEX, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.39";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.38";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.39";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.38";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.38";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.38";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.38";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.39";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.39";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.39";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.39";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.38";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.38";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.38";
-import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.38";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.39";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.39";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.39";
+import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere,
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.39";
+import { STATE_VERSION, state } from "./src/state.js?v=5.0.0-beta.39";
 
-const APP_VERSION = "5.0.0-beta.38";
+const APP_VERSION = "5.0.0-beta.39";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.1";
 const PROFILE_VERSION = "3.4";
@@ -43,7 +44,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.38). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.39). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -306,8 +307,8 @@ const linkedMap = !authStash && !linkedScene && HEX32.test(params.get("webmap") 
 // layers once it has a sketch. Further ones are made by the person (Add layer, or the Sketch panel), keep their own
 // name, and are listed even when empty. One of them is the layer being drawn on (activeSketch).
 const sketchLayers = [graphicsLayer];
-let activeSketch = graphicsLayer;
-let pinnedSketch = [graphicsLayer];   // the sketch layers at the top of the map: they stay above a layer that is added
+state.activeSketch = graphicsLayer;
+state.pinnedSketch = [graphicsLayer];
 const isSketch = (l) => sketchLayers.includes(l);
 const sketchKeyOfLayer = (l) => (l === graphicsLayer ? "" : String(l.id).slice(SKETCH_LAYER_PREFIX.length));
 const sketchLayerByKey = (key) => (key ? sketchLayers.find((l) => l !== graphicsLayer && sketchKeyOfLayer(l) === key) : graphicsLayer) || null;
@@ -365,7 +366,7 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 const viewEls = new Map();
 function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.38): the config's, or closer when that would leave the world narrower than the map.
+// The zoom the app opens at (5.0.0-beta.39): the config's, or closer when that would leave the world narrower than the map.
 // The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
 // white bands either side. A config's own closer zoom (example-es: 7) is kept.
 function startZoom() {
@@ -374,10 +375,10 @@ function startZoom() {
   return Math.max(Number(cfg.startView.zoom) || 2, fill);
 }
 const mapView = await componentView("arcgis-map", "viewDiv", { map: localMap, center: startCenter, zoom: startZoom() });
-let view = mapView, sceneView = null, mode = "2d";
+state.view = mapView;
 const viewHandlers = [];
-function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt, fn); if (sceneView) sceneView.on(evt, fn); }
-function activeMap() { return view.map; }
+function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt, fn); if (state.sceneView) state.sceneView.on(evt, fn); }
+function activeMap() { return state.view.map; }
 let startDone = null;
 const started = new Promise((res) => { startDone = res; });   // the app has started, and a map opened from a link is in
 function addViewUI(v, is3d) {
@@ -405,7 +406,7 @@ function addViewUI(v, is3d) {
   stack.appendChild(tt);
   stack.slot = "bottom-left"; el.appendChild(stack);
   // Map layers greys a layer outside its scale range: check again whenever this view stops moving
-  reactiveUtils.watch(() => v.stationary, (st) => { if (st && v === view && !$("layersPanel").hidden) updateScaleStates(); });
+  reactiveUtils.watch(() => v.stationary, (st) => { if (st && v === state.view && !$("layersPanel").hidden) updateScaleStates(); });
   syncToolsToggles();
 }
 function syncToolsToggles() {
@@ -448,31 +449,26 @@ upgradeIcons();
 // so a view that isn't tilted yet is tilted to 55°; a tilt the user has already set is kept.
 const FRAME_TILT = 55;
 function frameTarget(extent) {
-  if (mode !== "3d" || !view.camera) return extent;
-  return view.camera.tilt < 20 ? { target: extent, tilt: FRAME_TILT, heading: view.camera.heading } : extent;
+  if (state.mode !== "3d" || !state.view.camera) return extent;
+  return state.view.camera.tilt < 20 ? { target: extent, tilt: FRAME_TILT, heading: state.view.camera.heading } : extent;
 }
 function goToSafe(target, opts) {
   const o = { animate: !reduceMotion, ...(opts || {}) };
   let tries = 0;
-  const attempt = () => view.goTo(target, o).catch((e) => {
+  const attempt = () => state.view.goTo(target, o).catch((e) => {
     if (e && e.name === "AbortError") return;
     if (++tries < 4) return new Promise((res) => setTimeout(res, 350)).then(attempt);
   });
   // viewSettled: a move asked for while 3D is still tilting into place waits for that to end, so the two can't mix
-  return viewSettled.then(() => reactiveUtils.whenOnce(() => view.ready)).then(attempt);   // not view.when(): the SDK warns when a view is between maps
+  return state.viewSettled.then(() => reactiveUtils.whenOnce(() => state.view.ready)).then(attempt);   // not view.when(): the SDK warns when a view is between maps
 }
-let viewSettled = Promise.resolve();
+state.viewSettled = Promise.resolve();
 
 // ============================================================ State
-let dirty = false;
-let currentSource = null;          // the web map opened from the collection or ArcGIS Online: { itemId, title, item, data }
-let currentAgolItem = null;        // the signed-in user's own ArcGIS Online item for this map: { id, owner, title }
 const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)
 const portalLayers = new Map();    // itemId -> layer added from the collection
-let bookmarks = [];
 // Saving. A map file saves back to itself, whichever device it's opened on. A locked map (marked inside the file; see
 // LOCK_PROP) is never saved over from this app: opening one is just looking, and Save makes the person's own copy.
-let currentFileHandle = null, openedLocked = false;
 // Chrome empties a file as soon as it's picked in the save dialog (File System Access spec), before the app sees which
 // file it was. So the text of each locked file opened is kept: if it's picked, it's written straight back, unchanged.
 // (A locked file that wasn't opened in this session can't be put back: see README, Known limits.)
@@ -480,12 +476,12 @@ const openedHandles = [];
 function rememberOpened(h, text) { if (h && typeof text === "string" && !openedHandles.some((o) => o.h === h)) openedHandles.push({ h, text }); }
 // After a map is opened from a file: unlocked, Save writes back to it; locked, Save makes a copy.
 function bindOpened(h, text) {
-  openedLocked = isLockedText(text);
-  currentFileHandle = openedLocked ? null : h || null;
-  if (openedLocked) rememberOpened(h, text);
-  $("lockedNote").hidden = !openedLocked;
+  state.openedLocked = isLockedText(text);
+  state.currentFileHandle = state.openedLocked ? null : h || null;
+  if (state.openedLocked) rememberOpened(h, text);
+  $("lockedNote").hidden = !state.openedLocked;
 }
-function unbindFile() { currentFileHandle = null; openedLocked = false; $("lockedNote").hidden = true; }
+function unbindFile() { state.currentFileHandle = null; state.openedLocked = false; $("lockedNote").hidden = true; }
 const lockedBase = () => t("lockedFileName", { name: titleSlug() });
 const copyBase = () => {   // "Coast_survey_locked" -> "Coast_survey - my copy"
   const suffix = t("lockedFileName", { name: "" }), base = titleSlug();
@@ -498,12 +494,11 @@ async function openedEntry(h) {
 async function restoreOpened(o, picked) {
   try { const w = await picked.createWritable(); await w.write(o.text); await w.close(); return true; } catch (e) { console.error("Couldn't put the opened file back", e); return false; }
 }
-let portalUser = null;
-function markDirty() { dirty = true; }
-function markClean() { dirty = false; }
+function markDirty() { state.dirty = true; }
+function markClean() { state.dirty = false; }
 // Unsaved map changes, or data in Add data / Change style that isn't on the map yet.
-function confirmDiscard() { return (!dirty && !unfinishedData()) || window.confirm(S.discard); }
-window.addEventListener("beforeunload", (e) => { if (dirty || unfinishedData()) { e.preventDefault(); e.returnValue = ""; } });
+function confirmDiscard() { return (!state.dirty && !unfinishedData()) || window.confirm(S.discard); }
+window.addEventListener("beforeunload", (e) => { if (state.dirty || unfinishedData()) { e.preventDefault(); e.returnValue = ""; } });
 function sizeTitle() { const el = $("docTitle"); el.size = Math.max(8, Math.min(60, (el.value || el.placeholder || "").length + 2)); }
 $("docTitle").addEventListener("input", () => { markDirty(); sizeTitle(); });
 function currentTitle() { return ($("docTitle").value || "").trim() || S.untitled; }
@@ -526,7 +521,7 @@ function layoutCorner() {
 // compass and scale bar above the toolbar when the toolbar would cover them (phones, narrower laptops).
 const uiBottom = new WeakMap(), uiBase = new WeakMap();
 function layoutBottom() {
-  const v = view, root = v && v.container;
+  const v = state.view, root = v && v.container;
   const attr = root && root.querySelector(".esri-attribution");
   if (attr) $("mapWrap").style.setProperty("--attr-h", Math.ceil(attr.getBoundingClientRect().height || 16) + "px");
   layoutCorner();
@@ -542,7 +537,7 @@ function layoutBottom() {
 }
 const bottomObserver = window.ResizeObserver ? new ResizeObserver(() => layoutBottom()) : null;
 function watchBottom(tries) {
-  const root = view && view.container, attr = root && root.querySelector(".esri-attribution"), stack = root && root.querySelector(".ll-stack");
+  const root = state.view && state.view.container, attr = root && root.querySelector(".esri-attribution"), stack = root && root.querySelector(".ll-stack");
   if (bottomObserver) { bottomObserver.disconnect(); bottomObserver.observe($("toolbar")); if (attr) bottomObserver.observe(attr); if (stack) bottomObserver.observe(stack); }
   layoutBottom();
   if ((!attr || !stack) && (tries || 0) < 20) setTimeout(() => watchBottom((tries || 0) + 1), 500);
@@ -550,7 +545,7 @@ function watchBottom(tries) {
 window.addEventListener("resize", layoutBottom);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutBottom);
 layoutCorner();
-function titleSlug() { return currentTitle().replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60) || "map"; }
+function titleSlug() { return currentTitle().replace(/[^\w-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60) || "map"; }
 
 // ============================================================ Toast, panels, modals (keyboard accessible)
 let toastTimer = 0;
@@ -564,7 +559,7 @@ function toastSeries(list, delay) {
 function saveNotes(toFile) {
   const notes = [];
   if (unsavedLayers) notes.push([t("layersNotSaved", { n: unsavedLayers }), 5000]);
-  if (toFile && privateLeftOut) notes.push([t("privateLayersLeftOut", { n: privateLeftOut }), 6000]);
+  if (toFile && state.privateLeftOut) notes.push([t("privateLayersLeftOut", { n: state.privateLeftOut }), 6000]);
   toastSeries(notes, 3000);
 }
 
@@ -610,7 +605,7 @@ function closePanels(restoreFocus) {
 }
 function togglePanel(name) { if (openPanelName === name) closePanels(); else leaveData(() => openPanel(name)); }
 function panelOpening(name) {
-  if (name === "sketch") { sketchPanelOpen = true; sketchToolsOn(true); selectForEdit(null); need("curves").catch(() => {}); }
+  if (name === "sketch") { state.sketchPanelOpen = true; sketchToolsOn(true); selectForEdit(null); need("curves").catch(() => {}); }
   if (name === "layers") renderLayers();
   if (name === "bookmarks") showBmList();
   if (name === "save") renderAgol();
@@ -620,13 +615,13 @@ function panelOpening(name) {
   if (name === "profile") { closeTable(false); setTimeout(() => { if (openPanelName === "profile") syncDockHeight($("profilePanel")); }, 0); $("app").classList.add("docked"); $("app").classList.remove("tools-shown"); syncToolsToggles(); need("profile").then(() => { if (openPanelName === "profile") ensureProfile(); }).catch(() => {}); }
 }
 function panelClosing(name) {
-  if (name === "sketch") { sketchToolsOn(false); sketchPanelOpen = false; }
+  if (name === "sketch") { sketchToolsOn(false); state.sketchPanelOpen = false; }
   if (name === "measure") stopMeasuring();
   if (name === "filter") endFilter();
   if (name === "profile") { stopProfile(); $("app").classList.remove("docked", "tools-shown"); syncToolsToggles(); setTimeout(layoutBottom, 0); }
   if (name === "data") {
-    const ed = addState && addState.editing;
-    addState = null; pendingParse = null; removePreview(true);
+    const ed = state.addState && state.addState.editing;
+    state.addState = null; state.pendingParse = null; removePreview(true);
     if (ed) {   // editing a layer's style: put the layer back as it was, and go back to Map layers
       ed.layer.visible = ed.wasVisible;
       setTimeout(() => { if (!openPanelName && !modalStack.length) backToLayers(ed.layer.id); }, 0);
@@ -672,10 +667,9 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ============================================================ Pop-ups
-let sketchPanelOpen = false, measureActive = false;
 function updatePopupEnabled() {
-  const on = !sketchPanelOpen && !measureActive && openPanelName !== "profile";
-  for (const v of [mapView, sceneView]) {
+  const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";
+  for (const v of [mapView, state.sceneView]) {
     if (!v) continue;
     v.popupEnabled = on;
     if (!on) { try { v.closePopup(); } catch (e) { /* no popup */ } }
@@ -690,7 +684,7 @@ function updatePopupEnabled() {
 const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
 // areaShape: an area's styled fill (a point's symbol and an area's are chosen separately; on a sketch both are its "shape")
-let pendingStyle = { color: PALETTE_HEX[0], size: 12, rotation: 0, shape: "", areaShape: "", pattern: "solid", arrow: "none", fill: 25, fillColor: "", outlineTransparency: 0, outlineWidth: 2,
+const pendingStyle = { color: PALETTE_HEX[0], size: 12, rotation: 0, shape: "", areaShape: "", pattern: "solid", arrow: "none", fill: 25, fillColor: "", outlineTransparency: 0, outlineWidth: 2,
   font: "", bold: 1, italic: 0, haloColor: "#ffffff", haloSize: 1.5 };   // text: its font, bold and italic, and its halo (size 0 = no halo)
 const newUid = () => "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 // Freehand is a segment option inside the line and area tools (as in Map Viewer), not a button of its own.
@@ -709,7 +703,7 @@ const sketchReady = (async () => {
   await customElements.whenDefined("arcgis-sketch");
   if (sketch.componentOnReady) await sketch.componentOnReady();
   Object.assign(sketch, {
-    defaultGraphicsLayerDisabled: true, layer: activeSketch, view, autoDestroyDisabled: true,
+    defaultGraphicsLayerDisabled: true, layer: state.activeSketch, view: state.view, autoDestroyDisabled: true,
     availableCreateTools: SKETCH_TOOLS, showCreateToolsText: true, showCreateToolsFreehandPolyline: true, showCreateToolsFreehandPolygon: true, hideCreateToolsMultipoint: true,
     layout: window.matchMedia && window.matchMedia("(max-width: 760px)").matches ? "horizontal" : "vertical",   // down the right of the map, beside the panel, as in Map Viewer (a phone keeps it across the top)
     scale: sketchScale(),                 // smaller buttons on a short screen, so every tool shows without the "more" menu
@@ -873,7 +867,7 @@ function syncSketchLayerPicker() {
   sel.innerHTML = "";
   for (const l of sketchLayers) { const o = document.createElement("option"); o.value = l.id; o.textContent = l.title || l.id; sel.appendChild(o); }
   if (SKETCH_LAYERS_ON) { const o = document.createElement("option"); o.value = NEW_SKETCH_LAYER; o.textContent = S.newSketchLayerMore; sel.appendChild(o); }
-  sel.value = activeSketch.id;
+  sel.value = state.activeSketch.id;
 }
 function createSketchLayer(name) {
   const l = newSketchLayer(name);
@@ -927,12 +921,12 @@ function nextSketchLayerName() {
 /** The layer the Sketch tools draw on, and whose sketches a click selects. */
 function setActiveSketch(l) {
   if (!isSketch(l)) l = graphicsLayer;
-  if (l !== activeSketch) { endSketchOps(); setSelection([]); activeSketch = l; sketchReady.then(() => { sketch.layer = activeSketch; }); }
+  if (l !== state.activeSketch) { endSketchOps(); setSelection([]); state.activeSketch = l; sketchReady.then(() => { sketch.layer = state.activeSketch; }); }
   syncSketchLayerPicker();
 }
 function removeSketchLayer(l) {
   if (l === graphicsLayer || !isSketch(l)) return;
-  if (activeSketch === l) setActiveSketch(graphicsLayer);
+  if (state.activeSketch === l) setActiveSketch(graphicsLayer);
   endLayerTools(l);
   sketchLayers.splice(sketchLayers.indexOf(l), 1);
   removeFromMaps(l); updatePinned();
@@ -941,8 +935,8 @@ function removeSketchLayer(l) {
 // The sketch layers at the very top of the map, bottom first. A layer added later goes under them (keepSketchOnTop);
 // a sketch layer that has been moved below another layer is not among them and stays where it was put.
 function updatePinned() {
-  const arr = activeMap().layers.toArray(); pinnedSketch = [];
-  for (let i = arr.length - 1; i >= 0 && (isSketch(arr[i]) || arr[i] === previewLayer); i--) if (isSketch(arr[i])) pinnedSketch.unshift(arr[i]);
+  const arr = activeMap().layers.toArray(); state.pinnedSketch = [];
+  for (let i = arr.length - 1; i >= 0 && (isSketch(arr[i]) || arr[i] === previewLayer); i--) if (isSketch(arr[i])) state.pinnedSketch.unshift(arr[i]);
 }
 
 
@@ -1329,8 +1323,8 @@ document.addEventListener("keydown", (e) => {
 // ============================================================ Legend, basemaps, measure
 let legend = null, legendMaking = null, coordWidget = null;
 async function ensureLegend() {
-  if (!legend) { legendMaking = legendMaking || toolEl("arcgis-legend", $("legendBody"), { view }); try { legend = await legendMaking; } catch (e) { legendMaking = null; throw e; } }
-  legend.view = view;
+  if (!legend) { legendMaking = legendMaking || toolEl("arcgis-legend", $("legendBody"), { view: state.view }); try { legend = await legendMaking; } catch (e) { legendMaking = null; throw e; } }
+  legend.view = state.view;
 }
 
 // Basemaps, as MapMaker shows them: the basemap group's web maps (and, in 3D, its web scenes) as a two-column grid of
@@ -1347,7 +1341,7 @@ async function loadGalleryItems() {
   catch (e) { console.error("Basemaps couldn't load", e); return null; }
   finally { gallery.loading = null; }
 }
-const galleryList = () => basemapItems(gallery.items || [], mode);
+const galleryList = () => basemapItems(gallery.items || [], state.mode);
 function currentBasemapInfo() {
   const m = shownMap(), b = m && m.basemap;
   return b ? { itemId: (b.portalItem && b.portalItem.id) || null, title: b.title || "" } : null;
@@ -1430,7 +1424,7 @@ let units = unitsFound.units;
 function portalUnits() {
   const pu = units === "imperial" ? "english" : "metric";
   try { Portal.getDefault().units = pu; } catch (e) { /* no default portal */ }
-  for (const v of [mapView, sceneView]) { try { const it = v && v.map && v.map.portalItem; if (it && it.portal) it.portal.units = pu; } catch (e) { /* no item */ } }
+  for (const v of [mapView, state.sceneView]) { try { const it = v && v.map && v.map.portalItem; if (it && it.portal) it.portal.units = pu; } catch (e) { /* no item */ } }
 }
 function sketchUnits() {
   portalUnits();
@@ -1453,14 +1447,14 @@ syncUnitsSwitches();
 // Measure: one SDK component for each kind of measurement and each kind of view. It is made when a tool is chosen and
 // taken away when measuring stops. Its own units menu is hidden: the km / mi switch above it sets the units.
 const MEASURE_TAGS = { "2d": { distance: "arcgis-distance-measurement-2d", area: "arcgis-area-measurement-2d" }, "3d": { distance: "arcgis-direct-line-measurement-3d", area: "arcgis-area-measurement-3d" } };
-let measureEl = null, measureKind = null, measureSeq = 0;
+let measureEl = null, measureSeq = 0;
 function clearMeasure() {
-  measureSeq++; measureKind = null;
+  measureSeq++;
   if (measureEl) { try { measureEl.clear(); } catch (e) { /* idle */ } dropEl(measureEl); measureEl = null; }
 }
 async function startMeasure(kind) {
-  clearMeasure(); const seq = measureSeq; measureKind = kind;
-  let el; try { el = await toolEl(MEASURE_TAGS[mode][kind], $("measureBody"), { view, unit: units, hideUnitSelect: true }); } catch (e) { if (seq === measureSeq) stopMeasuring(); return; }
+  clearMeasure(); const seq = measureSeq;
+  let el; try { el = await toolEl(MEASURE_TAGS[state.mode][kind], $("measureBody"), { view: state.view, unit: units, hideUnitSelect: true }); } catch (e) { if (seq === measureSeq) stopMeasuring(); return; }
   if (seq !== measureSeq) { dropEl(el); return; }   // another tool was chosen, or measuring stopped, meanwhile
   measureEl = el;
   try { await el.start(); } catch (e) { /* stopped before the first click */ }
@@ -1468,23 +1462,23 @@ async function startMeasure(kind) {
 function measurePressed(id) { ["mDist", "mArea", "mCoord"].forEach((b) => $(b).setAttribute("aria-pressed", String(b === id))); }
 function stopMeasuring() {
   clearMeasure();
-  measurePressed(null); measureActive = false; $("coordWrap").hidden = true;
+  measurePressed(null); state.measureActive = false; $("coordWrap").hidden = true;
   updatePopupEnabled();
 }
-$("mDist").addEventListener("click", () => { $("coordWrap").hidden = true; measurePressed("mDist"); measureActive = true; updatePopupEnabled(); startMeasure("distance"); });
-$("mArea").addEventListener("click", () => { $("coordWrap").hidden = true; measurePressed("mArea"); measureActive = true; updatePopupEnabled(); startMeasure("area"); });
+$("mDist").addEventListener("click", () => { $("coordWrap").hidden = true; measurePressed("mDist"); state.measureActive = true; updatePopupEnabled(); startMeasure("distance"); });
+$("mArea").addEventListener("click", () => { $("coordWrap").hidden = true; measurePressed("mArea"); state.measureActive = true; updatePopupEnabled(); startMeasure("area"); });
 let coordMaking = null;
 $("mCoord").addEventListener("click", async () => {
   clearMeasure();
-  $("coordWrap").hidden = false; measurePressed("mCoord"); measureActive = false; updatePopupEnabled();
+  $("coordWrap").hidden = false; measurePressed("mCoord"); state.measureActive = false; updatePopupEnabled();
   // Capture mode: the coordinates stay where the map was clicked. (In Esri's default live mode they follow the pointer,
   // so moving to the panel to copy them would copy wherever the pointer last crossed the map.)
   if (!coordWidget) {
-    coordMaking = coordMaking || toolEl("arcgis-coordinate-conversion", $("coordBody"), { view, mode: "capture" });
+    coordMaking = coordMaking || toolEl("arcgis-coordinate-conversion", $("coordBody"), { view: state.view, mode: "capture" });
     try { coordWidget = await coordMaking; } catch (e) { coordMaking = null; return; }
     watchCoordCopy();
   }
-  coordWidget.view = view; coordWidget.mode = "capture";
+  coordWidget.view = state.view; coordWidget.mode = "capture";
 });
 // Copy coordinates: the text Esri's own Copy puts on the clipboard (the tool's main row has no Copy button), ready to
 // paste into one spreadsheet cell; Add layer reads that column back (see parseCoordPair in lib/csv.js).
@@ -1529,7 +1523,7 @@ const TOPOBATHY_URL = "https://elevation3d.arcgis.com/arcgis/rest/services/World
 //    depth; where the line goes below sea level the water is shown and a dashed line marks sea level.
 //  - Moving along the chart (pointer, or the arrow keys) shows a dot at that place on the line on the map.
 const PROF_POINTS = 512, PROF_CLIMB_MAX = 50000;   // points along every line; the longest line (m) given total climb and descent
-let topoBathy = null, prof = null, profDraft = null, profHover = null, profBusy = 0, profAt = -1;
+let topoBathy = null, prof = null, profHover = null, profBusy = 0, profAt = -1;
 const profGraphics = { line: null, dot: null, draft: null, draftDots: null };
 const PROF_KEYS = ["line", "dot", "draft", "draftDots"];
 // A finger (or a device with no hovering pointer) gets the touch wording; the last pointer used on the map decides.
@@ -1542,10 +1536,10 @@ const PROF_VERTEX = { type: "simple-marker", style: "circle", color: [255, 127, 
 const PROF_MID = { type: "simple-marker", style: "circle", color: [255, 255, 255, 1], size: 10, outline: { color: [80, 80, 80, 1], width: 1.5 } };
 let profHandles = [], profEdit = null;   // the handles of a drawn line; the point being dragged
 const profActive = () => openPanelName === "profile";
-function setViewCursor(c) { const el = viewEls.get(view); try { if (el) el.style.cursor = c || ""; if (view.container) view.container.style.cursor = c || ""; } catch (e) { /* no container */ } }
+function setViewCursor(c) { const el = viewEls.get(state.view); try { if (el) el.style.cursor = c || ""; if (state.view.container) state.view.container.style.cursor = c || ""; } catch (e) { /* no container */ } }
 function profShow(key, graphic) {
-  for (const v of [mapView, sceneView]) if (v && profGraphics[key] && v.graphics.includes(profGraphics[key])) v.graphics.remove(profGraphics[key]);
-  profGraphics[key] = graphic; if (graphic) view.graphics.add(graphic);
+  for (const v of [mapView, state.sceneView]) if (v && profGraphics[key] && v.graphics.includes(profGraphics[key])) v.graphics.remove(profGraphics[key]);
+  profGraphics[key] = graphic; if (graphic) state.view.graphics.add(graphic);
 }
 function ensureProfile() {
   if (!topoBathy) {
@@ -1560,12 +1554,12 @@ function ensureProfile() {
   setViewCursor("crosshair");
 }
 function stopProfile() {
-  profDraft = null; profHover = null; profBusy++; profEdit = null; syncDraftButtons();
+  state.profDraft = null; profHover = null; profBusy++; profEdit = null; syncDraftButtons();
   for (const k of PROF_KEYS) profShow(k, null);
   showProfHandles(null);
   setViewCursor("");
 }
-function clearProfile() { prof = null; profAt = -1; profDraft = null; profEdit = null; showProfHandles(null); syncDraftButtons(); for (const k of PROF_KEYS) profShow(k, null); $("profLines").value = ""; profMessage(profHint()); $("profStats").replaceChildren(); $("profNew").hidden = true; }
+function clearProfile() { prof = null; profAt = -1; state.profDraft = null; profEdit = null; showProfHandles(null); syncDraftButtons(); for (const k of PROF_KEYS) profShow(k, null); $("profLines").value = ""; profMessage(profHint()); $("profStats").replaceChildren(); $("profNew").hidden = true; }
 function profMessage(text) { $("profChart").replaceChildren(); const p = document.createElement("p"); p.className = "prof-msg"; p.textContent = text; $("profChart").appendChild(p); $("profStatus").textContent = text; }
 // the lines that can be chosen without the pointer: the sketched lines, by name
 function sketchLines() { return sketchLayers.flatMap((l) => l.graphics.filter((g) => g.geometry && g.geometry.type === "polyline").toArray()); }
@@ -1604,13 +1598,13 @@ function geodesicPath(ll, perPart) {
 }
 // --- the handles of a drawn line: its points, and halfway along each part a point to add
 function showProfHandles(via) {
-  for (const v of [mapView, sceneView]) if (v) for (const h of profHandles) if (v.graphics.includes(h)) v.graphics.remove(h);
+  for (const v of [mapView, state.sceneView]) if (v) for (const h of profHandles) if (v.graphics.includes(h)) v.graphics.remove(h);
   profHandles = [];
   if (!via || via.length < 2 || !profActive()) return;
   const pt = (ll) => { const [x, y] = llToXY(ll); return { type: "point", x, y, spatialReference: { wkid: 102100 } }; };
   for (let i = 0; i + 1 < via.length; i++) profHandles.push(new Graphic({ geometry: pt(geoBetween(via[i], via[i + 1], 0.5)), symbol: PROF_MID, attributes: { kind: "mid", i } }));
   via.forEach((ll, i) => profHandles.push(new Graphic({ geometry: pt(ll), symbol: PROF_VERTEX, attributes: { kind: "vertex", i } })));
-  view.graphics.addMany(profHandles);
+  state.view.graphics.addMany(profHandles);
 }
 // The handle at a place on the screen (a point first, then a halfway point), or null.
 function profHandleAt(sx, sy, touch) {
@@ -1619,7 +1613,7 @@ function profHandleAt(sx, sy, touch) {
   for (const kind of ["vertex", "mid"]) {
     for (const h of profHandles) {
       if (h.attributes.kind !== kind) continue;
-      const q = view.toScreen(h.geometry); if (!q) continue;
+      const q = state.view.toScreen(h.geometry); if (!q) continue;
       const d = Math.hypot(q.x - sx, q.y - sy); if (d < bd) { bd = d; best = h; }
     }
     if (best && bd <= (kind === "vertex" ? 12 : 10) * (touch ? 2 : 1)) return best;   // a fingertip is wider than a pointer
@@ -1769,7 +1763,7 @@ function profMark(i, announce) {
   host.setAttribute("aria-valuenow", String(i)); host.setAttribute("aria-valuetext", text);
   // the same place on the line on the map
   const geom = { type: "point", x: p.x, y: p.y, spatialReference: { wkid: 102100 } };
-  if (profGraphics.dot && view.graphics.includes(profGraphics.dot)) profGraphics.dot.geometry = geom; else profShow("dot", new Graphic({ geometry: geom, symbol: PROF_DOT }));
+  if (profGraphics.dot && state.view.graphics.includes(profGraphics.dot)) profGraphics.dot.geometry = geom; else profShow("dot", new Graphic({ geometry: geom, symbol: PROF_DOT }));
 }
 {
   const host = $("profChart");
@@ -1789,21 +1783,21 @@ function profMark(i, announce) {
 }
 // --- on the map: choose a line, or draw one
 const lineUnder = async (e) => {
-  try { const hit = await view.hitTest(e); const r = (hit.results || []).find((x) => x.type === "graphic" && x.graphic && x.graphic.geometry && x.graphic.geometry.type === "polyline" && x.graphic !== profGraphics.line && x.graphic !== profGraphics.draft); return r ? r.graphic : null; } catch (err) { return null; }
+  try { const hit = await state.view.hitTest(e); const r = (hit.results || []).find((x) => x.type === "graphic" && x.graphic && x.graphic.geometry && x.graphic.geometry.type === "polyline" && x.graphic !== profGraphics.line && x.graphic !== profGraphics.draft); return r ? r.graphic : null; } catch (err) { return null; }
 };
 let hoverTimer = 0, hoverSeq = 0;
 onViews("pointer-move", (e) => {
   if (!profActive()) return;
   if (isTouch(e)) return;   // a finger moving is panning the map: no line to the finger, and no asking what is under it
-  if (profDraft) {   // the line so far, and on to the pointer
-    const p = view.toMap({ x: e.x, y: e.y }); if (!p) return;
+  if (state.profDraft) {   // the line so far, and on to the pointer
+    const p = state.view.toMap({ x: e.x, y: e.y }); if (!p) return;
     drawDraft(p);
     return;
   }
   if (profEdit) return;
   if (profHandleAt(e.x, e.y)) { clearTimeout(hoverTimer); ++hoverSeq; profHover = null; setViewCursor("grab"); return; }   // a handle of the line: it can be dragged
   clearTimeout(hoverTimer); const seq = ++hoverSeq;
-  hoverTimer = setTimeout(async () => { const g = await lineUnder(e); if (seq !== hoverSeq || !profActive() || profDraft) return; profHover = g; setViewCursor(g ? "pointer" : "crosshair"); }, 40);   // a hand over a line that can be chosen
+  hoverTimer = setTimeout(async () => { const g = await lineUnder(e); if (seq !== hoverSeq || !profActive() || state.profDraft) return; profHover = g; setViewCursor(g ? "pointer" : "crosshair"); }, 40);   // a hand over a line that can be chosen
 });
 // Points are taken on "immediate-click": the view's "click" waits to see whether a double-click follows, and is not
 // sent at all when one does, so the place double-clicked would never be added to the line.
@@ -1811,47 +1805,47 @@ onViews("click", (e) => { if (profActive()) e.stopPropagation(); });   // no pop
 onViews("immediate-click", async (e) => {
   if (!profActive() || e.button === 2) return;
   profTouch = isTouch(e);
-  if (!profDraft && (profEdit || profHandleAt(e.x, e.y, profTouch))) return;   // a handle pressed and let go without moving: nothing changes
-  if (!profDraft) {
+  if (!state.profDraft && (profEdit || profHandleAt(e.x, e.y, profTouch))) return;   // a handle pressed and let go without moving: nothing changes
+  if (!state.profDraft) {
     const g = profHover || await lineUnder(e);
     if (g) { profHover = null; setViewCursor("crosshair"); $("profLines").value = ""; profileOf(g.geometry.clone()); return; }   // a line on the map was chosen
     if (prof) clearProfile();
-    profDraft = [];
+    state.profDraft = [];
   }
   if (!e.mapPoint) return;
-  const last = profDraft[profDraft.length - 1];   // the second click of a double-click is the same place: once only
-  if (!last || Math.hypot(last.sx - e.x, last.sy - e.y) > 4) { const q = e.mapPoint; profDraft.push({ x: q.x, y: q.y, spatialReference: q.spatialReference, sx: e.x, sy: e.y }); }
-  if (profDraft.length === 1) profMessage(profTouch ? S.profileDrawingTouch : S.profileDrawing);
+  const last = state.profDraft[state.profDraft.length - 1];   // the second click of a double-click is the same place: once only
+  if (!last || Math.hypot(last.sx - e.x, last.sy - e.y) > 4) { const q = e.mapPoint; state.profDraft.push({ x: q.x, y: q.y, spatialReference: q.spatialReference, sx: e.x, sy: e.y }); }
+  if (state.profDraft.length === 1) profMessage(profTouch ? S.profileDrawingTouch : S.profileDrawing);
   drawDraft();
 });
 // The line being drawn: through the places clicked or tapped, and on to the pointer when there is one (`to`).
 function drawDraft(to) {
-  if (!profDraft || !profDraft.length) { profShow("draft", null); profShow("draftDots", null); syncDraftButtons(); return; }
-  const pts = to ? [...profDraft, to] : profDraft;
+  if (!state.profDraft || !state.profDraft.length) { profShow("draft", null); profShow("draftDots", null); syncDraftButtons(); return; }
+  const pts = to ? [...state.profDraft, to] : state.profDraft;
   if (pts.length >= 2) {
     const g = isMerc(pts[0].spatialReference) ? geodesicLine(pts, 48).geometry   // as it will be: the shortest way round
       : { type: "polyline", paths: [pts.map((c) => [c.x, c.y])], spatialReference: pts[0].spatialReference };
-    if (profGraphics.draft && view.graphics.includes(profGraphics.draft)) profGraphics.draft.geometry = g; else profShow("draft", new Graphic({ geometry: g, symbol: { ...PROF_LINE, style: "short-dash" } }));
+    if (profGraphics.draft && state.view.graphics.includes(profGraphics.draft)) profGraphics.draft.geometry = g; else profShow("draft", new Graphic({ geometry: g, symbol: { ...PROF_LINE, style: "short-dash" } }));
   } else profShow("draft", null);
-  const dots = { type: "multipoint", points: profDraft.map((c) => [c.x, c.y]), spatialReference: profDraft[0].spatialReference };
-  if (profGraphics.draftDots && view.graphics.includes(profGraphics.draftDots)) profGraphics.draftDots.geometry = dots; else profShow("draftDots", new Graphic({ geometry: dots, symbol: { ...PROF_VERTEX, size: 11 } }));
+  const dots = { type: "multipoint", points: state.profDraft.map((c) => [c.x, c.y]), spatialReference: state.profDraft[0].spatialReference };
+  if (profGraphics.draftDots && state.view.graphics.includes(profGraphics.draftDots)) profGraphics.draftDots.geometry = dots; else profShow("draftDots", new Graphic({ geometry: dots, symbol: { ...PROF_VERTEX, size: 11 } }));
   syncDraftButtons();
 }
 function syncDraftButtons() {
-  const n = profDraft ? profDraft.length : 0;
+  const n = state.profDraft ? state.profDraft.length : 0;
   $("profFinish").hidden = n < 2; $("profUndo").hidden = n < 1;
 }
-function cancelDraft() { profDraft = null; drawDraft(); profMessage(profHint()); }
+function cancelDraft() { state.profDraft = null; drawDraft(); profMessage(profHint()); }
 function finishProfileDraft() {
-  if (!profDraft) return;
-  const pts = profDraft; profDraft = null; drawDraft();
+  if (!state.profDraft) return;
+  const pts = state.profDraft; state.profDraft = null; drawDraft();
   if (pts.length < 2) { profMessage(profHint()); return; }
   if (!isMerc(pts[0].spatialReference)) { profileOf({ type: "polyline", paths: [pts.map((c) => [c.x, c.y])], spatialReference: pts[0].spatialReference }); return; }   // a map in another coordinate system: as drawn
   const g = geodesicLine(pts, 96); profileOf(g.geometry, g.ll);
 }
 onViews("double-click", (e) => {
   if (!profActive()) return; e.stopPropagation();
-  if (profDraft) { finishProfileDraft(); return; }
+  if (state.profDraft) { finishProfileDraft(); return; }
   const h = profHandleAt(e.x, e.y, isTouch(e));   // a point of the line double-clicked: taken out, while the line keeps two
   if (h && h.attributes.kind === "vertex" && prof.via.length > 2) { const via = prof.via.filter((c, i) => i !== h.attributes.i); profileOf(geodesicPath(via, 96), via); }
 });
@@ -1861,7 +1855,7 @@ onViews("double-click", (e) => {
 let profDown = null;
 onViews("pointer-down", (e) => { if (profActive()) profDown = { x: e.x, y: e.y }; });
 onViews("drag", (e) => {
-  if (!profActive() || profDraft || !prof || !prof.via) return;
+  if (!profActive() || state.profDraft || !prof || !prof.via) return;
   if (e.action === "start") {
     const o = profDown || e.origin || e, h = profHandleAt(o.x, o.y, isTouch(e)); if (!h) return;
     e.stopPropagation();
@@ -1871,7 +1865,7 @@ onViews("drag", (e) => {
   }
   if (!profEdit) return;
   e.stopPropagation();
-  const p = view.toMap({ x: e.x, y: e.y });
+  const p = state.view.toMap({ x: e.x, y: e.y });
   if (p && isMerc(p.spatialReference)) {
     const ll = xyToLonLat(p.x, p.y), nb = prof.via[profEdit.i - 1] || prof.via[profEdit.i + 1];
     if (nb) ll[0] += Math.round((nb[0] - ll[0]) / 360) * 360;   // the short way from its neighbour
@@ -1881,9 +1875,9 @@ onViews("drag", (e) => {
   }
   if (e.action === "end") { const via = prof.via.map((c) => [c[0], c[1]]); profEdit = null; setViewCursor("grab"); profileOf(geodesicPath(via, 96), via); }
 });
-onViews("key-down", (e) => { if (!profActive() || !profDraft) return; if (e.key === "Enter") { e.stopPropagation(); finishProfileDraft(); } else if (e.key === "Escape") { e.stopPropagation(); cancelDraft(); } });
+onViews("key-down", (e) => { if (!profActive() || !state.profDraft) return; if (e.key === "Enter") { e.stopPropagation(); finishProfileDraft(); } else if (e.key === "Escape") { e.stopPropagation(); cancelDraft(); } });
 $("profFinish").addEventListener("click", () => finishProfileDraft());
-$("profUndo").addEventListener("click", () => { if (!profDraft) return; profDraft.pop(); if (!profDraft.length) cancelDraft(); else drawDraft(); });
+$("profUndo").addEventListener("click", () => { if (!state.profDraft) return; state.profDraft.pop(); if (!state.profDraft.length) cancelDraft(); else drawDraft(); });
 
 // The Measure tool opens a small menu above it: Measure, Elevation profile (as in MapMaker).
 const menuItems = () => [...$("measureMenu").querySelectorAll('[role="menuitem"]')].filter((b) => !b.hidden);
@@ -1954,7 +1948,6 @@ const TILT_3D = Math.max(0, Math.min(80, Number(cfg.threeDTilt) || 0));
 //  - a web scene is 3D only (sceneOnly): it can hold layers and a camera that have no 2D form
 //  - a web map tagged "atlas-2d-only" on its ArcGIS Online item is 2D only (twoDOnly): its author switched 3D off
 const TAG_2D_ONLY = "atlas-2d-only";
-let sceneOnly = false, twoDOnly = false;
 // Paired 2D and 3D maps (lab, features.pairs; lib/pairs.js): a web map and a web scene their author tagged as the 2D and
 // 3D versions of one map. The 3D button on the web map opens the scene, and the 2D button on the scene opens the web
 // map, in place of drawing the same map in the other view. Sketches, spreadsheet layers and added layers go across,
@@ -1966,23 +1959,23 @@ const idleMap = new EsriMap({});   // what the 3D view holds while the 2D versio
 const pairSides = {};         // "2d" / "3d": { map, source, agol, bookmarks } of the version not on screen
 const sourceBms = new WeakSet();   // bookmarks that came with a version (its author's), as opposed to ones made here
 let pairBusy = false, pairNoteShown = false;
-const partnerFor = (m) => (pairOn && mapPair && !twoDOnly && (m === "3d" ? !sceneOnly : sceneOnly) ? (m === "3d" ? mapPair.scene : mapPair.webmap) : null);
+const partnerFor = (m) => (pairOn && mapPair && !state.twoDOnly && (m === "3d" ? !state.sceneOnly : state.sceneOnly) ? (m === "3d" ? mapPair.scene : mapPair.webmap) : null);
 function usePair(p) { mapPair = pairOn && p ? p : null; for (const k of Object.keys(pairSides)) delete pairSides[k]; syncViewLocks(); }
 const isScene = (m) => !!m && m.declaredClass === "esri.WebScene";
 const has2dOnlyTag = (item) => !!item && Array.isArray(item.tags) && item.tags.some((tg) => String(tg).trim().toLowerCase() === TAG_2D_ONLY);
 function syncViewLocks() {
   const lock = (id, on, why) => { const b = $(id); if (on) { b.setAttribute("aria-disabled", "true"); b.title = why; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); } };
-  lock("tg2d", sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", twoDOnly, S.only2d);
+  lock("tg2d", state.sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", state.twoDOnly, S.only2d);
 }
 async function setMode(m, opts) {
   opts = opts || {};
-  if ((m === mode && !opts.force) || switching) return;
+  if ((m === state.mode && !opts.force) || switching) return;
   if (m === "3d" && F.threeD === false) return;
-  if (m === "2d" && sceneOnly && !opts.map) { toast(S.only3d, 5000); return; }
-  if (m === "3d" && twoDOnly) { toast(S.only2d, 5000); return; }
+  if (m === "2d" && state.sceneOnly && !opts.map) { toast(S.only3d, 5000); return; }
+  if (m === "3d" && state.twoDOnly) { toast(S.only2d, 5000); return; }
   if (openPanelName === "filter") closePanels(false);   // the filter preview belongs to this view's copy of the layer
   switching = true;
-  const from = view, vp = !opts.map && from.viewpoint ? from.viewpoint.clone() : null, curMap = opts.map || from.map;
+  const from = state.view, vp = !opts.map && from.viewpoint ? from.viewpoint.clone() : null, curMap = opts.map || from.map;
   stopMeasuring();
   endSketchOps();
   try {
@@ -1991,56 +1984,56 @@ async function setMode(m, opts) {
       $("sceneDiv").hidden = false;
       // A scene is either a globe or a flat "local" scene, fixed when its view is made: a scene of the other kind gets a new view.
       const wantMode = isScene(curMap) && curMap.initialViewProperties && curMap.initialViewProperties.viewingMode;
-      if (sceneView && wantMode && sceneView.viewingMode !== wantMode) { const oldEl = viewEls.get(sceneView); viewEls.delete(sceneView); try { oldEl.destroy(); } catch (e) { /* gone */ } oldEl.remove(); sceneView = null; }
+      if (state.sceneView && wantMode && state.sceneView.viewingMode !== wantMode) { const oldEl = viewEls.get(state.sceneView); viewEls.delete(state.sceneView); try { oldEl.destroy(); } catch (e) { /* gone */ } oldEl.remove(); state.sceneView = null; }
       if (!quality3d) { quality3d = pick3dQuality(); console.info("3D quality", quality3d.quality, "(" + quality3d.why + ")"); document.documentElement.dataset.quality3d = quality3d.quality; }
-      if (!sceneView) { sceneView = await componentView("arcgis-scene", "sceneDiv", { map: curMap, qualityProfile: quality3d.quality }); tune3d(sceneView); addViewUI(sceneView, true);
+      if (!state.sceneView) { state.sceneView = await componentView("arcgis-scene", "sceneDiv", { map: curMap, qualityProfile: quality3d.quality }); tune3d(state.sceneView); addViewUI(state.sceneView, true);
         // the layer count and the basemap gallery now follow the 3D view's map too (see shownMap)
         reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
-        reactiveUtils.watch(() => { const m = shownMap(), b = m && m.basemap; return b ? ((b.portalItem && b.portalItem.id) || "") + "|" + (b.title || "") : ""; }, syncGallerySelection); viewHandlers.forEach((h) => sceneView.on(h[0], h[1])); }
-      else if (sceneView.map !== curMap) setViewMap(sceneView, curMap);
-      await sceneView.when();
-      if (vp) sceneView.viewpoint = vp;
-      $("viewDiv").hidden = true; view = sceneView;
+        reactiveUtils.watch(() => { const m = shownMap(), b = m && m.basemap; return b ? ((b.portalItem && b.portalItem.id) || "") + "|" + (b.title || "") : ""; }, syncGallerySelection); viewHandlers.forEach((h) => state.sceneView.on(h[0], h[1])); }
+      else if (state.sceneView.map !== curMap) setViewMap(state.sceneView, curMap);
+      await state.sceneView.when();
+      if (vp) state.sceneView.viewpoint = vp;
+      $("viewDiv").hidden = true; state.view = state.sceneView;
       // Same place, then tilt the camera towards the horizon so it's obvious the view is now 3D.
       // (At a whole-world scale the SDK allows little tilt, but the globe itself shows the change.)
       // The place is named in the move: asked for a tilt alone, the SDK tilts about somewhere else and the view ends up
       // off to one side (at street scale, a few kilometres from where the 2D map was looking).
       if (TILT_3D && !opts.keepCamera) {
-        const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : sceneView.center;
-        const to = c ? { target: c, scale: (vp && vp.scale) || sceneView.scale, tilt: TILT_3D } : { tilt: TILT_3D };
-        viewSettled = sceneView.goTo(to, { animate: !reduceMotion, duration: 1400 }).catch(() => {});
+        const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : state.sceneView.center;
+        const to = c ? { target: c, scale: (vp && vp.scale) || state.sceneView.scale, tilt: TILT_3D } : { tilt: TILT_3D };
+        state.viewSettled = state.sceneView.goTo(to, { animate: !reduceMotion, duration: 1400 }).catch(() => {});
       }
     } else {
       $("viewDiv").hidden = false;
       if (mapView.map !== curMap) setViewMap(mapView, curMap);
       await mapView.when();
       if (vp) mapView.viewpoint = vp;
-      $("sceneDiv").hidden = true; view = mapView;
+      $("sceneDiv").hidden = true; state.view = mapView;
     }
   } catch (e) {
     console.error("Couldn't switch view", e);
-    $("viewDiv").hidden = false; $("sceneDiv").hidden = true; view = mapView; m = "2d";
+    $("viewDiv").hidden = false; $("sceneDiv").hidden = true; state.view = mapView; m = "2d";
     toast(S.no3d);
   }
-  mode = m; switching = false;
+  state.mode = m; switching = false;
   $("tg2d").setAttribute("aria-pressed", String(m === "2d")); $("tg3d").setAttribute("aria-pressed", String(m === "3d"));
-  sketchReady.then(() => { sketch.view = view; });
-  if (timeBar) { const te = timeBar.timeExtent; timeBar.view = view; if (te) view.timeExtent = te; }   // the time control follows into 2D / 3D
+  sketchReady.then(() => { sketch.view = state.view; });
+  if (timeBar) { const te = timeBar.timeExtent; timeBar.view = state.view; if (te) state.view.timeExtent = te; }   // the time control follows into 2D / 3D
   if (gallery.items) renderGallery();   // 3D lists the group's 3D basemaps too
-  if (profActive()) { for (const k of PROF_KEYS) profShow(k, null); profDraft = null; syncDraftButtons(); ensureProfile(); }   // the profile's line follows to the other view
-  if (coordWidget) coordWidget.view = view;
-  if (legend) legend.view = view;
+  if (profActive()) { for (const k of PROF_KEYS) profShow(k, null); state.profDraft = null; syncDraftButtons(); ensureProfile(); }   // the profile's line follows to the other view
+  if (coordWidget) coordWidget.view = state.view;
+  if (legend) legend.view = state.view;
   if (m === "3d") endSwipe();   // Swipe is for 2D maps
-  if (table && table.widget) { if (table.kind === "chart") { try { const src = view.selectionManager && view.selectionManager.sources; if (src && !src.includes(table.layer)) src.add(table.layer); } catch (e) { /* no selection on this view */ } } table.widget.view = view; }
+  if (table && table.widget) { if (table.kind === "chart") { try { const src = state.view.selectionManager && state.view.selectionManager.sources; if (src && !src.includes(table.layer)) src.add(table.layer); } catch (e) { /* no selection on this view */ } } table.widget.view = state.view; }
   if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
   updatePopupEnabled();
   watchBottom(0);
   if (m === "3d" && dataLayers.some((l) => l.renderer && l.renderer.type === "pie-chart")) toast(S.pieIn3d);
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
-  if (addState && !$("dataPanel").hidden) { renderStyleList(); renderFieldRows(); }   // what the styles offer depends on the view
+  if (state.addState && !$("dataPanel").hidden) { renderStyleList(); renderFieldRows(); }   // what the styles offer depends on the view
 }
 // The 2D and 3D buttons. A map with a partner goes to its partner; any other map is drawn in the other view.
-function requestMode(m) { return m !== mode && partnerFor(m) ? switchToPartner(m) : setMode(m); }
+function requestMode(m) { return m !== state.mode && partnerFor(m) ? switchToPartner(m) : setMode(m); }
 async function switchToPartner(m) {
   if (pairBusy || switching) return;
   pairBusy = true;
@@ -2057,8 +2050,8 @@ async function switchToPartner(m) {
       if (m === "3d") bms = slidesToBookmarks(map);
       else { const parsed = readWebMap(data, { trusted: true }); if (!parsed.ok) throw new Error("Not a web map"); bms = parsed.bookmarks; srcData = parsed.webmap; }
       bms.forEach((b) => sourceBms.add(b));
-      side = { map, bookmarks: bms, agol: portalUser && item.owner === portalUser.username ? { id, owner: item.owner, title: item.title } : null,
-        source: { itemId: id, title: item.title, item, data: srcData, ...(m === "3d" ? { scene: true } : {}), restricted: !!portalUser && !!item.access && item.access !== "public" } };
+      side = { map, bookmarks: bms, agol: state.portalUser && item.owner === state.portalUser.username ? { id, owner: item.owner, title: item.title } : null,
+        source: { itemId: id, title: item.title, item, data: srcData, ...(m === "3d" ? { scene: true } : {}), restricted: !!state.portalUser && !!item.access && item.access !== "public" } };
     }
   } catch (e) {
     console.warn("The map's " + m.toUpperCase() + " version couldn't be opened", e);
@@ -2068,18 +2061,18 @@ async function switchToPartner(m) {
   }
   if (openPanelName === "filter") closePanels(false);
   endLayerTools(null);
-  const prev = activeMap(), vp = view.viewpoint ? view.viewpoint.clone() : null;
-  const mine = bookmarks.filter((b) => !sourceBms.has(b));
+  const prev = activeMap(), vp = state.view.viewpoint ? state.view.viewpoint.clone() : null;
+  const mine = state.bookmarks.filter((b) => !sourceBms.has(b));
   const carried = [...dataLayers, ...portalLayers.values()].concat(previewLayer ? [previewLayer] : []);
-  const leaving = { map: prev, bookmarks: bookmarks.filter((b) => sourceBms.has(b)), source: currentSource, agol: currentAgolItem };
+  const leaving = { map: prev, bookmarks: state.bookmarks.filter((b) => sourceBms.has(b)), source: state.currentSource, agol: state.currentAgolItem };
   // the person's own layers (sketch layers, spreadsheets, added layers), in the drawing order they have been given
   const ownSet = new Set([...sketchLayers, ...carried]), own = prev.layers.toArray().filter((l) => ownSet.has(l));
   for (const l of own) { try { prev.remove(l); } catch (e) { /* not there */ } }
-  const keepPair = mapPair, wasScene = sceneOnly;
+  const keepPair = mapPair, wasScene = state.sceneOnly;
   await setMode(m, { map: side.map, force: true, keepCamera: true });
-  if (mode !== m) {   // the other view couldn't start: everything goes back where it was
+  if (state.mode !== m) {   // the other view couldn't start: everything goes back where it was
     for (const l of own) prev.add(l);
-    sceneOnly = wasScene; setActiveMap(prev); mapPair = keepPair; syncViewLocks(); updatePinned();
+    state.sceneOnly = wasScene; setActiveMap(prev); mapPair = keepPair; syncViewLocks(); updatePinned();
     btn.removeAttribute("aria-busy"); pairBusy = false;
     return;
   }
@@ -2087,21 +2080,21 @@ async function switchToPartner(m) {
   for (const l of own) { if (side.map.layers.includes(l)) side.map.remove(l); side.map.add(l); }   // above the version's own layers, in the same order
   updatePinned();
   pairSides[here] = leaving; delete pairSides[m];
-  currentSource = side.source; currentAgolItem = side.agol;
+  state.currentSource = side.source; state.currentAgolItem = side.agol;
   const names = new Set(mine.map((b) => b.title));
-  bookmarks = side.bookmarks.filter((b) => !names.has(b.title)).concat(mine); updateToolBadges();
+  state.bookmarks = side.bookmarks.filter((b) => !names.has(b.title)).concat(mine); updateToolBadges();
   syncViewLocks();
   // The same place: what the other version was looking at, at the same scale (tilted, in 3D, as any map is).
   const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : null;
   if (c && vp.scale) {
-    if (m === "3d") viewSettled = sceneView.goTo({ target: c, scale: vp.scale, ...(TILT_3D ? { tilt: TILT_3D } : {}) }, { animate: false }).catch(() => {});
+    if (m === "3d") state.viewSettled = state.sceneView.goTo({ target: c, scale: vp.scale, ...(TILT_3D ? { tilt: TILT_3D } : {}) }, { animate: false }).catch(() => {});
     else goToSafe({ target: c, scale: vp.scale }, { animate: false });
   }
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
   if (!$("bookmarksPanel").hidden) showBmList();
   if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
   if (catalogLoaded) refreshCatalogButtons();
-  if (legend) legend.view = view;
+  if (legend) legend.view = state.view;
   btn.removeAttribute("aria-busy"); pairBusy = false;
   toast(pairNoteShown ? (m === "3d" ? S.pairNow3d : S.pairNow2d) : (m === "3d" ? S.pairFirst3d : S.pairFirst2d), pairNoteShown ? 3000 : 9000);
   pairNoteShown = true;
@@ -2111,21 +2104,21 @@ $("tg3d").addEventListener("click", () => requestMode("3d"));
 
 // ============================================================ Maps and layers
 function setActiveMap(m, opts) {
-  const old = view.map;
+  const old = state.view.map;
   endLayerTools(null);
   // the sketch layers go with the person from map to map, on top, in the order they were in
   const inOld = old && old !== m ? old.layers.toArray().filter(isSketch) : [];
   const carry = inOld.concat(sketchLayers.filter((l) => !inOld.includes(l)));
   if (old && old !== m) carry.forEach((l) => { try { old.remove(l); } catch (e) { /* not there */ } });
   carry.forEach((l) => { if (!m.layers.includes(l)) m.add(l); });
-  pinnedSketch = m.layers.toArray().filter(isSketch);
+  state.pinnedSketch = m.layers.toArray().filter(isSketch);
   // a web scene is shown by the 3D view only; the 2D view goes back to the plain starting map meanwhile
-  sceneOnly = isScene(m); twoDOnly = false;
+  state.sceneOnly = isScene(m); state.twoDOnly = false;
   // One of a pair (see switchToPartner): the 2D view keeps the web map while its scene is on screen, and the 3D view is
   // given nothing to prepare while the web map is. Handing the same basemap from one view to the other and back made
   // the SDK's drawing worker answer a layer view that had gone (an error in the console).
-  setViewMap(mapView, sceneOnly ? (opts && opts.keep2d ? mapView.map : localMap) : m);
-  if (sceneView) setViewMap(sceneView, opts && opts.not3d ? idleMap : m);
+  setViewMap(mapView, state.sceneOnly ? (opts && opts.keep2d ? mapView.map : localMap) : m);
+  if (state.sceneView) setViewMap(state.sceneView, opts && opts.not3d ? idleMap : m);
   syncViewLocks();
   updateToolBadges();
   syncTimeBar();
@@ -2138,9 +2131,9 @@ let timeBar = null;
 const timeSettings = (m) => (m && m.widgets && m.widgets.timeSlider) || null;
 function syncTimeBar() {
   const host = $("timeHost"); if (!host) return;
-  const on = F.time !== false && !!timeSettings(view && view.map);
+  const on = F.time !== false && !!timeSettings(state.view && state.view.map);
   if (timeBar) { try { timeBar.stop(); } catch (e) { /* not playing */ } timeBar.remove(); timeBar = null; }
-  for (const v of [mapView, sceneView]) { if (v && !on) v.timeExtent = null; }   // the last map's time filter doesn't carry over
+  for (const v of [mapView, state.sceneView]) { if (v && !on) v.timeExtent = null; }   // the last map's time filter doesn't carry over
   host.hidden = !on; $("app").classList.toggle("has-time", on);
   if (!on) return;
   timeBar = document.createElement("arcgis-time-bar");
@@ -2151,15 +2144,15 @@ function syncTimeBar() {
   for (const a of ["show-ticks", "show-min", "show-max"]) slider.setAttribute(a, "");
   timeBar.appendChild(slider);
   host.appendChild(timeBar);
-  timeBar.view = view;
+  timeBar.view = state.view;
 }
 // The time settings to save: the map's own, with where the slider is now.
 function timeWidgetsJson() {
-  const ts = timeSettings(view && view.map);
+  const ts = timeSettings(state.view && state.view.map);
   if (!ts) return null;
   let props = {};
   try { props = { ...((typeof ts.toJSON === "function" ? ts.toJSON() : ts).properties || {}) }; } catch (e) { props = {}; }
-  if (currentSource && currentSource.data && currentSource.data.widgets) props = { ...currentSource.data.widgets.timeSlider.properties, ...props };
+  if (state.currentSource && state.currentSource.data && state.currentSource.data.widgets) props = { ...state.currentSource.data.widgets.timeSlider.properties, ...props };
   const te = timeBar && timeBar.timeExtent;
   if (te && (te.start || te.end)) props.currentTimeExtent = [te.start ? te.start.getTime() : null, te.end ? te.end.getTime() : null];
   return { timeSlider: { properties: props } };
@@ -2170,7 +2163,7 @@ function timeWidgetsJson() {
 // The map on show, read from the views themselves so that watchers follow it: the 3D view's when it holds a web scene
 // (which the 2D view never shows), otherwise the 2D view's. (Before beta.3 the layer count and the basemap gallery
 // looked at the 2D view only, so in a scene the count stayed at 0.)
-function shownMap() { return sceneView && isScene(sceneView.map) ? sceneView.map : mapView && mapView.map; }
+function shownMap() { return state.sceneView && isScene(state.sceneView.map) ? state.sceneView.map : mapView && mapView.map; }
 function listedLayerCount() {
   const m = shownMap();
   let n = 0;
@@ -2181,11 +2174,11 @@ function updateToolBadges() {
   const n = listedLayerCount(), b = $("layersBadge");
   b.textContent = n > 99 ? "99+" : String(n); b.hidden = !n;
   $("layersBadgeSr").textContent = n ? ", " + (n === 1 ? S.layersCountOne : t("layersCount", { n })) : "";
-  const k = bookmarks.length;
+  const k = state.bookmarks.length;
   $("bookmarksDot").hidden = !k;
   $("bookmarksDotSr").textContent = k ? ", " + (k === 1 ? S.bookmarksCountOne : t("bookmarksCount", { n: k })) : "";
 }
-function keepSketchOnTop() { const m = activeMap(); for (const l of pinnedSketch) { if (m.layers.includes(l)) { try { m.reorder(l, m.layers.length - 1); } catch (e) { /* ok */ } } } }
+function keepSketchOnTop() { const m = activeMap(); for (const l of state.pinnedSketch) { if (m.layers.includes(l)) { try { m.reorder(l, m.layers.length - 1); } catch (e) { /* ok */ } } } }
 // Put the map's layers in a saved order (ids, bottom first). Layers the order doesn't name keep their places above.
 function applyLayerOrder(ids) {
   if (!Array.isArray(ids) || !ids.length) return;
@@ -2193,19 +2186,19 @@ function applyLayerOrder(ids) {
   [...new Set(named)].forEach((l, i) => { try { m.reorder(l, i); } catch (e) { /* ok */ } });
   updatePinned();
 }
-function removeFromMaps(l) { for (const m of new Set([localMap, mapView.map, sceneView && sceneView.map])) { if (m) { try { m.remove(l); } catch (e) { /* not there */ } } } }
+function removeFromMaps(l) { for (const m of new Set([localMap, mapView.map, state.sceneView && state.sceneView.map])) { if (m) { try { m.remove(l); } catch (e) { /* not there */ } } } }
 function resetWorkspace() {
   if (openPanelName === "filter") closePanels(false);
-  addState = null; removePreview(false);
+  state.addState = null; removePreview(false);
   endLayerTools(null);
   dataLayers.splice(0).forEach(removeFromMaps);
   [...portalLayers.values()].forEach(removeFromMaps); portalLayers.clear();
   endSketchOps(); setSelection([]);
   sketchLayers.slice(1).forEach(removeSketchLayer);   // back to the one sketch layer, empty
   graphicsLayer.removeAll(); graphicsLayer.visible = true; graphicsLayer.opacity = 1; graphicsLayer.title = S.sketchLayer;
-  setActiveSketch(graphicsLayer); pinnedSketch = [graphicsLayer]; keepSketchOnTop();
-  bookmarks = []; updateToolBadges();
-  currentSource = null; currentAgolItem = null; usePair(null);
+  setActiveSketch(graphicsLayer); state.pinnedSketch = [graphicsLayer]; keepSketchOnTop();
+  state.bookmarks = []; updateToolBadges();
+  state.currentSource = null; state.currentAgolItem = null; usePair(null);
   if (!$("bookmarksPanel").hidden) showBmList();
   if (!$("layersPanel").hidden) renderLayers();
   if (catalogLoaded) refreshCatalogButtons();
@@ -2223,7 +2216,7 @@ function applyParsedWebMap(parsed) {
   restoreSketchLayers(parsed.sketchLayers, parsed.sketchVisible, parsed.sketchOpacity);
   for (const gj of parsed.graphics) addSketchGraphic(gj);
   for (const def of parsed.layers) { try { addDataLayer(def, { silent: true }); } catch (e) { console.warn("Skipped a data layer", e); } }
-  const ops = (currentSource && currentSource.data && currentSource.data.operationalLayers) || [];
+  const ops = (state.currentSource && state.currentSource.data && state.currentSource.data.operationalLayers) || [];
   activeMap().layers.forEach((l) => {
     if (typeof l.id !== "string" || !l.id.startsWith(ITEM_LAYER_PREFIX)) return;
     const itemId = l.id.slice(ITEM_LAYER_PREFIX.length);
@@ -2232,8 +2225,8 @@ function applyParsedWebMap(parsed) {
     l.__opJson = ops.find((o) => o.id === l.id) || null;
     portalLayers.set(itemId, l);
   });
-  if (currentSource && currentSource.data) currentSource.data = { ...currentSource.data, operationalLayers: ops.filter((o) => !String(o.id || "").startsWith(ITEM_LAYER_PREFIX)) };
-  bookmarks = parsed.bookmarks; updateToolBadges();
+  if (state.currentSource && state.currentSource.data) state.currentSource.data = { ...state.currentSource.data, operationalLayers: ops.filter((o) => !String(o.id || "").startsWith(ITEM_LAYER_PREFIX)) };
+  state.bookmarks = parsed.bookmarks; updateToolBadges();
   keepSketchOnTop();
   applyLayerOrder(parsed.order);
 }
@@ -2273,16 +2266,16 @@ async function openWebMapItem(itemId, opts) {
     if (!parsed.ok) throw new Error("Not a web map");
     if (!opts.keepWorkspace) resetWorkspace();
     for (const op of (data.operationalLayers || []).filter(isOwnLayerJson)) { const l = wm.layers.find((x) => x.id === op.id); if (l) wm.remove(l); }
-    const wasScene = sceneOnly;
+    const wasScene = state.sceneOnly;
     setActiveMap(wm);
-    twoDOnly = has2dOnlyTag(item); usePair(opts.pair || pairOf(item, data));
-    if (mode === "3d" && (twoDOnly || wasScene || partnerFor("3d"))) await setMode("2d");   // a web map opens in 2D after a scene, when it has a 3D version of its own, and always when its author switched 3D off
+    state.twoDOnly = has2dOnlyTag(item); usePair(opts.pair || pairOf(item, data));
+    if (state.mode === "3d" && (state.twoDOnly || wasScene || partnerFor("3d"))) await setMode("2d");   // a web map opens in 2D after a scene, when it has a 3D version of its own, and always when its author switched 3D off
     // A map that isn't public, opened while signed in, can hold layers only that account can see. Its layers are never written to a file.
-    currentSource = { itemId, title: item.title, item, data: parsed.webmap, restricted: !!portalUser && !!item.access && item.access !== "public" };
-    if (portalUser && item.owner === portalUser.username) currentAgolItem = { id: itemId, owner: item.owner, title: item.title };
+    state.currentSource = { itemId, title: item.title, item, data: parsed.webmap, restricted: !!state.portalUser && !!item.access && item.access !== "public" };
+    if (state.portalUser && item.owner === state.portalUser.username) state.currentAgolItem = { id: itemId, owner: item.owner, title: item.title };
     if (!opts.keepWorkspace) {
       applyParsedWebMap(parsed);
-      bookmarks.forEach((b) => sourceBms.add(b));
+      state.bookmarks.forEach((b) => sourceBms.add(b));
       setTitle(item.title); markClean(); unbindFile();
       const vp = wm.initialViewProperties && wm.initialViewProperties.viewpoint;
       if (vp) goToSafe(vp, { animate: false });
@@ -2292,7 +2285,7 @@ async function openWebMapItem(itemId, opts) {
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
     if (catalogLoaded) refreshCatalogButtons();
-    if (legend) legend.view = view;
+    if (legend) legend.view = state.view;
     return true;
   } catch (e) {
     console.error("Open map failed", e);
@@ -2331,9 +2324,9 @@ function slidesToBookmarks(ws) {
 async function showScene(ws) {
   const prev = activeMap();
   if (prev && prev !== ws) sketchLayers.forEach((l) => { try { prev.remove(l); } catch (e) { /* not there */ } });
-  twoDOnly = false;
+  state.twoDOnly = false;
   await setMode("3d", { map: ws, force: true, keepCamera: true });
-  if (mode !== "3d") throw new Error("3D view not available");
+  if (state.mode !== "3d") throw new Error("3D view not available");
   setActiveMap(ws);
   const vp = ws.initialViewProperties && ws.initialViewProperties.viewpoint;
   if (vp) goToSafe(vp, { animate: false });
@@ -2353,9 +2346,9 @@ async function openWebSceneItem(itemId, opts) {
     closePanels(false);
     resetWorkspace();
     await showScene(ws);
-    currentSource = { itemId, title: item.title, item, data, scene: true, restricted: !!portalUser && !!item.access && item.access !== "public" };
-    bookmarks = slidesToBookmarks(ws); updateToolBadges();
-    bookmarks.forEach((b) => sourceBms.add(b));
+    state.currentSource = { itemId, title: item.title, item, data, scene: true, restricted: !!state.portalUser && !!item.access && item.access !== "public" };
+    state.bookmarks = slidesToBookmarks(ws); updateToolBadges();
+    state.bookmarks.forEach((b) => sourceBms.add(b));
     usePair(opts.pair || pairOf(item, data));
     setTitle(item.title); markClean(); unbindFile();
     const say = () => toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
@@ -2363,7 +2356,7 @@ async function openWebSceneItem(itemId, opts) {
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
     if (catalogLoaded) refreshCatalogButtons();
-    if (legend) legend.view = view;
+    if (legend) legend.view = state.view;
     return true;
   } catch (e) {
     console.error("Open scene failed", e);
@@ -2385,16 +2378,16 @@ async function openWebSceneFile(raw, fileName) {
     resetWorkspace();
     await showScene(ws);
     const title = titleFromFileName(fileName);
-    currentSource = { itemId: null, title, item: null, data: parsed.webscene, scene: true };
+    state.currentSource = { itemId: null, title, item: null, data: parsed.webscene, scene: true };
     usePair(savedPair(raw));
     applyParsedWebMap(parsed);
-    bookmarks = parsed.bookmarks.map((b) => ({ ...b, camera: Camera.fromJSON(b.camera) })); updateToolBadges();
+    state.bookmarks = parsed.bookmarks.map((b) => ({ ...b, camera: Camera.fromJSON(b.camera) })); updateToolBadges();
     setTitle(title);
     if (parsed.camera) goToSafe(Camera.fromJSON(parsed.camera), { animate: false });
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
     if (catalogLoaded) refreshCatalogButtons();
-    if (legend) legend.view = view;
+    if (legend) legend.view = state.view;
     markClean();
     const n = sketchCount() + parsed.layers.reduce((x, l) => x + l.features.length, 0);
     toast(t("openedFile", { title: title || S.untitled, n }));
@@ -2419,19 +2412,19 @@ async function openWebMapFile(raw, fileName) {
     resetWorkspace();
     setActiveMap(wm);
     const title = titleFromFileName(fileName);
-    currentSource = { itemId: null, title, item: null, data: parsed.webmap };
+    state.currentSource = { itemId: null, title, item: null, data: parsed.webmap };
     applyParsedWebMap(parsed);
     setTitle(title);
     await setMode("2d");   // a web map is a 2D document; switch to 3D again if you like
-    twoDOnly = raw[TWO_D_ONLY_PROP] === true; usePair(savedPair(raw));
+    state.twoDOnly = raw[TWO_D_ONLY_PROP] === true; usePair(savedPair(raw));
     const vp = wm.initialViewProperties && wm.initialViewProperties.viewpoint;
     if (vp) goToSafe(vp, { animate: false });
-    const cam3d = !twoDOnly && !partnerFor("3d") && F.threeD !== false ? saved3dCamera(raw) : null;   // saved while in 3D: back to 3D, seen from the same place
-    if (cam3d) { await setMode("3d", { keepCamera: true }); if (mode === "3d") goToSafe(Camera.fromJSON(cam3d), { animate: false }); }
+    const cam3d = !state.twoDOnly && !partnerFor("3d") && F.threeD !== false ? saved3dCamera(raw) : null;   // saved while in 3D: back to 3D, seen from the same place
+    if (cam3d) { await setMode("3d", { keepCamera: true }); if (state.mode === "3d") goToSafe(Camera.fromJSON(cam3d), { animate: false }); }
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
     if (catalogLoaded) refreshCatalogButtons();
-    if (legend) legend.view = view;
+    if (legend) legend.view = state.view;
     markClean();
     const n = sketchCount() + parsed.layers.reduce((x, l) => x + l.features.length, 0);
     toast(t("openedFile", { title: title || S.untitled, n }));
@@ -2552,7 +2545,7 @@ function columnRenderer(fl) {
 function syncColumns(fl) {
   if (!fl || !fl._renderer2d) return;
   let r = null;
-  if (F.columns3d === true && mode === "3d" && fl._srcDef && fl._srcDef.columns3d) { try { r = columnRenderer(fl); } catch (e) { console.error(e); } }
+  if (F.columns3d === true && state.mode === "3d" && fl._srcDef && fl._srcDef.columns3d) { try { r = columnRenderer(fl); } catch (e) { console.error(e); } }
   const want = r || fl._renderer2d;
   if (r || fl._columnsOn) fl.renderer = want;
   fl._columnsOn = !!r;
@@ -2594,7 +2587,7 @@ const keyOf = (l) => { let k = layerKeys.get(l); if (!k) { k = "k" + (++layerKey
 let rowWidgets = [], rowRefs = [], swipe = null, table = null;
 const isGroup = (l) => l && l.type === "group" && l.layers;
 function outOfScale(l) {
-  const s = view && view.scale;
+  const s = state.view && state.view.scale;
   if (!(s > 0)) return false;
   const min = l.minScale || 0, max = l.maxScale || 0;
   return (min > 0 && s > min) || (max > 0 && s < max);
@@ -2629,7 +2622,7 @@ async function toggleSwipe(l) {
   try {
     // the swipe component sits inside the map component, over the map
     const el = await toolEl("arcgis-swipe", viewEls.get(mapView), { view: mapView, leadingLayers: [l], trailingLayers: [], direction: "horizontal", swipePosition: 50 });
-    if (mode !== "2d" || seq !== swipeSeq) { dropEl(el); return; }
+    if (state.mode !== "2d" || seq !== swipeSeq) { dropEl(el); return; }
     swipe = { widget: el, layer: l };
     toast(t("swipeOn", { title: l.title || "" }));
   } catch (e) { console.error(e); toast(S.swipeFailed); }
@@ -2640,7 +2633,7 @@ function closeTable(restoreFocus) {
   const l = table.layer, kind = table.kind || "table";
   if (kind === "chart") {   // the chart's selection goes from the map with it
     try { if (table.widget && table.widget.clearSelection) table.widget.clearSelection(); } catch (e) { /* none */ }
-    for (const v of [mapView, sceneView]) { try { const src = v && v.selectionManager && v.selectionManager.sources; if (src && src.includes(l)) src.remove(l); } catch (e) { /* none */ } }
+    for (const v of [mapView, state.sceneView]) { try { const src = v && v.selectionManager && v.selectionManager.sources; if (src && src.includes(l)) src.remove(l); } catch (e) { /* none */ } }
   }
   dropEl(table.widget);
   table = null;
@@ -2666,7 +2659,7 @@ async function openTable(l) {
     $("tableH").textContent = t("tableOf", { title: l.title || "" });
     $("tableDock").hidden = false; syncDockHeight($("tableDock"));
     $("app").classList.add("docked"); $("app").classList.remove("tools-shown"); syncToolsToggles();
-    const w = await toolEl("arcgis-feature-table", c, { view, layer: l });
+    const w = await toolEl("arcgis-feature-table", c, { view: state.view, layer: l });
     nameTableProgress(w);
     table = { widget: w, layer: l, kind: "table" };
     setTimeout(layoutBottom, 0);
@@ -2708,7 +2701,7 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
-// Charts 1.1 (5.0.0-beta.38): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// Charts 1.1 (5.0.0-beta.39): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
 // The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).
@@ -2745,8 +2738,8 @@ async function openChart(l, index) {
     await Promise.race([customElements.whenDefined("arcgis-chart"), new Promise((_, no) => setTimeout(() => no(new Error("arcgis-chart did not load")), 45000))]);
     if (el.componentOnReady) await el.componentOnReady();
     // the map's selection manager only takes selections for layers it has been told of
-    try { const src = view.selectionManager && view.selectionManager.sources; if (src && !src.includes(l)) src.add(l); } catch (e) { console.warn("Chart selection won't show on the map", e); }
-    Object.assign(el, { layer: l, view, model: charts[i], syncSelectionsBetweenChartAndLayerViewPolicy: "enabled" });   // what is selected on the chart is highlighted on the map
+    try { const src = state.view.selectionManager && state.view.selectionManager.sources; if (src && !src.includes(l)) src.add(l); } catch (e) { console.warn("Chart selection won't show on the map", e); }
+    Object.assign(el, { layer: l, view: state.view, model: charts[i], syncSelectionsBetweenChartAndLayerViewPolicy: "enabled" });   // what is selected on the chart is highlighted on the map
     table = { widget: el, layer: l, kind: "chart", index: i };
     setTimeout(layoutBottom, 0);
   } catch (e) { console.error(e); toast(S.chartFailed); table = table || { widget: null, layer: l, kind: "chart" }; closeTable(false); return; }
@@ -2844,7 +2837,7 @@ function layerRow(l, owner, depth, pos, count) {
   tools.appendChild(toolButton(k + ":zoom", calIcon("layer-zoom-to"), S.zoomTo, title, () => zoomToLayer(l)));
   if (sk) {   // a sketch layer: transparency, compare (2D), rename and remove
     tools.appendChild(toolButton(k + ":transp", calIcon("transparency"), S.adjustTransparency, title, () => { u.transp = !u.transp; renderLayers({ focusKey: k + ":transp" }); }, u.transp));
-    if (mode === "2d") tools.appendChild(toolButton(k + ":swipe", calIcon("compare"), S.swipe, title, () => toggleSwipe(l), !!(swipe && swipe.layer === l)));
+    if (state.mode === "2d") tools.appendChild(toolButton(k + ":swipe", calIcon("compare"), S.swipe, title, () => toggleSwipe(l), !!(swipe && swipe.layer === l)));
     if (SKETCH_LAYERS_ON) tools.appendChild(toolButton(k + ":rename", calIcon("pencil"), S.renameLayer, title, () => renameSketchLayer(l)));
     // the first layer can't be removed, only emptied; a further one goes, with its sketches
     tools.appendChild(toolButton(k + ":remove", calIcon("trash"), l === graphicsLayer ? S.removeSketches : S.removeLayer, title, () => removeSketches(l)));
@@ -2852,7 +2845,7 @@ function layerRow(l, owner, depth, pos, count) {
   if (!sk) {
     if (!group && LEGEND_TYPES.has(l.type)) tools.appendChild(toolButton(k + ":legend", calIcon("legend"), S.showLegend, title, () => { u.legend = !u.legend; renderLayers({ focusKey: k + ":legend" }); }, u.legend));
     tools.appendChild(toolButton(k + ":transp", calIcon("transparency"), S.adjustTransparency, title, () => { u.transp = !u.transp; renderLayers({ focusKey: k + ":transp" }); }, u.transp));
-    if (!group && mode === "2d") tools.appendChild(toolButton(k + ":swipe", calIcon("compare"), S.swipe, title, () => toggleSwipe(l), !!(swipe && swipe.layer === l)));
+    if (!group && state.mode === "2d") tools.appendChild(toolButton(k + ":swipe", calIcon("compare"), S.swipe, title, () => toggleSwipe(l), !!(swipe && swipe.layer === l)));
     if (!group && TABLE_TYPES.has(l.type)) tools.appendChild(toolButton(k + ":table", calIcon("table"), S.table, title, () => openTable(l), !!(table && table.layer === l && table.kind !== "chart")));
     if (!group && chartsOf(l).length) tools.appendChild(toolButton(k + ":chart", calIcon("graph-bar"), S.chart, title, () => openChart(l), !!(table && table.layer === l && table.kind === "chart")));
     if (filterable(l)) {   // Filter: show only the features that meet some conditions (the button is marked when the layer has a filter)
@@ -2878,7 +2871,7 @@ function layerRow(l, owner, depth, pos, count) {
       const box = document.createElement("div"); box.className = "lyr-legend";
       extra.appendChild(box);
       const row = { el: null, gone: false, destroy() { this.gone = true; dropEl(this.el); } }; rowWidgets.push(row);
-      toolEl("arcgis-legend", box, { view, layerInfos: [{ layer: l, title: "" }], ignoreLayerVisibility: true, hideLayersNotInCurrentView: false })
+      toolEl("arcgis-legend", box, { view: state.view, layerInfos: [{ layer: l, title: "" }], ignoreLayerVisibility: true, hideLayersNotInCurrentView: false })
         .then((el) => { row.el = el; if (row.gone) dropEl(el); }).catch(() => { box.textContent = S.noLegend; });
     }
     if (u.transp) {
@@ -2921,7 +2914,7 @@ function removeSketches(l) {
   const n = l.graphics.length, first = l === graphicsLayer, title = l.title || "";
   if (first && !n) return;
   if (n && !window.confirm(first ? t("removeSketchesConfirm", { n }) : t("removeSketchLayerConfirm", { title, n }))) return;
-  if (activeSketch === l) { endSketchOps(); setSelection([]); }
+  if (state.activeSketch === l) { endSketchOps(); setSelection([]); }
   if (first) l.removeAll(); else removeSketchLayer(l);
   markDirty(); updateToolBadges();
   toast(first ? t("removedSketches", { n }) : t("removedLayer", { title }));
@@ -3070,7 +3063,7 @@ async function openFilter(l) {
   try {
     const [FeatureFilter] = await $arcgis.import(["@arcgis/core/layers/support/FeatureFilter.js"]);
     st.FeatureFilter = FeatureFilter;
-    st.layerView = await view.whenLayerView(l);
+    st.layerView = await state.view.whenLayerView(l);
   } catch (e) { st.layerView = null; }   // no layer view (the layer isn't drawn): the preview sets the layer's own filter instead
   if (filterState !== st) return;
   applyFilterPreview();
@@ -3321,18 +3314,18 @@ function applyLayerSnapshot(snap) {
 }
 function applyBookmark(bm) {
   const vp = bm.viewpoint;
-  if (mode === "3d" && bm.camera) goToSafe(bm.camera.clone(), { duration: 800 });   // made in 3D: same tilt and heading
+  if (state.mode === "3d" && bm.camera) goToSafe(bm.camera.clone(), { duration: 800 });   // made in 3D: same tilt and heading
   else if (vp.center) goToSafe({ center: vp.center, zoom: vp.zoom }, { duration: 800 });
   else if (vp.extent) goToSafe(Extent.fromJSON(vp.extent), { duration: 800 });
   applyLayerSnapshot(bm.layers);
 }
 function captureThumb(bm) {
-  view.takeScreenshot({ width: 148, height: 96, format: "jpg", quality: 70 }).then((s) => { if (s && s.dataUrl) { bm.thumb = s.dataUrl; renderBookmarks(); } }).catch(() => {});
+  state.view.takeScreenshot({ width: 148, height: 96, format: "jpg", quality: 70 }).then((s) => { if (s && s.dataUrl) { bm.thumb = s.dataUrl; renderBookmarks(); } }).catch(() => {});
 }
 function renderBookmarks() {
   const list = $("bmList"); list.innerHTML = "";
-  $("bmEmpty").hidden = bookmarks.length > 0;
-  bookmarks.forEach((bm, i) => {
+  $("bmEmpty").hidden = state.bookmarks.length > 0;
+  state.bookmarks.forEach((bm, i) => {
     const li = document.createElement("li"); li.className = "bm";
     const go = document.createElement("button"); go.type = "button"; go.className = "bm-go";
     const th = document.createElement("span"); th.className = "bm-thumb"; th.setAttribute("aria-hidden", "true");
@@ -3352,7 +3345,7 @@ function showBmEdit(i) {
   $("bmEditTitle").textContent = editing ? S.editBookmark : S.addBookmark.replace(/^\+\s*/, "");
   $("bmSave").textContent = editing ? S.save : S.add;
   $("bmDelete").hidden = !editing; $("bmHint").hidden = editing;
-  $("bmTitleInput").value = editing ? bookmarks[bmEditIndex].title : "";
+  $("bmTitleInput").value = editing ? state.bookmarks[bmEditIndex].title : "";
   $("bmTitleInput").focus();
 }
 $("bmAddBtn").addEventListener("click", () => showBmEdit(-1));
@@ -3360,18 +3353,18 @@ $("bmBack").addEventListener("click", showBmList);
 $("bmCancel").addEventListener("click", showBmList);
 $("bmSave").addEventListener("click", () => {
   const title = $("bmTitleInput").value.trim();
-  if (bmEditIndex >= 0) bookmarks[bmEditIndex].title = title || bookmarks[bmEditIndex].title;
+  if (bmEditIndex >= 0) state.bookmarks[bmEditIndex].title = title || state.bookmarks[bmEditIndex].title;
   else {
-    const bm = { title: title || t("bookmarkDefault", { n: bookmarks.length + 1 }), viewpoint: { center: [view.center.longitude, view.center.latitude], zoom: view.zoom }, layers: layerSnapshot(), thumb: null };
+    const bm = { title: title || t("bookmarkDefault", { n: state.bookmarks.length + 1 }), viewpoint: { center: [state.view.center.longitude, state.view.center.latitude], zoom: state.view.zoom }, layers: layerSnapshot(), thumb: null };
     // In 3D, the camera too (tilt and heading), for this session: saved maps keep the place, as a web map bookmark does.
-    if (mode === "3d" && sceneView && sceneView.camera) bm.camera = sceneView.camera.clone();
-    bookmarks.push(bm); captureThumb(bm);
+    if (state.mode === "3d" && state.sceneView && state.sceneView.camera) bm.camera = state.sceneView.camera.clone();
+    state.bookmarks.push(bm); captureThumb(bm);
   }
   markDirty(); showBmList(); updateToolBadges();
   $("bmAddBtn").focus();
 });
 $("bmTitleInput").addEventListener("keydown", (e) => { if (e.key === "Enter") $("bmSave").click(); });
-$("bmDelete").addEventListener("click", () => { if (bmEditIndex >= 0) { bookmarks.splice(bmEditIndex, 1); markDirty(); } showBmList(); updateToolBadges(); $("bmAddBtn").focus(); });
+$("bmDelete").addEventListener("click", () => { if (bmEditIndex >= 0) { state.bookmarks.splice(bmEditIndex, 1); markDirty(); } showBmList(); updateToolBadges(); $("bmAddBtn").focus(); });
 
 // ============================================================ Topics (the content group's categories; shared by Open map and Add layer)
 let topicTreePromise = null;
@@ -3381,7 +3374,7 @@ function getTopicTree() {
   return topicTreePromise;
 }
 const cleanQuery = (s) => String(s || "").replace(/["':()\\[\]{}^~*?]/g, " ").replace(/\s+/g, " ").trim();
-// A card's picture (5.0.0-beta.38). A public item's is loaded by its address. An item only the signed-in person can see
+// A card's picture (5.0.0-beta.39). A public item's is loaded by its address. An item only the signed-in person can see
 // needs their token: it used to go on the end of the address as a query parameter, written into the page as the card's
 // background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
 // in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.
@@ -3537,7 +3530,6 @@ function createBrowser(o) {
   // 2D maps and 3D scenes (Collection browser 2.1): where the collection has scenes, a row above the list chooses all of
   // them, the 2D maps or the 3D scenes. It works with the category chosen and with the search, and says how many of each.
   const DIMS = [["all", "dimAll"], ["2d", "dim2d"], ["3d", "dim3d"]];
-  const isSceneEntry = (e) => e.item.type === "Web Scene";
   // A pair is one card. It is among the 2D maps and, when its scene is in the collection, among the 3D maps too, where
   // the card is the scene's and opens it.
   const shownItem = (e) => (st.dim === "3d" && e.pair && e.pair.scene ? e.pair.scene : e.item);
@@ -3663,7 +3655,7 @@ async function shareMapLink(item) {
   try { await navigator.clipboard.writeText(link); toast(t("linkCopied", { title: item.title || "" }), 5000); }
   catch (e) { window.prompt(S.linkCopyManually, link); }   // no clipboard access (an old browser, or permission refused): show the link to copy
 }
-function forgetBrowse() { mapBrowser.forget(); addBrowser.forget(); groupLoaded = false; }
+function forgetBrowse() { mapBrowser.forget(); addBrowser.forget(); }
 const agolState = { start: 1, loading: false };
 function mapCard(item, onOpen) {     // My ArcGIS Online maps
   const li = document.createElement("li"); li.className = "map-card";
@@ -3682,14 +3674,14 @@ function mapCard(item, onOpen) {     // My ArcGIS Online maps
   return li;
 }
 async function loadAgolMaps(reset) {
-  if (!portalUser || agolState.loading) return;
+  if (!state.portalUser || agolState.loading) return;
   agolState.loading = true;
   if (reset) { agolState.start = 1; $("agolGrid").innerHTML = ""; }
   $("agolStatus2").textContent = S.loadingMaps;
   const text = cleanQuery($("agolSearch").value);
   try {
     const d = await restGet("/sharing/rest/search", { num: 24, start: agolState.start, sortField: "modified", sortOrder: "desc",
-      q: 'owner:"' + portalUser.username + '" AND type:"Web Map"' + (text ? " AND (" + text + ")" : "") });
+      q: 'owner:"' + state.portalUser.username + '" AND type:"Web Map"' + (text ? " AND (" + text + ")" : "") });
     for (const item of d.results || []) $("agolGrid").appendChild(mapCard(item, (it) => openWebMapItem(it.id, { title: it.title })));
     agolState.start = d.nextStart;
     $("agolMoreRow").hidden = !(d.nextStart > 0);
@@ -3697,7 +3689,6 @@ async function loadAgolMaps(reset) {
   } catch (e) { console.error(e); $("agolStatus2").textContent = S.groupError; }
   agolState.loading = false;
 }
-let groupLoaded = false;
 function setupTabs(tabs, onSwitch) {
   const sw = (tabId) => { for (const [tb, pane] of tabs) { const on = tb === tabId; $(tb).setAttribute("aria-selected", String(on)); $(tb).tabIndex = on ? 0 : -1; $(pane).hidden = !on; } onSwitch(tabId); };
   tabs.forEach(([tb]) => $(tb).addEventListener("click", () => sw(tb)));
@@ -3712,7 +3703,7 @@ function setupTabs(tabs, onSwitch) {
   return sw;
 }
 const switchTab = setupTabs([["tabGroup", "paneGroup"], ["tabDevice", "paneDevice"], ["tabArcgis", "paneArcgis"]], (tabId) => {
-  if (tabId === "tabGroup") { mapBrowser.start(); groupLoaded = true; }
+  if (tabId === "tabGroup") mapBrowser.start();
   if (tabId === "tabDevice") renderSavedMaps();
   if (tabId === "tabArcgis") loadAgolMaps(true);
 });
@@ -3792,20 +3783,16 @@ function fillInfo(item) {
   if (item.accessInformation) { const h = document.createElement("p"); const s = document.createElement("strong"); s.textContent = S.credits + ": "; h.appendChild(s); h.appendChild(document.createTextNode(item.accessInformation)); body.appendChild(h); }
   $("infoItemLink").href = `${PORTAL}/home/item.html?id=${item.id}`; $("infoItemLink").hidden = false;
 }
-async function showItemInfo(itemId) {
-  try { const item = await restGet(`/sharing/rest/content/items/${itemId}`); fillInfo(item); openModal("infoModal"); }
-  catch (e) { toast(S.openFailed); }
-}
-$("infoBtn").addEventListener("click", () => { fillInfo(currentSource ? currentSource.item : null); openModal("infoModal"); });
+$("infoBtn").addEventListener("click", () => { fillInfo(state.currentSource ? state.currentSource.item : null); openModal("infoModal"); });
 
 // ============================================================ CSV import (configure panel with live preview)
-let addState = null, previewLayer = null, previewTimer = 0, prePreviewCam = null, pendingParse = null, dataLayerSeq = 0;
+let previewLayer = null, previewTimer = 0, prePreviewCam = null, dataLayerSeq = 0;
 const STYLE_TEXT = { simple: ["styleSimple", "styleSimpleHint"], categorical: ["styleCategorical", "styleCategoricalHint"], graduated: ["styleGraduated", "styleGraduatedHint"],
   numeric_color_size: ["styleNumericColorSize", "styleNumericColorSizeHint"], categorical_size: ["styleCategoricalSize", "styleCategoricalSizeHint"], pie_chart: ["stylePie", "stylePieHint"] };
 const FIELD_LABEL = { color: "colorBy", size: "sizeBy", label: "labelBy" };
 const NONE = "__none__";
 function showDataError(msg) {
-  restoreEditedLayer(); addState = null; removePreview(true);
+  restoreEditedLayer(); state.addState = null; removePreview(true);
   openPanel("data");
   $("dataH").textContent = S.addData;
   $("dataError").textContent = msg; $("dataError").hidden = false;
@@ -3836,8 +3823,8 @@ async function handleCsvText(name, text) {
   continueCsv(name, parsed, parsed.latIdx, parsed.lonIdx);
 }
 function showLatLonPicker(name, parsed) {
-  restoreEditedLayer(); addState = null; removePreview(true);
-  pendingParse = { name, parsed };
+  restoreEditedLayer(); state.addState = null; removePreview(true);
+  state.pendingParse = { name, parsed };
   openPanel("data");
   $("dataH").textContent = S.addData;
   $("dataError").hidden = true; $("dataControls").hidden = true; $("dataSubmit").disabled = true; $("llPicker").hidden = false;
@@ -3848,24 +3835,24 @@ function showLatLonPicker(name, parsed) {
   }
 }
 $("llUse").addEventListener("click", () => {
-  if (!pendingParse) return;
+  if (!state.pendingParse) return;
   const la = parseInt($("latSel").value, 10), lo = parseInt($("lonSel").value, 10);
   // the same column in both boxes: it holds both coordinates (copied from the Coordinates tool, say)
-  if (la === lo && !buildLayerData(pendingParse.name, pendingParse.parsed, la, lo).ok) { toast(S.pickOneColumn, 7000); return; }
-  const p = pendingParse; pendingParse = null;
+  if (la === lo && !buildLayerData(state.pendingParse.name, state.pendingParse.parsed, la, lo).ok) { toast(S.pickOneColumn, 7000); return; }
+  const p = state.pendingParse; state.pendingParse = null;
   continueCsv(p.name, p.parsed, la, lo);
 });
 function continueCsv(name, parsed, latIdx, lonIdx) {
   const data = buildLayerData(name, parsed, latIdx, lonIdx);
   if (!data.ok) { showDataError(t(data.code, data.params)); return; }
   restoreEditedLayer();
-  addState = data;
-  addState.src = { name, parsed, latIdx, lonIdx };   // for Swap latitude and longitude
-  addState.symbolChoices = { shape: "esriSMSCircle", color: hexToRgb(PALETTE_HEX[0]), size: 12, ramp: "blue" };
-  addState.style = pickAutoStyle(addState);
-  addState.fieldChoices = pickAutoFields(addState.style, addState);
+  state.addState = data;
+  state.addState.src = { name, parsed, latIdx, lonIdx };   // for Swap latitude and longitude
+  state.addState.symbolChoices = { shape: "esriSMSCircle", color: hexToRgb(PALETTE_HEX[0]), size: 12, ramp: "blue" };
+  state.addState.style = pickAutoStyle(state.addState);
+  state.addState.fieldChoices = pickAutoFields(state.addState.style, state.addState);
   removePreview(false);
-  if (!prePreviewCam) { try { prePreviewCam = { center: [view.center.longitude, view.center.latitude], zoom: view.zoom, camera: mode === "3d" && view.camera ? view.camera.clone() : null }; } catch (e) { prePreviewCam = null; } }
+  if (!prePreviewCam) { try { prePreviewCam = { center: [state.view.center.longitude, state.view.center.latitude], zoom: state.view.zoom, camera: state.mode === "3d" && state.view.camera ? state.view.camera.clone() : null }; } catch (e) { prePreviewCam = null; } }
   openPanel("data");
   renderDataPanel();
   updatePreview(true);
@@ -3877,83 +3864,83 @@ function editDataLayer(layer) {
   const st = stateFromLayerDef(layer._srcDef);
   if (!st.ok) { toast(S.styleCantChange); return; }
   st.editing = { layer, wasVisible: layer.visible !== false };
-  addState = st;
+  state.addState = st;
   removePreview(false); prePreviewCam = null;
   layer.visible = false;
   openPanel("data");
   renderDataPanel();
   styleAtStart = styleDef();   // so leaving without changing anything doesn't ask
 }
-function restoreEditedLayer() { if (addState && addState.editing) addState.editing.layer.visible = addState.editing.wasVisible; }
+function restoreEditedLayer() { if (state.addState && state.addState.editing) state.addState.editing.layer.visible = state.addState.editing.wasVisible; }
 function backToLayers(layerId) {
   openPanel("layers", { focus: false });
   const b = [...$("layersList").querySelectorAll("[data-style-for]")].find((x) => x.dataset.styleFor === layerId);
   if (b) b.focus(); else { const h = $("layersH"); if (h) h.focus(); }
 }
 function renderDataPanel() {
-  const editing = !!addState.editing;
-  $("dataH").textContent = editing ? t("changeStyleTitle", { title: addState.editing.layer.title || "" }) : S.dataLooksGood;
+  const editing = !!state.addState.editing;
+  $("dataH").textContent = editing ? t("changeStyleTitle", { title: state.addState.editing.layer.title || "" }) : S.dataLooksGood;
   $("dataSubmit").textContent = editing ? S.applyStyle : S.addToMap;
-  $("swapRow").hidden = editing || !addState.src || addState.swappable === false;   // in Change style the points are already placed
+  $("swapRow").hidden = editing || !state.addState.src || state.addState.swappable === false;   // in Change style the points are already placed
   $("dataError").hidden = true; $("llPicker").hidden = true; $("dataControls").hidden = false; $("dataSubmit").disabled = false;
   // categories counted as text columns only: number codes are offered under "By type" but are counted as numbers
-  let s = t("dataSummary", { n: addState.features.length, num: addState.numeric.length, cat: (addState.categoricalText || addState.categorical).length });
-  if (addState.dropped) s += " " + t("dataSkipped", { n: addState.dropped });
+  let s = t("dataSummary", { n: state.addState.features.length, num: state.addState.numeric.length, cat: (state.addState.categoricalText || state.addState.categorical).length });
+  if (state.addState.dropped) s += " " + t("dataSkipped", { n: state.addState.dropped });
   $("dataSummary").textContent = s;
-  $("dataSize").value = addState.symbolChoices.size; $("dataSizeVal").textContent = addState.symbolChoices.size + " px";
+  $("dataSize").value = state.addState.symbolChoices.size; $("dataSizeVal").textContent = state.addState.symbolChoices.size + " px";
   renderStyleList(); renderFieldRows(); renderSymbolBlocks();
 }
 function renderStyleList() {
   const wrap = $("styleList"); wrap.innerHTML = "";
   for (const style of DATA_STYLES) {
     // Pie charts only draw in 2D, so in the 3D view they aren't offered (a layer that is already pie charts keeps its choice).
-    const not3d = style.id === "pie_chart" && mode === "3d" && addState.style.id !== "pie_chart";
-    const ok = styleAvailable(style, addState) && !not3d;
+    const not3d = style.id === "pie_chart" && state.mode === "3d" && state.addState.style.id !== "pie_chart";
+    const ok = styleAvailable(style, state.addState) && !not3d;
     const b = document.createElement("button"); b.type = "button"; b.className = "style-card"; b.disabled = !ok;
-    b.setAttribute("aria-pressed", String(addState.style.id === style.id));
-    b.title = ok ? S[STYLE_TEXT[style.id][1]] : (not3d && styleAvailable(style, addState) ? S.pieOnly2d : S.styleNeeds);
+    b.setAttribute("aria-pressed", String(state.addState.style.id === style.id));
+    b.title = ok ? S[STYLE_TEXT[style.id][1]] : (not3d && styleAvailable(style, state.addState) ? S.pieOnly2d : S.styleNeeds);
     b.innerHTML = '<span class="s-ico" aria-hidden="true">' + style.icon + '</span><span class="s-name"></span>';
     b.querySelector(".s-name").textContent = S[STYLE_TEXT[style.id][0]];
-    if (ok) b.addEventListener("click", () => { addState.style = style; addState.fieldChoices = pickAutoFields(style, addState); renderStyleList(); renderFieldRows(); renderSymbolBlocks(); });
+    if (ok) b.addEventListener("click", () => { state.addState.style = style; state.addState.fieldChoices = pickAutoFields(style, state.addState); renderStyleList(); renderFieldRows(); renderSymbolBlocks(); });
     wrap.appendChild(b);
   }
-  $("styleDesc").textContent = S[STYLE_TEXT[addState.style.id][0]] + " — " + S[STYLE_TEXT[addState.style.id][1]];
+  $("styleDesc").textContent = S[STYLE_TEXT[state.addState.style.id][0]] + " — " + S[STYLE_TEXT[state.addState.style.id][1]];
 }
 function fieldOptions(key) {
-  if (key === "size") return addState.numeric;
-  if (key === "color") return addState.style.id === "numeric_color_size" ? addState.numeric : addState.categorical;
-  return addState.fields.filter((f) => f.type !== "esriFieldTypeOID" && !addState.coordNames.includes(f.name)).map((f) => f.name);
+  if (key === "size") return state.addState.numeric;
+  if (key === "color") return state.addState.style.id === "numeric_color_size" ? state.addState.numeric : state.addState.categorical;
+  return state.addState.fields.filter((f) => f.type !== "esriFieldTypeOID" && !state.addState.coordNames.includes(f.name)).map((f) => f.name);
 }
 function renderFieldRows() {
   const wrap = $("fieldRows"); wrap.innerHTML = "";
-  addState.style.fields.forEach((key, i) => {
+  state.addState.style.fields.forEach((key, i) => {
     const id = "fld-" + key + "-" + i;
     const lbl = document.createElement("label"); lbl.className = "lbl"; lbl.htmlFor = id; lbl.textContent = S[FIELD_LABEL[key]];
     const sel = document.createElement("select"); sel.className = "field"; sel.id = id;
     if (key === "label") { const o = document.createElement("option"); o.value = NONE; o.textContent = S.none; sel.appendChild(o); }
-    for (const name of fieldOptions(key)) { const o = document.createElement("option"); o.value = name; o.textContent = aliasOf(addState, name); sel.appendChild(o); }
-    const cur = addState.fieldChoices[key];
+    for (const name of fieldOptions(key)) { const o = document.createElement("option"); o.value = name; o.textContent = aliasOf(state.addState, name); sel.appendChild(o); }
+    const cur = state.addState.fieldChoices[key];
     sel.value = cur == null ? (key === "label" ? NONE : sel.value) : cur;
-    if (key !== "label" && cur == null && sel.options.length) addState.fieldChoices[key] = sel.value;
-    sel.addEventListener("change", () => { addState.fieldChoices[key] = sel.value === NONE ? null : sel.value; renderSymbolBlocks(); });
+    if (key !== "label" && cur == null && sel.options.length) state.addState.fieldChoices[key] = sel.value;
+    sel.addEventListener("change", () => { state.addState.fieldChoices[key] = sel.value === NONE ? null : sel.value; renderSymbolBlocks(); });
     wrap.append(lbl, sel);
   });
-  if (addState.style.id === "pie_chart") wrap.appendChild(pieColumnsBox());
+  if (state.addState.style.id === "pie_chart") wrap.appendChild(pieColumnsBox());
   // Offered in the 3D view only: in 2D it would change nothing on screen. A layer that has it keeps it while styled in 2D.
-  if (F.columns3d === true && mode === "3d" && addState.style.fields.includes("size") && addState.style.id !== "pie_chart") {
+  if (F.columns3d === true && state.mode === "3d" && state.addState.style.fields.includes("size") && state.addState.style.id !== "pie_chart") {
     const row = document.createElement("div"); row.className = "pie-col col3d";
-    const cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "columns3dBox"; cb.checked = !!addState.columns3d;
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "columns3dBox"; cb.checked = !!state.addState.columns3d;
     cb.setAttribute("aria-describedby", "columns3dHint");
     const lb = document.createElement("label"); lb.htmlFor = cb.id; lb.textContent = S.columns3d;
     const hint = document.createElement("p"); hint.className = "hint"; hint.id = "columns3dHint"; hint.textContent = S.columns3dHint;
-    cb.addEventListener("change", () => { addState.columns3d = cb.checked; renderSymbolBlocks(); });
+    cb.addEventListener("change", () => { state.addState.columns3d = cb.checked; renderSymbolBlocks(); });
     row.append(cb, lb); wrap.append(row, hint);
   }
 }
 // Which number columns make up each pie (2 to 8); each pie is sized by the total of those columns only.
 function pieColumnsBox() {
-  const c = addState.fieldChoices;
-  c.pie = pieFields(addState);
+  const c = state.addState.fieldChoices;
+  c.pie = pieFields(state.addState);
   const fs = document.createElement("fieldset"); fs.className = "pie-cols";
   const lg = document.createElement("legend"); lg.textContent = S.pieColumns;
   const hint = document.createElement("p"); hint.className = "hint"; hint.id = "pieColsHint"; hint.textContent = t("pieColumnsHint", { min: PIE_MIN, max: PIE_MAX });
@@ -3961,12 +3948,12 @@ function pieColumnsBox() {
   fs.append(lg, hint);
   const boxes = [];
   const sync = () => { const n = c.pie.length; boxes.forEach((b) => { b.disabled = (b.checked && n <= PIE_MIN) || (!b.checked && n >= PIE_MAX); }); };
-  addState.numeric.forEach((name, i) => {
+  state.addState.numeric.forEach((name, i) => {
     const row = document.createElement("div"); row.className = "pie-col";
     const cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "pieCol" + i; cb.value = name; cb.checked = c.pie.includes(name);
-    const lb = document.createElement("label"); lb.htmlFor = cb.id; lb.textContent = aliasOf(addState, name);
+    const lb = document.createElement("label"); lb.htmlFor = cb.id; lb.textContent = aliasOf(state.addState, name);
     cb.addEventListener("change", () => {
-      c.pie = addState.numeric.filter((n) => (n === name ? cb.checked : c.pie.includes(n)));
+      c.pie = state.addState.numeric.filter((n) => (n === name ? cb.checked : c.pie.includes(n)));
       sync(); renderSymbolBlocks();
     });
     boxes.push(cb); row.append(cb, lb); fs.appendChild(row);
@@ -3975,27 +3962,27 @@ function pieColumnsBox() {
   return fs;
 }
 $("dataSwap").addEventListener("click", () => {
-  if (!addState || !addState.src || addState.editing) return;
-  const { name, parsed, latIdx, lonIdx, swapped } = addState.src;
+  if (!state.addState || !state.addState.src || state.addState.editing) return;
+  const { name, parsed, latIdx, lonIdx, swapped } = state.addState.src;
   const pair = latIdx === lonIdx;   // one column with both: turn its order round instead of swapping columns
   const data = pair ? buildLayerData(name, parsed, latIdx, lonIdx, { swapped: !swapped }) : buildLayerData(name, parsed, lonIdx, latIdx);
   if (!data.ok) { toast(S.swapNoPoints, 6000); return; }
-  const before = addState;
+  const before = state.addState;
   data.src = pair ? { name, parsed, latIdx, lonIdx, swapped: !swapped } : { name, parsed, latIdx: lonIdx, lonIdx: latIdx };
   data.symbolChoices = before.symbolChoices;
   const keepStyle = styleAvailable(before.style, data);
   data.style = keepStyle ? before.style : pickAutoStyle(data);
   data.fieldChoices = keepStyle ? before.fieldChoices : pickAutoFields(data.style, data);
-  addState = data;
+  state.addState = data;
   renderDataPanel();
   updatePreview(true);
   toast(t("swappedLatLon", { n: data.features.length }));
   $("dataSwap").focus();
 });
 function renderSymbolBlocks() {
-  const c = addState.symbolChoices, isPie = addState.style.id === "pie_chart";
-  const single = addState.style.id === "simple" || addState.style.id === "graduated";
-  const ramp = addState.style.id === "numeric_color_size" && !!addState.fieldChoices.color;
+  const c = state.addState.symbolChoices, isPie = state.addState.style.id === "pie_chart";
+  const single = state.addState.style.id === "simple" || state.addState.style.id === "graduated";
+  const ramp = state.addState.style.id === "numeric_color_size" && !!state.addState.fieldChoices.color;
   $("shapeRow").hidden = isPie; $("colorRow").hidden = isPie || !single; $("rampRow").hidden = !ramp;
   const sw = $("shapeOptions"); sw.innerHTML = "";
   for (const s of SHAPES) {
@@ -4021,13 +4008,13 @@ function renderSymbolBlocks() {
   updateConfigSummary();
   updatePreview(false);
 }
-$("rampReverse").addEventListener("change", () => { if (addState) { addState.symbolChoices.rampReverse = $("rampReverse").checked; renderSymbolBlocks(); } });
+$("rampReverse").addEventListener("change", () => { if (state.addState) { state.addState.symbolChoices.rampReverse = $("rampReverse").checked; renderSymbolBlocks(); } });
 function updateConfigSummary() {
-  const c = addState.fieldChoices, A = (n) => (n ? aliasOf(addState, n) : "—");
-  const numColor = addState.style.id === "numeric_color_size";
+  const c = state.addState.fieldChoices, A = (n) => (n ? aliasOf(state.addState, n) : "—");
+  const numColor = state.addState.style.id === "numeric_color_size";
   let s;
-  switch (addState.style.id) {
-    case "pie_chart": s = t("sumPie", { n: pieFields(addState).length }); break;
+  switch (state.addState.style.id) {
+    case "pie_chart": s = t("sumPie", { n: pieFields(state.addState).length }); break;
     case "numeric_color_size": s = t("sumColorSize", { color: A(c.color), size: A(c.size) }); break;
     case "categorical_size": s = t(numColor ? "sumColorSize" : "sumTypeSize", { color: A(c.color), size: A(c.size) }); break;
     case "categorical": s = t(numColor ? "sumShade" : "sumType", { color: A(c.color) }); break;
@@ -4040,39 +4027,39 @@ function updateConfigSummary() {
 function removePreview(restoreCam) {
   clearTimeout(previewTimer); previewTimer = 0;
   if (previewLayer) { removeFromMaps(previewLayer); previewLayer = null; }
-  if (restoreCam && prePreviewCam) goToSafe(mode === "3d" && prePreviewCam.camera ? prePreviewCam.camera : { center: prePreviewCam.center, zoom: prePreviewCam.zoom }, { animate: false });   // in 3D: the tilt and heading too
+  if (restoreCam && prePreviewCam) goToSafe(state.mode === "3d" && prePreviewCam.camera ? prePreviewCam.camera : { center: prePreviewCam.center, zoom: prePreviewCam.zoom }, { animate: false });   // in 3D: the tilt and heading too
   if (restoreCam) prePreviewCam = null;
 }
 function updatePreview(frame) {
-  if (!addState) return;
+  if (!state.addState) return;
   clearTimeout(previewTimer);
   previewTimer = setTimeout(() => {
     previewTimer = 0;
-    if (!addState) return;
+    if (!state.addState) return;
     if (previewLayer) { removeFromMaps(previewLayer); previewLayer = null; }
     let fl;
-    try { fl = buildDataLayer(buildLayerDef(addState, "csvPreview")); } catch (e) { console.error(e); return; }
+    try { fl = buildDataLayer(buildLayerDef(state.addState, "csvPreview")); } catch (e) { console.error(e); return; }
     previewLayer = fl; activeMap().add(fl); keepSketchOnTop();
     if (frame) fl.when().then(() => fl.queryExtent()).then((r) => { if (r && r.extent) goToSafe(frameTarget(r.extent.expand(1.2)), { animate: false }); }).catch(() => {});
   }, frame ? 0 : 200);
 }
 function submitData() {
-  if (!addState) { closePanels(); return; }
-  if (addState.editing) { applyStyleEdit(); return; }
-  const def = buildLayerDef(addState, "csv" + Date.now().toString(36) + (++dataLayerSeq));
-  const n = addState.features.length;
+  if (!state.addState) { closePanels(); return; }
+  if (state.addState.editing) { applyStyleEdit(); return; }
+  const def = buildLayerDef(state.addState, "csv" + Date.now().toString(36) + (++dataLayerSeq));
+  const n = state.addState.features.length;
   removePreview(false); prePreviewCam = null;
   let fl;
   try { fl = addDataLayer(def); } catch (e) { console.error(e); toast(S.layerFailed.replace("{title}", def.title)); return; }
-  addState = null;
+  state.addState = null;
   closePanels();
   fl.when().then(() => fl.queryExtent()).then((r) => { if (r && r.extent) goToSafe(frameTarget(r.extent.expand(1.2)), { animate: false }); }).catch(() => {});
   toast(t("addedPoints", { n }));
 }
 function applyStyleEdit() {
-  const { layer: old, wasVisible } = addState.editing, src = old._srcDef;
+  const { layer: old, wasVisible } = state.addState.editing, src = old._srcDef;
   endLayerTools(old);
-  const def = buildLayerDef(addState, src.id, src.title || old.title);
+  const def = buildLayerDef(state.addState, src.id, src.title || old.title);
   removePreview(false);
   let fl;
   try { fl = buildDataLayer(def); } catch (e) { console.error(e); toast(S.styleCantChange); return; }
@@ -4082,7 +4069,7 @@ function applyStyleEdit() {
   removeFromMaps(old);
   if (at >= 0) m.add(fl, at); else m.add(fl);
   keepSketchOnTop();
-  addState = null;   // so closing the panel doesn't put the old layer back
+  state.addState = null;   // so closing the panel doesn't put the old layer back
   markDirty();
   closePanels(false);
   backToLayers(fl.id);
@@ -4096,14 +4083,14 @@ $("dataClose").addEventListener("click", () => closePanels());
 // aren't applied) would lose that work, so ask first. Cancel, × and Escape in the panel itself discard straight away.
 let leaveNext = null, styleAtStart = null;
 function styleDef() {
-  try { const ed = addState.editing, src = ed.layer._srcDef; return JSON.stringify(buildLayerDef(addState, src.id, src.title || ed.layer.title)); }
+  try { const ed = state.addState.editing, src = ed.layer._srcDef; return JSON.stringify(buildLayerDef(state.addState, src.id, src.title || ed.layer.title)); }
   catch (e) { return null; }
 }
 function unfinishedData() {
   if (openPanelName !== "data") return null;
-  if (addState && addState.editing) return styleDef() === styleAtStart ? null : { style: true, title: addState.editing.layer.title || "" };
-  if (addState) return { style: false, title: addState.fileName || "" };
-  if (pendingParse && !$("llPicker").hidden) return { style: false, title: pendingParse.name || "" };
+  if (state.addState && state.addState.editing) return styleDef() === styleAtStart ? null : { style: true, title: state.addState.editing.layer.title || "" };
+  if (state.addState) return { style: false, title: state.addState.fileName || "" };
+  if (state.pendingParse && !$("llPicker").hidden) return { style: false, title: state.pendingParse.name || "" };
   return null;
 }
 function leaveData(next) {
@@ -4124,7 +4111,7 @@ $("leaveDiscard").addEventListener("click", () => {
 $("dataSize").addEventListener("input", () => {
   const v = parseInt($("dataSize").value, 10) || 12;
   $("dataSizeVal").textContent = v + " px";
-  if (addState) { addState.symbolChoices.size = v; updateConfigSummary(); updatePreview(false); }
+  if (state.addState) { state.addState.symbolChoices.size = v; updateConfigSummary(); updatePreview(false); }
 });
 function pickCsv() {
   const input = document.createElement("input"); input.type = "file"; input.accept = ".csv,text/csv,.txt";
@@ -4176,21 +4163,21 @@ function flatGeometryJson(geom) {
   if (j.points) j.points = j.points.map(xy);
   return j;
 }
-function currentViewpoint() { return { center: [view.center.longitude, view.center.latitude], zoom: view.zoom }; }
+function currentViewpoint() { return { center: [state.view.center.longitude, state.view.center.latitude], zoom: state.view.zoom }; }
 function buildDocument() {
   const doc = {
     type: DOC_TYPE, version: DOC_VERSION, app: cfg.appName, appVersion: APP_VERSION, title: currentTitle(), savedAt: new Date().toISOString(),
-    basemap: basemapRef(), mode, viewpoint: currentViewpoint(),
-    camera: mode === "3d" && sceneView ? sceneView.camera.toJSON() : null,
-    webmap: currentSource ? { itemId: currentSource.itemId, title: currentSource.title } : null,
-    layerStates: currentSource ? sourceLayers().map((l) => ({ id: l.id, title: l.title, visible: l.visible !== false, opacity: l.opacity })) : [],
+    basemap: basemapRef(), mode: state.mode, viewpoint: currentViewpoint(),
+    camera: state.mode === "3d" && state.sceneView ? state.sceneView.camera.toJSON() : null,
+    webmap: state.currentSource ? { itemId: state.currentSource.itemId, title: state.currentSource.title } : null,
+    layerStates: state.currentSource ? sourceLayers().map((l) => ({ id: l.id, title: l.title, visible: l.visible !== false, opacity: l.opacity })) : [],
     portalLayers: [...portalLayers.values()].map((l) => ({ ...l.__item, visible: l.visible !== false, opacity: l.opacity })),
     sketchVisible: graphicsLayer.visible !== false, sketchOpacity: graphicsLayer.opacity,
     sketchLayers: sketchLayersMeta(), order: layerOrderIds(),
     graphics: sketchLayers.flatMap((sl) => sl.graphics.toArray().map((g) => { straighten(g); const j = { geometry: flatGeometryJson(g.geometry), attributes: { ...g.attributes } }; if (sl !== graphicsLayer) j.layer = sketchKeyOfLayer(sl); return j; })),
     layers: dataLayers.map((fl) => ({ ...fl._srcDef, visible: fl.visible !== false, opacity: fl.opacity, showLabels: fl.labelsVisible !== false, definitionExpression: hasFilter(fl) ? filterText(fl) : undefined }))
   };
-  if (bookmarks.length) doc.bookmarks = bookmarks.map((b) => ({ title: b.title, viewpoint: b.viewpoint, layers: b.layers || [], thumb: b.thumb || null, camera: b.camera ? b.camera.toJSON() : null }));
+  if (state.bookmarks.length) doc.bookmarks = state.bookmarks.map((b) => ({ title: b.title, viewpoint: b.viewpoint, layers: b.layers || [], thumb: b.thumb || null, camera: b.camera ? b.camera.toJSON() : null }));
   return doc;
 }
 async function loadDocument(doc) {
@@ -4210,7 +4197,7 @@ async function loadDocument(doc) {
   for (const gj of doc.graphics || []) { try { addSketchGraphic(gj); } catch (e) { console.warn("Skipped a sketch", e); } }
   keepSketchOnTop();
   applyLayerOrder(doc.order);
-  bookmarks = doc.bookmarks || []; updateToolBadges();
+  state.bookmarks = doc.bookmarks || []; updateToolBadges();
   setTitle(doc.title);
   if (doc.mode === "3d" && F.threeD !== false) {
     await setMode("3d", { keepCamera: true });
@@ -4257,41 +4244,41 @@ function pickViaInput() {
 }
 function downloadBlob(blob, filename) { const u = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); }
 // The saved file is an ArcGIS web map (Web Map Specification): the same JSON that Save to ArcGIS Online stores.
-let unsavedLayers = 0, privateLeftOut = 0;
+let unsavedLayers = 0;
 async function buildWebMapJson(toFile) {
-  privateLeftOut = 0;
+  state.privateLeftOut = 0;
   const doc = buildDocument();
-  const ext = view.extent ? view.extent.clone() : null;
+  const ext = state.view.extent ? state.view.extent.clone() : null;
   const added = [...portalLayers.values()].map(layerToJson);
   unsavedLayers = added.filter((x) => !x).length;
   const ctx = { baseMap: await currentBaseMapJson(toFile), sourceLayers: sourceLayersJson(toFile), portalLayers: added.filter(Boolean),
-    extent: ext ? ext.toJSON() : null, scale: mode === "2d" ? mapView.scale : null, rotation: mode === "2d" ? mapView.rotation || 0 : 0,
+    extent: ext ? ext.toJSON() : null, scale: state.mode === "2d" ? mapView.scale : null, rotation: state.mode === "2d" ? mapView.rotation || 0 : 0,
     appVersion: APP_VERSION, sketchTitle: S.sketchLayer, sketchVisible: graphicsLayer.visible !== false, sketchOpacity: graphicsLayer.opacity, widgets: timeWidgetsJson(),
     sketchIcon: (a) => { const v = vectorSymbol(styleOf(a)); try { return v ? v.toJSON() : null; } catch (e) { return null; } },   // the vector symbol itself, as Map Viewer saves it
     order: layerOrderIds() };
   // A web scene is saved as a web scene (3.0): its ground, lighting and kind of scene, the camera, and the bookmarks as slides.
   // One of a pair: the saved map names both versions, so it can still switch after it is opened again.
   const pairNote = (o) => { if (mapPair) o[PAIR_PROP] = { webmap: mapPair.webmap, scene: mapPair.scene }; return o; };
-  if (sceneOnly) return pairNote(docToWebScene(doc, { ...ctx, camera: sceneView && sceneView.camera ? sceneView.camera.toJSON() : null, scene: (currentSource && currentSource.data) || null }));
+  if (state.sceneOnly) return pairNote(docToWebScene(doc, { ...ctx, camera: state.sceneView && state.sceneView.camera ? state.sceneView.camera.toJSON() : null, scene: (state.currentSource && state.currentSource.data) || null }));
   const wm = pairNote(docToWebMap(doc, ctx));
-  if (twoDOnly) wm[TWO_D_ONLY_PROP] = true;   // its author switched 3D off: the saved copy stays 2D only
+  if (state.twoDOnly) wm[TWO_D_ONLY_PROP] = true;   // its author switched 3D off: the saved copy stays 2D only
   // Saved to a file while in 3D: the file says so and from where it was seen, and opens that way again.
-  if (toFile && mode === "3d" && sceneView && sceneView.camera) wm[VIEW_3D_PROP] = { camera: sceneView.camera.toJSON() };
+  if (toFile && state.mode === "3d" && state.sceneView && state.sceneView.camera) wm[VIEW_3D_PROP] = { camera: state.sceneView.camera.toJSON() };
   return wm;
 }
 async function docText(locked) { const wm = await buildWebMapJson(true); if (locked) wm[LOCK_PROP] = true; return JSON.stringify(wm); }
 function saveToDevice(forceNew, locked) {
-  if (portalUser) return;   // signed in: maps save to ArcGIS Online (see applySaveMode)
-  if (openedLocked && !locked && (forceNew || !currentFileHandle)) toast(S.lockedSaveCopy, 7000);   // said when it matters: at Save
+  if (state.portalUser) return;   // signed in: maps save to ArcGIS Online (see applySaveMode)
+  if (state.openedLocked && !locked && (forceNew || !state.currentFileHandle)) toast(S.lockedSaveCopy, 7000);   // said when it matters: at Save
   if (!window.showSaveFilePicker) { openNameDialog(locked); return; }
   writeToHandle(forceNew, locked);
 }
 // locked: Save a locked copy. It writes a new locked file and leaves the map where it was (Save keeps going there).
 async function writeToHandle(forceNew, locked) {
-  let target = locked ? null : currentFileHandle;
+  let target = locked ? null : state.currentFileHandle;
   try {
     if (forceNew || locked || !target) {
-      const suggested = locked ? lockedBase() : openedLocked ? copyBase() : titleSlug();
+      const suggested = locked ? lockedBase() : state.openedLocked ? copyBase() : titleSlug();
       const picked = await window.showSaveFilePicker({ suggestedName: suggested + FILE_EXT, types: [{ description: S.mapFile, accept: { "application/json": [FILE_EXT] } }] });
       const opened = await openedEntry(picked);
       if (opened) { toast((await restoreOpened(opened, picked)) ? S.lockedKept : S.restoreFailed, 9000); return; }   // a locked map: put back as it was
@@ -4302,7 +4289,7 @@ async function writeToHandle(forceNew, locked) {
         if ((await target.requestPermission({ mode: "readwrite" })) !== "granted") { const d = new Error("Not allowed"); d.name = "NotAllowedError"; throw d; }
       }
       // locked since it was opened (a copy of the file locked in its place, say)? Save makes a copy instead
-      if (isLockedText(await (await target.getFile()).text())) { openedLocked = true; currentFileHandle = null; $("lockedNote").hidden = false; toast(S.lockedSaveCopy, 7000); return writeToHandle(true); }
+      if (isLockedText(await (await target.getFile()).text())) { state.openedLocked = true; state.currentFileHandle = null; $("lockedNote").hidden = false; toast(S.lockedSaveCopy, 7000); return writeToHandle(true); }
     }
     const name = target.name || (locked ? lockedBase() : titleSlug()) + FILE_EXT;
     const w = await target.createWritable();
@@ -4312,7 +4299,7 @@ async function writeToHandle(forceNew, locked) {
       recordSave({ handle: target, fileName: name });
       return;
     }
-    currentFileHandle = target; openedLocked = false; $("lockedNote").hidden = true;
+    state.currentFileHandle = target; state.openedLocked = false; $("lockedNote").hidden = true;
     setTitle(titleFromFileName(name));   // a saved map is named by its file: the header shows what reopening shows
     markClean();
     toast(t("savedFile", { name }));
@@ -4322,16 +4309,16 @@ async function writeToHandle(forceNew, locked) {
     // Chrome reports two things as AbortError: Cancel in the save box ("The user aborted a request."), and a file
     // it couldn't open for writing ("Failed to create or truncate file": someone else's file, a read-only one).
     if (err && err.name === "AbortError") { if (!/user aborted/i.test(err.message || "user aborted")) toast(S.cantSaveThere, 8000); return; }
-    if (err && (err.name === "NotAllowedError" || err.name === "NoModificationAllowedError") && !forceNew && !locked) { toast(S.readOnlyFile, 5000); currentFileHandle = null; return writeToHandle(true); }
+    if (err && (err.name === "NotAllowedError" || err.name === "NoModificationAllowedError") && !forceNew && !locked) { toast(S.readOnlyFile, 5000); state.currentFileHandle = null; return writeToHandle(true); }
     console.error(err);
-    if (!locked) currentFileHandle = null;
+    if (!locked) state.currentFileHandle = null;
     openNameDialog(locked);
   }
 }
 let nameDialogLocked = false;
-function openNameDialog(locked) { nameDialogLocked = !!locked; $("fileNameInput").value = locked ? lockedBase() : openedLocked ? copyBase() : titleSlug(); openModal("nameModal", $("fileNameInput")); setTimeout(() => $("fileNameInput").select(), 0); }
+function openNameDialog(locked) { nameDialogLocked = !!locked; $("fileNameInput").value = locked ? lockedBase() : state.openedLocked ? copyBase() : titleSlug(); openModal("nameModal", $("fileNameInput")); setTimeout(() => $("fileNameInput").select(), 0); }
 async function confirmNameDialog() {
-  const name = ($("fileNameInput").value || "map").replace(/[^\w\-]+/g, "_").slice(0, 60) || "map";
+  const name = ($("fileNameInput").value || "map").replace(/[^\w-]+/g, "_").slice(0, 60) || "map";
   const locked = nameDialogLocked;
   closeModal("nameModal");
   if (!locked) setTitle(titleFromFileName(name));   // as above
@@ -4346,11 +4333,11 @@ async function confirmNameDialog() {
 }
 $("nameConfirm").addEventListener("click", confirmNameDialog);
 $("fileNameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") confirmNameDialog(); });
-$("saveTile").addEventListener("click", () => (portalUser ? saveToAgol(false) : saveToDevice(false)));
-$("saveAsTile").addEventListener("click", () => (portalUser ? saveToAgol(true) : saveToDevice(true)));
-$("lockTile").addEventListener("click", () => { if (!portalUser) saveToDevice(true, true); });
+$("saveTile").addEventListener("click", () => (state.portalUser ? saveToAgol(false) : saveToDevice(false)));
+$("saveAsTile").addEventListener("click", () => (state.portalUser ? saveToAgol(true) : saveToDevice(true)));
+$("lockTile").addEventListener("click", () => { if (!state.portalUser) saveToDevice(true, true); });
 $("shotTile").addEventListener("click", () => {
-  view.takeScreenshot({ format: "png" }).then((s) => { fetch(s.dataUrl).then((r) => r.blob()).then((b) => { downloadBlob(b, titleSlug() + ".png"); toast(S.shotSaved); }); })
+  state.view.takeScreenshot({ format: "png" }).then((s) => { fetch(s.dataUrl).then((r) => r.blob()).then((b) => { downloadBlob(b, titleSlug() + ".png"); toast(S.shotSaved); }); })
     .catch(() => toast(S.shotFailed));
 });
 
@@ -4366,7 +4353,7 @@ async function recentDb() {
   return recentStore;
 }
 async function mapPicture() {
-  try { return (await view.takeScreenshot({ width: 300, height: 200, format: "jpg", quality: 72 })).dataUrl; } catch (e) { return null; }
+  try { return (await state.view.takeScreenshot({ width: 300, height: 200, format: "jpg", quality: 72 })).dataUrl; } catch (e) { return null; }
 }
 async function recordSave(o) {
   try {
@@ -4465,8 +4452,8 @@ async function openSavedMap(id) {
 // ============================================================ Print (in the browser; nothing is sent to a print service)
 $("printTile").addEventListener("click", async () => {
   try {
-    const w = 1600, h = Math.round(1600 * Math.max(0.4, Math.min(1.2, view.height / Math.max(1, view.width))));
-    const shot = await view.takeScreenshot({ width: w, height: h, format: "png" });
+    const w = 1600, h = Math.round(1600 * Math.max(0.4, Math.min(1.2, state.view.height / Math.max(1, state.view.width))));
+    const shot = await state.view.takeScreenshot({ width: w, height: h, format: "png" });
     const sheet = $("printSheet"); sheet.innerHTML = "";
     const h1 = document.createElement("h1"); h1.textContent = currentTitle();
     const img = document.createElement("img"); img.src = shot.dataUrl; img.alt = currentTitle();
@@ -4495,41 +4482,41 @@ async function onSignedIn() {
   try {
     const portal = new Portal({ url: PORTAL, authMode: "immediate" });
     await portal.load();
-    portalUser = portal.user;
-  } catch (e) { console.error("Portal load failed", e); portalUser = null; }
-  if (portalUser && currentSource && currentSource.item && currentSource.item.owner === portalUser.username) currentAgolItem = { id: currentSource.itemId, owner: portalUser.username, title: currentSource.title };
+    state.portalUser = portal.user;
+  } catch (e) { console.error("Portal load failed", e); state.portalUser = null; }
+  if (state.portalUser && state.currentSource && state.currentSource.item && state.currentSource.item.owner === state.portalUser.username) state.currentAgolItem = { id: state.currentSource.itemId, owner: state.portalUser.username, title: state.currentSource.title };
   renderUser();
-  return portalUser;
+  return state.portalUser;
 }
 // Signed out, Save and Save as write a file on this device. Signed in, the same two tiles go to the user's ArcGIS Online account instead
 // (Save overwrites the map's own item, Save as asks for a new name), so a file can't carry a map that includes content only that account can see.
 // Opening a file works either way.
 function applySaveMode() {
-  const local = F.localSave !== false, signed = !!portalUser;
+  const local = F.localSave !== false, signed = !!state.portalUser;
   for (const id of ["saveTile", "saveAsTile"]) $(id).hidden = !(local || signed);
   $("lockTile").hidden = !local || signed;   // a locked copy is a file; signed in, maps save to ArcGIS Online
   refreshTileTips();
 }
 function renderUser() {
-  const on = !!portalUser;
+  const on = !!state.portalUser;
   $("signInBtn").hidden = on || F.signIn === false || SIGN.headerButton === false;
   $("userWrap").hidden = !on;
   forgetBrowse();
   $("tabArcgis").hidden = !on;
   if (on) {
-    const name = portalUser.fullName || portalUser.username;
+    const name = state.portalUser.fullName || state.portalUser.username;
     $("userName").textContent = name;
     $("userBtn").setAttribute("aria-label", S.account + ": " + name);
     const av = $("avatar");
     const initials = name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
     av.textContent = initials;
-    try { if (portalUser.thumbnailUrl) { av.style.backgroundImage = "url('" + portalUser.thumbnailUrl + "')"; av.textContent = ""; } } catch (e) { /* initials */ }
+    try { if (state.portalUser.thumbnailUrl) { av.style.backgroundImage = "url('" + state.portalUser.thumbnailUrl + "')"; av.textContent = ""; } } catch (e) { /* initials */ }
   }
   renderAgol();
   applySaveMode();
 }
 function renderAgol() {
-  const on = !!portalUser;
+  const on = !!state.portalUser;
   $("signInTile").hidden = on || F.signIn === false; $("agolSignedIn").hidden = !on;
 }
 function startSignIn() {
@@ -4550,11 +4537,11 @@ function startSignIn() {
 }
 function stashBeforeRedirect() {
   const rec = { config: cfgName, t: Date.now() };
-  if (dirty) { try { rec.doc = buildDocument(); } catch (e) { /* skip */ } }
+  if (state.dirty) { try { rec.doc = buildDocument(); } catch (e) { /* skip */ } }
   try { sessionStorage.setItem(AUTH_STASH, JSON.stringify(rec)); }
   catch (e) { try { delete rec.doc; sessionStorage.setItem(AUTH_STASH, JSON.stringify(rec)); } catch (e2) { /* no storage */ } }
   history.replaceState(history.state, "", location.pathname);   // a fixed redirect address (the config is restored after sign-in)
-  dirty = false;                                                  // the work is stashed; don't block the redirect
+  state.dirty = false;                                                  // the work is stashed; don't block the redirect
 }
 function doSignIn() {
   closeModal("signInModal");
@@ -4572,9 +4559,10 @@ $("signInBtn").addEventListener("click", startSignIn);
 $("signInTile").addEventListener("click", startSignIn);
 // Save panel tiles: a short explanation on mouse-over and keyboard focus (and to screen readers, as each
 // tile's description). It can be dismissed with Escape and hovered over (WCAG 1.4.13).
+// eslint-disable-next-line no-var
 var TILE_TIPS = {   // var: the config step can ask for the tips before this line has run
-  saveTile: () => (portalUser ? S.tipSaveSignedIn : window.showSaveFilePicker ? S.tipSave : S.tipSaveDownloads),
-  saveAsTile: () => (portalUser ? S.tipSaveAsSignedIn : S.tipSaveAs),
+  saveTile: () => (state.portalUser ? S.tipSaveSignedIn : window.showSaveFilePicker ? S.tipSave : S.tipSaveDownloads),
+  saveAsTile: () => (state.portalUser ? S.tipSaveAsSignedIn : S.tipSaveAs),
   lockTile: () => S.tipLock, shotTile: () => S.tipShot, printTile: () => S.tipPrint, signInTile: () => S.tipSignIn
 };
 function refreshTileTips() { if (!TILE_TIPS) return; for (const [id, f] of Object.entries(TILE_TIPS)) { const d = $("tip-" + id); if (d) d.textContent = f(); } }
@@ -4624,11 +4612,11 @@ $("myMapsBtn").addEventListener("click", () => { closeUserMenu(false); openOpenM
 $("signOutBtn").addEventListener("click", () => {
   closeUserMenu(false);
   IdentityManager.destroyCredentials(); forgetThumbs();
-  portalUser = null; currentAgolItem = null;
+  state.portalUser = null; state.currentAgolItem = null;
   renderUser();
   if (!$("tabArcgis").hidden) switchTab("tabGroup");
   ($("signInBtn").hidden ? $("tool-save") : $("signInBtn")).focus();
-  if (currentSource && currentSource.restricted) toast(S.signedOutPrivateLayers, 8000);   // replaces "Signed out." so it isn't missed
+  if (state.currentSource && state.currentSource.restricted) toast(S.signedOutPrivateLayers, 8000);   // replaces "Signed out." so it isn't missed
   else toast(S.signedOut);
 });
 
@@ -4665,35 +4653,35 @@ function layerToJson(l) {
 async function currentBaseMapJson(toFile) {
   const b = activeMap().basemap;
   const id = b && b.portalItem && b.portalItem.id;
-  if (toFile && !id && currentSource && currentSource.restricted) return null;   // a private map's own basemap: the file uses the default one
+  if (toFile && !id && state.currentSource && state.currentSource.restricted) return null;   // a private map's own basemap: the file uses the default one
   if (id) { try { const d = await restGet(`/sharing/rest/content/items/${id}/data`); if (d && d.baseMap) return d.baseMap; } catch (e) { /* fall through */ } }
-  if (currentSource && currentSource.data && currentSource.data.baseMap && !id) return currentSource.data.baseMap;
+  if (state.currentSource && state.currentSource.data && state.currentSource.data.baseMap && !id) return state.currentSource.data.baseMap;
   try { const j = b.toJSON(); if (j && j.baseMapLayers && j.baseMapLayers.length) return j; } catch (e) { /* fall through */ }
   try { const d = await restGet(`/sharing/rest/content/items/${cfg.defaultBasemap}/data`); if (d && d.baseMap) return d.baseMap; } catch (e) { /* offline */ }
   return null;   // the file still opens: the app's default basemap is used
 }
 // The opened map's own layers as they are now, in map order; layers removed in Map layers are left out.
 function sourceLayersJson(toFile) {
-  if (!currentSource || !currentSource.data) return [];
-  const ops = (currentSource.data.operationalLayers || []).filter((op) => !isOwnLayerJson(op));
-  if (toFile && currentSource.restricted) { privateLeftOut = ops.length; return []; }
+  if (!state.currentSource || !state.currentSource.data) return [];
+  const ops = (state.currentSource.data.operationalLayers || []).filter((op) => !isOwnLayerJson(op));
+  if (toFile && state.currentSource.restricted) { state.privateLeftOut = ops.length; return []; }
   return sourceLayers().map((l) => { const op = ops.find((o) => o.id === l.id); return op ? patchOpJson(op, l) : null; }).filter(Boolean);
 }
 async function screenshotBlob(w, h) {
-  try { const s = await view.takeScreenshot({ width: w, height: h, format: "png" }); return await (await fetch(s.dataUrl)).blob(); } catch (e) { return null; }
+  try { const s = await state.view.takeScreenshot({ width: w, height: h, format: "png" }); return await (await fetch(s.dataUrl)).blob(); } catch (e) { return null; }
 }
 function agolStatus(html) { $("agolStatus").innerHTML = ""; if (html) $("agolStatus").appendChild(html); }
 async function saveToArcGIS(update) {
-  if (!portalUser) { startSignIn(); return; }
-  const user = portalUser.username;
+  if (!state.portalUser) { startSignIn(); return; }
+  const user = state.portalUser.username;
   // A role without the create-content privilege can't add items. The portal lists a user's privileges; if it doesn't, the server's own error is shown instead.
-  if (!update && Array.isArray(portalUser.privileges) && portalUser.privileges.length && !portalUser.privileges.includes("portal:user:createItem")) {
+  if (!update && Array.isArray(state.portalUser.privileges) && state.portalUser.privileges.length && !state.portalUser.privileges.includes("portal:user:createItem")) {
     const s = document.createElement("span"); s.textContent = S.arcgisNoPrivilege; agolStatus(s); return;
   }
-  if (sceneOnly) { const s = document.createElement("span"); s.textContent = S.sceneNoArcgisSave; agolStatus(s); return; }   // scenes save to this device for now
+  if (state.sceneOnly) { const s = document.createElement("span"); s.textContent = S.sceneNoArcgisSave; agolStatus(s); return; }   // scenes save to this device for now
   const p = document.createElement("span"); p.textContent = S.arcgisSaving; agolStatus(p);
   try {
-    const ext = view.extent.clone();
+    const ext = state.view.extent.clone();
     const wmJson = await buildWebMapJson();
     const sw = xyToLonLat(ext.xmin, ext.ymin), ne = xyToLonLat(ext.xmax, ext.ymax);
     const form = new FormData();
@@ -4711,13 +4699,13 @@ async function saveToArcGIS(update) {
     form.append("extent", [sw[0], sw[1], ne[0], ne[1]].map((n) => n.toFixed(6)).join(","));
     const thumb = await screenshotBlob(600, 400);
     if (thumb) form.append("thumbnail", thumb, "thumbnail.png");
-    const url = update ? `${PORTAL}/sharing/rest/content/users/${encodeURIComponent(currentAgolItem.owner)}/items/${currentAgolItem.id}/update`
+    const url = update ? `${PORTAL}/sharing/rest/content/users/${encodeURIComponent(state.currentAgolItem.owner)}/items/${state.currentAgolItem.id}/update`
       : `${PORTAL}/sharing/rest/content/users/${encodeURIComponent(user)}/addItem`;
     const r = await esriRequest(url, { method: "post", body: form, responseType: "json" });
     const d = r.data || {};
     if (d.error || d.success === false) throw new Error((d.error && d.error.message) || "error");
-    const id = d.id || (currentAgolItem && currentAgolItem.id);
-    currentAgolItem = { id, owner: user, title };
+    const id = d.id || (state.currentAgolItem && state.currentAgolItem.id);
+    state.currentAgolItem = { id, owner: user, title };
     setTitle(title);   // the name given in the Save dialog becomes the map's name in the header
     markClean();
     renderAgol();
@@ -4736,7 +4724,7 @@ async function saveToArcGIS(update) {
 // Signed in: Save overwrites the map's own ArcGIS Online item (a map with none yet, or one that isn't the user's, asks for a name like Save as).
 // Save as always opens the dialog and makes a new item.
 function saveToAgol(asNew) {
-  if (!asNew && currentAgolItem && currentAgolItem.owner === portalUser.username) { saveToArcGIS(true); return; }
+  if (!asNew && state.currentAgolItem && state.currentAgolItem.owner === state.portalUser.username) { saveToArcGIS(true); return; }
   $("agolTitle").value = currentTitle(); $("agolSummary").value = ""; openModal("agolModal", $("agolTitle"));
 }
 $("agolConfirm").addEventListener("click", () => { closeModal("agolModal"); saveToArcGIS(false); });
@@ -4765,6 +4753,7 @@ function renderVersions() {
     ["Paired 2D and 3D maps (lab)", PAIRS_VERSION, "Only where a config turns it on (features.pairs). A web map and a 3D map their author made as two versions of one map: the web map's item has the tag atlas-3d-<the 3D map's item ID> and the 3D map's has atlas-2d-<the web map's item ID>. The 3D button then opens the 3D map, and 2D the web map, at the same place, with your sketches, spreadsheet data and added layers. Filters and the layers switched on belong to each version. Open map shows the pair as one card marked 2D + 3D."],
     ["3D quality", "1.0", "How much work the 3D view does. Low (smaller textures, less memory, no shadows or stars) is chosen for a device with 4 GB of memory or less, 4 processor cores or fewer, or no graphics chip; otherwise medium. A config (threeDQuality) or a link (?quality=low, medium or high) can fix it."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],
+    ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place, the first step in splitting the code into separate files. Nothing looks or works differently."],
     ["Time", "1.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider, set up from the map's own settings."],
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
     ["CSV import", CSV_VERSION, "Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
@@ -4784,7 +4773,7 @@ function renderVersions() {
 // ============================================================ Start-up
 // The Map layers count follows the map on screen: layers added or removed, another map opened.
 reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
-view.when(() => {
+state.view.when(() => {
   updatePopupEnabled();
   watchBottom(0);
   if (configMissing) toast("Config “" + configMissing + "” wasn't found, so the default is shown.", 6000);
