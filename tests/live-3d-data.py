@@ -9,6 +9,7 @@ and is saved; a spreadsheet added to a web scene is saved in the scene file and 
 """
 import argparse, functools, glob, http.server, io, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
@@ -197,7 +198,7 @@ def main():
         check(not real, "no script errors: " + " | ".join(real[:3]))
         browser.close()
     print(f"{checks[0] - len(failures)}/{checks[0]} checks passed")
-    sys.exit(1 if failures else 0)
+    sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__":
     main()

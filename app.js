@@ -2,23 +2,23 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.37";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.38";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.37";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.38";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.37";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.37";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.37";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.37";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.38";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.38";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.38";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.38";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.37";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.37";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.37";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.38";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.38";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.38";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.37";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.38";
 
-const APP_VERSION = "5.0.0-beta.37";
+const APP_VERSION = "5.0.0-beta.38";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.1";
 const PROFILE_VERSION = "3.4";
@@ -43,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.37). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.38). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -365,7 +365,7 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 const viewEls = new Map();
 function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.37): the config's, or closer when that would leave the world narrower than the map.
+// The zoom the app opens at (5.0.0-beta.38): the config's, or closer when that would leave the world narrower than the map.
 // The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
 // white bands either side. A config's own closer zoom (example-es: 7) is kept.
 function startZoom() {
@@ -2708,7 +2708,7 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
-// Charts 1.1 (5.0.0-beta.37): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// Charts 1.1 (5.0.0-beta.38): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
 // The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).
@@ -3381,12 +3381,25 @@ function getTopicTree() {
   return topicTreePromise;
 }
 const cleanQuery = (s) => String(s || "").replace(/["':()\\[\]{}^~*?]/g, " ").replace(/\s+/g, " ").trim();
-function thumbUrl(item) {
-  if (!item || !item.thumbnail) return "";
-  let u = `${PORTAL}/sharing/rest/content/items/${item.id}/info/${item.thumbnail}`;
-  if (item.access && item.access !== "public") { const c = IdentityManager.findCredential(PORTAL + "/sharing"); if (c && c.token) u += "?token=" + encodeURIComponent(c.token); }
-  return u;
+// A card's picture (5.0.0-beta.38). A public item's is loaded by its address. An item only the signed-in person can see
+// needs their token: it used to go on the end of the address as a query parameter, written into the page as the card's
+// background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
+// in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.
+const thumbBlobs = new Map();   // item id and thumbnail name -> a promise of the blob address (or null)
+function setThumb(el, item) {
+  if (!el || !item || !item.thumbnail) return;
+  const u = `${PORTAL}/sharing/rest/content/items/${item.id}/info/${item.thumbnail}`;
+  const show = (url) => { el.style.backgroundImage = "url('" + url.replace(/'/g, "%27") + "')"; };
+  if (!item.access || item.access === "public") { show(u); return; }
+  const c = IdentityManager.findCredential(PORTAL + "/sharing");
+  if (!c || !c.token) return;
+  const key = item.id + "/" + item.thumbnail;
+  if (!thumbBlobs.has(key)) thumbBlobs.set(key, fetch(u, { headers: { "X-Esri-Authorization": "Bearer " + c.token }, credentials: "omit", referrerPolicy: "no-referrer" })
+    .then((r) => (r.ok && /^image\//i.test(r.headers.get("content-type") || "") ? r.blob() : null)).then((b) => (b ? URL.createObjectURL(b) : null)).catch(() => null));
+  const pr = thumbBlobs.get(key);
+  pr.then((url) => { if (url && thumbBlobs.get(key) === pr) show(url); });
 }
+function forgetThumbs() { for (const pr of thumbBlobs.values()) pr.then((url) => { if (url) URL.revokeObjectURL(url); }); thumbBlobs.clear(); }
 
 // ============================================================ Collection browser (Open map and Add layer)
 // After MapMaker's Add layer dialog: search, a Categories tree (the content group's categories, with chevrons for
@@ -3486,7 +3499,7 @@ function createBrowser(o) {
       row.append(sh, act); txt.append(h, sn, row);
     } else txt.append(h, sn, act);
     const th = document.createElement("div"); th.className = "cat-thumb" + (o.thumbOpens ? " open" : ""); th.setAttribute("aria-hidden", "true");
-    const tu = thumbUrl(item); if (tu) th.style.backgroundImage = "url('" + tu.replace(/'/g, "%27") + "')";
+    setThumb(th, item);
     if (o.thumbOpens) th.addEventListener("click", () => o.run(item, act));
     if (scene || paired) { const bd = document.createElement("span"); bd.className = "cat-3d"; bd.innerHTML = calIcon("cube"); bd.append(paired ? S.pairBadge : S.view3d); th.appendChild(bd); }   // marked on its picture, where the eye goes first
     top.append(txt, th);
@@ -3655,7 +3668,7 @@ const agolState = { start: 1, loading: false };
 function mapCard(item, onOpen) {     // My ArcGIS Online maps
   const li = document.createElement("li"); li.className = "map-card";
   const th = document.createElement("div"); th.className = "card-thumb"; th.setAttribute("aria-hidden", "true");
-  const tu = thumbUrl(item); if (tu) th.style.backgroundImage = "url('" + tu.replace(/'/g, "%27") + "')";
+  setThumb(th, item);
   th.addEventListener("click", () => onOpen(item));
   const body = document.createElement("div"); body.className = "card-body";
   const h = document.createElement("h4"); h.className = "card-title"; h.textContent = item.title || S.untitled;
@@ -4610,7 +4623,7 @@ document.addEventListener("click", (e) => { if (!$("userMenu").hidden && !$("use
 $("myMapsBtn").addEventListener("click", () => { closeUserMenu(false); openOpenModal("tabArcgis"); });
 $("signOutBtn").addEventListener("click", () => {
   closeUserMenu(false);
-  IdentityManager.destroyCredentials();
+  IdentityManager.destroyCredentials(); forgetThumbs();
   portalUser = null; currentAgolItem = null;
   renderUser();
   if (!$("tabArcgis").hidden) switchTab("tabGroup");
