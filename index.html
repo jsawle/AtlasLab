@@ -124,6 +124,7 @@
     .prof-stat dt{ font-size:14px; color:#3a3a3a; }
     .prof-stat dd{ margin:0; font-size:16px; font-weight:700; color:#111; }
     .prof-stretch{ cursor:help; }
+    .prof-note{ gap:0.3em; }   /* "Total climb and descent for lines up to 50 km" reads as one phrase */
     .prof-note dd{ font-size:14px; font-weight:400; color:#3a3a3a; }
     .prof-acts{ flex:none; display:flex; align-items:center; gap:8px; }
     .prof-acts .field{ width:auto; max-width:220px; padding:6px 8px; }
@@ -913,7 +914,7 @@
           <div class="prof-acts">
             <div class="units-seg" role="group" data-i18n-aria="units" aria-label="Units"><button type="button" data-units="metric" aria-pressed="false" data-i18n-aria="unitsMetric" aria-label="km: kilometres and metres">km</button><button type="button" data-units="imperial" aria-pressed="false" data-i18n-aria="unitsImperial" aria-label="mi: miles and feet">mi</button></div>
             <span id="profLinesWrap" hidden><label class="sr-only" for="profLines" data-i18n="profilePickLine">Use a sketched line</label><select class="field" id="profLines"></select></span>
-            <button class="btn" type="button" id="profNew" data-i18n="profileNew" hidden>New line</button>
+            <button class="btn" type="button" id="profNew" data-i18n="profileNew" hidden>New profile</button>
           </div>
         </div>
         <p class="sr-only" id="profStatus" role="status"></p>
@@ -1056,6 +1057,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.33"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.34"></script>
 </body>
 </html>

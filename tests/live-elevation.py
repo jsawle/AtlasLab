@@ -16,7 +16,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
 V = "document.querySelector('arcgis-map').view"
 # the graphics the tool has put on the map: the line, the dot
-GFX = "(() => " + V + ".graphics.map(g => ({ type: g.geometry.type, json: g.geometry.toJSON(), style: g.symbol && g.symbol.style })).toArray())()"
+GFX = "(() => " + V + ".graphics.map(g => ({ type: g.geometry.type, json: g.geometry.toJSON(), style: g.symbol && g.symbol.style, kind: g.attributes && g.attributes.kind })).toArray())()"
 # the cursor the pointer has at a place on the page (through the map component's shadow roots)
 CURSOR = """([x, y]) => { let el = document.elementFromPoint(x, y); while (el && el.shadowRoot && el.shadowRoot.elementFromPoint(x, y) && el.shadowRoot.elementFromPoint(x, y) !== el) el = el.shadowRoot.elementFromPoint(x, y); return getComputedStyle(el).cursor; }"""
 
@@ -58,7 +58,7 @@ def main():
             try: page.wait_for_selector("#profChart .prof-land", timeout=60000); page.wait_for_timeout(400); return True
             except Exception: return False
         def dot(): 
-            d = [g for g in page.evaluate(GFX) if g["type"] == "point"]; return d[0]["json"] if d else None
+            d = [g for g in page.evaluate(GFX) if g["type"] == "point" and not g.get("kind")]; return d[0]["json"] if d else None
         def on_segment(pt, a_, b_, tol):   # is the point on the straight line between two map points (Web Mercator)?
             (x, y), (x1, y1), (x2, y2) = pt, a_, b_; L = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
             off = abs((x2 - x1) * (y1 - y) - (x1 - x) * (y2 - y1)) / L; along = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / L / L
@@ -147,9 +147,39 @@ def main():
         check(ar[0] == "slider" and int(ar[1]) > 0 and "along" in (ar[2] or "") and int(ar[3]) > 100, "the chart says where it is to a screen reader: " + json.dumps(ar))
         axe("#profilePanel", "the Elevation dock with a chart")
 
+        print("== changing a drawn line")
+        def handles(kind): return [g["json"] for g in page.evaluate(GFX) if g.get("kind") == kind]
+        def scr_xy(j): return page.evaluate("([x, y]) => { const v = " + V + "; const p = v.toScreen({ type: 'point', x, y, spatialReference: { wkid: 102100 } }); const r = v.container.getBoundingClientRect(); return [p.x + r.left, p.y + r.top]; }", [j["x"], j["y"]])
+        def stat(name): return [x for x in page.evaluate("[...document.querySelectorAll('#profStats .prof-stat')].map(x => x.querySelector('dt').textContent + ' ' + x.querySelector('dd').textContent)") if x.startswith(name)][0]
+        def drag(fr, to):
+            page.mouse.move(fr[0], fr[1]); page.wait_for_timeout(300); page.mouse.down(); page.mouse.move((fr[0] + to[0]) / 2, (fr[1] + to[1]) / 2, steps=6); page.mouse.move(to[0], to[1], steps=6); page.wait_for_timeout(200); page.mouse.up()
+        vx, md = handles("vertex"), handles("mid")
+        check(len(vx) == 2 and len(md) == 1, "a drawn line has handles: its two points, and one halfway to add a point")
+        v_end = scr_xy(vx[1]); page.mouse.move(v_end[0], v_end[1]); page.wait_for_timeout(500)
+        check(page.evaluate(CURSOR, v_end) == "grab", "over a handle the pointer shows it can be dragged: " + page.evaluate(CURSOR, v_end))
+        before_len, centre0 = stat("Length"), page.evaluate("(() => { const c = " + V + ".center; return [c.x, c.y]; })()")
+        page.mouse.click(v_end[0], v_end[1]); page.wait_for_timeout(1200)
+        check(len(handles("vertex")) == 2 and stat("Length") == before_len, "pressing a handle without moving it changes nothing")
+        m0 = scr_xy(md[0]); drag(m0, [m0[0], m0[1] - 70])
+        check(charted(), "dragging the halfway handle charts the changed line")
+        page.wait_for_timeout(800); vx2 = handles("vertex"); ln = [g for g in page.evaluate(GFX) if g["type"] == "polyline"][0]["json"]["paths"][0]
+        centre1 = page.evaluate("(() => { const c = " + V + ".center; return [c.x, c.y]; })()")
+        moved = scr_xy(vx2[1]) if len(vx2) == 3 else [0, 0]
+        check(len(vx2) == 3 and abs(moved[1] - (m0[1] - 70)) < 6 and len(handles("mid")) == 2, "it became a new point, where it was let go, with halfway handles either side")
+        check(abs(centre1[0] - centre0[0]) < 1 and abs(centre1[1] - centre0[1]) < 1, "the map did not pan while the handle was dragged")
+        check(on_line([vx2[1]["x"], vx2[1]["y"]], ln, 30)[0] and stat("Length") != before_len, "the line goes through the new point, and its length changed: %s, was %s" % (stat("Length"), before_len))
+        page.screenshot(path=str(shots / "elevation-edited.png"))
+        e0 = scr_xy(vx2[2]); drag(e0, [e0[0] - 60, e0[1] + 20]); charted(); page.wait_for_timeout(800)
+        e1 = scr_xy(handles("vertex")[2])
+        check(abs(e1[0] - (e0[0] - 60)) < 6 and abs(e1[1] - (e0[1] + 20)) < 6, "an end of the line can be dragged too")
+        n1 = scr_xy(handles("vertex")[1]); page.mouse.dblclick(n1[0], n1[1]); page.wait_for_timeout(600); charted(); page.wait_for_timeout(800)
+        check(len(handles("vertex")) == 2 and len(handles("mid")) == 1, "double-clicking a point takes it out")
+        page.mouse.move(mid[0], mid[1]); page.wait_for_timeout(300)
+
         print("== a line over land only")
+        check(page.inner_text("#profNew").strip() == "New profile", "the button to start again says New profile: " + page.inner_text("#profNew"))
         page.click("#profNew"); page.wait_for_selector("#profChart .prof-msg", timeout=10000)
-        check(not [g for g in page.evaluate(GFX)], "New line clears the map")
+        check(not [g for g in page.evaluate(GFX)], "New profile clears the map, handles and all")
         go(-3.9, 40.6, 9)   # the hills north of Madrid
         draw([-4.3, 40.5], [-3.6, 40.8])
         check(charted(), "a second line is charted")
@@ -220,6 +250,7 @@ def main():
         check(charted(), "clicking the sketched line charts it")
         pl = [g for g in page.evaluate(GFX) if g["type"] == "polyline"]
         check(len(pl) == 1 and len(pl[0]["json"]["paths"][0]) == 3, "the line charted is the sketched line (three points)")
+        check(not [g for g in page.evaluate(GFX) if g.get("kind")], "a sketched line has no handles here: it is changed with Sketch")
         cb = page.evaluate("(() => { const b = document.getElementById('profChart').getBoundingClientRect(); return [b.left, b.top, b.width, b.height]; })()")
         hits = []
         for f in (0.25, 0.8):
