@@ -1,6 +1,6 @@
-"""Runs Sketch's text options, and the way back from a styled fill, of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs Sketch's text options, and the way back from a styled fill, of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-sketch-text.py [--shots DIR] [--proxy URL] [--axe PATH]
+Run:  python3 tests/live-sketch-text.py [--shots DIR] [--proxy URL] [--axe PATH]
 Needs network access to js.arcgis.com, www.arcgis.com and static.arcgis.com, and Python Playwright with Chromium.
 
 Checks: the text tool offers Font, Bold and Italic, Colour, Size, Halo and Rotation; each changes the text on the map;

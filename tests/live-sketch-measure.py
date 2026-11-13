@@ -1,6 +1,6 @@
-"""Runs the Sketch measuring aids of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs the Sketch measuring aids of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-sketch-measure.py [--shots DIR] [--proxy URL]
+Run:  python3 tests/live-sketch-measure.py [--shots DIR] [--proxy URL]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: tooltips, segment labels and snapping are on from the start; while a shape is drawn its sides are labelled

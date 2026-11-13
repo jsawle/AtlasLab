@@ -1,0 +1,30 @@
+# Unit tests for the parts that don't need a browser or the ArcGIS SDK.
+# The live browser tests (tests/live-*.py) still run by hand for now: they need Playwright, Chromium and the real services.
+name: Tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Filter tests
+        run: node tests/filter.test.mjs
+      - name: Scene file tests
+        run: node tests/scenes.test.mjs
+      - name: Units tests
+        run: node tests/units.test.mjs
+      - name: Config and language file tests
+        run: node tests/config.test.mjs
+      - name: Columns in 3D tests
+        run: node tests/columns.test.mjs
+      - name: The app's code parses as a module
+        # "node --check app.js" passes a .js file with a syntax error in it; checked as .mjs it does not
+        run: cp app.js "$RUNNER_TEMP/app.mjs" && node --check "$RUNNER_TEMP/app.mjs"

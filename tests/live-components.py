@@ -1,6 +1,6 @@
 """Runs the tools that are SDK components (Legend, Measure, Coordinates, Swipe, Table) of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-components.py [--shots DIR] [--proxy URL] [--axe PATH]
+Run:  python3 tests/live-components.py [--shots DIR] [--proxy URL] [--axe PATH]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: none of the SDK's widget classes is downloaded; the Legend panel and a layer's own legend show the layer's

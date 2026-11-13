@@ -1,4 +1,4 @@
-// node atlas-sketch/tests/config.test.mjs
+// node tests/config.test.mjs
 // Every config in config/ and every language file in locales/ is checked before a release:
 // it parses, its IDs are IDs, what it extends exists, its language has a file, and each language file
 // translates every piece of the app's wording with the same {placeholders}.

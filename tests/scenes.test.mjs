@@ -1,4 +1,4 @@
-// Web scene files (saved-map format 3.0). Run: node atlas-sketch/tests/scenes.test.mjs
+// Web scene files (saved-map format 3.0). Run: node tests/scenes.test.mjs
 import { docToWebScene, readWebScene, looksLikeWebScene, looksLikeWebMap, docToWebMap, readWebMap, WEBSCENE_SPEC_VERSION, WEBMAP_WRITER_VERSION, TEXT_FONTS, textFont, cleanSketchAttributes, sketchToOperationalLayers } from "../lib/doc.js";
 let n = 0, bad = 0;
 const ok = (c, msg, got) => { n++; if (!c) { bad++; console.log("  FAIL " + msg + (got !== undefined ? " — got " + JSON.stringify(got) : "")); } else console.log("  ok   " + msg); };

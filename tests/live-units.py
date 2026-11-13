@@ -1,6 +1,6 @@
-"""Runs the units choice of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs the units choice of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-units.py [--shots DIR] [--proxy URL] [--axe PATH]
+Run:  python3 tests/live-units.py [--shots DIR] [--proxy URL] [--axe PATH]
 Needs network access to js.arcgis.com, www.arcgis.com and elevation3d.arcgis.com, and Python Playwright with Chromium.
 
 Checks: with units on auto a device in a US time zone starts in miles and feet and one in a UK time zone in kilometres

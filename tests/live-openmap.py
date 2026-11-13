@@ -1,6 +1,6 @@
-"""Runs Open map's 2D / 3D choice in Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs Open map's 2D / 3D choice in Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-openmap.py [--shots DIR] [--proxy URL] [--axe PATH]
+Run:  python3 tests/live-openmap.py [--shots DIR] [--proxy URL] [--axe PATH]
 Uses the test content group (config=test), which has web maps and three web scenes; and the live MapMaker group
 (config=mapmaker-live), which has no scenes.
 

@@ -1,6 +1,6 @@
-"""Measures what Atlas 5.0 (atlas-sketch) downloads to open a map, and how long it takes on a slow school connection.
+"""Measures what Atlas 5.0 downloads to open a map, and how long it takes on a slow school connection.
 
-Run:  python3 atlas-sketch/tests/perf.py [--app DIR] [--query "config=mapmaker&webmap=<id>"] [--json FILE]
+Run:  python3 tests/perf.py [--app DIR] [--query "config=mapmaker&webmap=<id>"] [--json FILE]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 The connection is held to 1.6 Mbit/s down, 750 kbit/s up and 150 ms delay (Chrome's "Slow 4G"-like profile: a busy

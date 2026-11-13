@@ -1,6 +1,6 @@
-"""Runs the MapMaker-parity tools of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs the MapMaker-parity tools of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-parity.py [--shots DIR] [--proxy URL] [--axe FILE]
+Run:  python3 tests/live-parity.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: the app says it is 5.0 and runs on the SDK version it names; Elevation is a toolbar tool of its own and

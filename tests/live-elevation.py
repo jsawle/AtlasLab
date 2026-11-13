@@ -1,6 +1,6 @@
-"""Runs the Elevation tool of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs the Elevation tool of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-elevation.py [--shots DIR] [--proxy URL] [--axe PATH]
+Run:  python3 tests/live-elevation.py [--shots DIR] [--proxy URL] [--axe PATH]
 Needs network access to js.arcgis.com, www.arcgis.com and elevation3d.arcgis.com, and Python Playwright with Chromium.
 
 Checks: the chart runs the whole width under the map with the line's figures in one row beneath it; a line from land
