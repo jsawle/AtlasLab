@@ -2,23 +2,23 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.36";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.37";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.36";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.37";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.36";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.36";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.36";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.36";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.37";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.37";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.37";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.37";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.36";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.36";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.36";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.37";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.37";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.37";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.36";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.37";
 
-const APP_VERSION = "5.0.0-beta.36";
+const APP_VERSION = "5.0.0-beta.37";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.1";
 const PROFILE_VERSION = "3.4";
@@ -43,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.36). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.37). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -365,7 +365,7 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 const viewEls = new Map();
 function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.36): the config's, or closer when that would leave the world narrower than the map.
+// The zoom the app opens at (5.0.0-beta.37): the config's, or closer when that would leave the world narrower than the map.
 // The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
 // white bands either side. A config's own closer zoom (example-es: 7) is kept.
 function startZoom() {
@@ -2708,7 +2708,7 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
-// Charts 1.1 (5.0.0-beta.36): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// Charts 1.1 (5.0.0-beta.37): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
 // The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).
