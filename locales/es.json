@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.1",
+  "version": "1.2",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -518,6 +518,13 @@
     "profileLowest": "Punto más bajo",
     "profileClimb": "Ascenso total",
     "profileDescent": "Descenso total",
+    "profileStretch": "Exageración vertical",
+    "profileTrueShape": "×1 (forma real)",
+    "profileStretchSay": "Las alturas se dibujan {n} veces más altas que las distancias.",
+    "profileTrueShapeSay": "Las alturas y las distancias se dibujan a la misma escala.",
+    "profileStretchWhy": "Las pendientes parecen más empinadas de lo que son.",
+    "profileClimbBoth": "Ascenso y descenso total",
+    "profileClimbLong": "para líneas de hasta {dist}",
     "profileAt": "A {dist}: {height}",
     "profileNoPlace": "Ningún lugar elegido",
     "profileSummary": "La línea mide {length}. Su punto más alto está a {high} y el más bajo a {low}.",

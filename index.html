@@ -119,10 +119,12 @@
     .prof-tip{ position:absolute; pointer-events:none; white-space:nowrap; padding:5px 9px; border-radius:4px; background:#1f1f1f; color:#fff; font-size:14px; font-weight:600; }
     .prof-tip[hidden]{ display:none; }
     .prof-foot{ flex:none; display:flex; align-items:center; gap:16px; padding-top:6px; }
-    .prof-stats{ flex:1 1 auto; min-width:0; margin:0; display:flex; flex-wrap:wrap; gap:4px 28px; }
+    .prof-stats{ flex:1 1 auto; min-width:0; margin:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 28px; }
     .prof-stat{ display:flex; align-items:baseline; gap:7px; }
     .prof-stat dt{ font-size:14px; color:#3a3a3a; }
     .prof-stat dd{ margin:0; font-size:16px; font-weight:700; color:#111; }
+    .prof-stretch{ cursor:help; }
+    .prof-note dd{ font-size:14px; font-weight:400; color:#3a3a3a; }
     .prof-acts{ flex:none; display:flex; align-items:center; gap:8px; }
     .prof-acts .field{ width:auto; max-width:220px; padding:6px 8px; }
     .prof-acts .btn{ white-space:nowrap; }
@@ -1054,6 +1056,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.32"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.33"></script>
 </body>
 </html>

@@ -117,9 +117,11 @@ def main():
         st = page.evaluate("""(() => { const s = [...document.querySelectorAll('#profStats .prof-stat')]; const cb = document.getElementById('profChart').getBoundingClientRect();
           return { text: s.map(x => x.querySelector('dt').textContent + ' ' + x.querySelector('dd').textContent), tops: s.map(x => Math.round(x.getBoundingClientRect().top)), chartBottom: cb.bottom,
             dt: parseFloat(getComputedStyle(s[0].querySelector('dt')).fontSize), dd: parseFloat(getComputedStyle(s[0].querySelector('dd')).fontSize), status: document.getElementById('profStatus').textContent }; })()""")
-        check(len(st["text"]) == 5 and len(set(st["tops"])) == 1 and st["tops"][0] >= st["chartBottom"] - 1, "the five figures are in one row under the chart: " + " | ".join(st["text"]))
+        check(len(st["text"]) == 5 and max(st["tops"]) - min(st["tops"]) <= 6 and min(st["tops"]) >= st["chartBottom"] - 1, "the figures are in one row under the chart: " + " | ".join(st["text"]))
+        check(re.match(r"Vertical exaggeration ×\d", st["text"][3] or "") and "times as tall as distances" in st["status"], "the chart says how much it stretches heights, and so does what a screen reader is told: " + st["text"][3])
+        check(st["text"][4].startswith("Total climb and descent for lines up to 50 km") or st["text"][4].startswith("Total climb and descent for lines up to 31 mi"), "a line longer than 50 km has no total climb or descent, and says why: " + st["text"][4])
         check(st["dt"] >= 14 and st["dd"] >= 16, "the figures' text is 14px and 16px: %s, %s" % (st["dt"], st["dd"]))
-        check(all(not re.search(r"\d\.\d", x) or "km" in x or "mi" in x for x in st["text"]) and "below sea level" in st["status"], "what a screen reader is told: " + st["status"])
+        check(all(not re.search(r"\d\.\d", x) or "km" in x or "mi" in x for x in st["text"] if not x.startswith("Vertical exaggeration")) and "below sea level" in st["status"], "what a screen reader is told: " + st["status"])
         low = [x for x in st["text"] if x.startswith("Lowest")][0]
         check("-" in low or "−" in low, "the lowest place is below sea level: " + low)
         page.screenshot(path=str(shots / "elevation-sea.png"))
@@ -154,6 +156,11 @@ def main():
         c2 = page.evaluate("(() => ({ sea: !!document.querySelector('#profChart .prof-sea'), water: !!document.querySelector('#profChart .prof-water'), label: !!document.querySelector('#profChart .prof-sea-label'), low: [...document.querySelectorAll('#profStats .prof-stat')].map(x => x.textContent).find(x => x.startsWith('Lowest')), status: document.getElementById('profStatus').textContent }))()")
         check(not c2["sea"] and not c2["water"] and not c2["label"] and "below sea level" not in c2["status"], "no sea-level line or water over land: " + str(c2["low"]))
         page.screenshot(path=str(shots / "elevation-land.png"))
+        page.mouse.move(mid[0], mid[1]); page.click("#profNew"); page.wait_for_selector("#profChart .prof-msg", timeout=10000)
+        draw([-4.0, 40.75], [-3.8, 40.8])   # about 18 km
+        check(charted(), "a short line is charted")
+        sh = page.evaluate("[...document.querySelectorAll('#profStats .prof-stat')].map(x => x.querySelector('dt').textContent + ' ' + x.querySelector('dd').textContent)")
+        check(len(sh) == 6 and sh[3].startswith("Total climb ") and sh[4].startswith("Total descent ") and sh[5].startswith("Vertical exaggeration ×"), "a line up to 50 km has total climb and descent: " + " | ".join(sh))
         page.evaluate("document.querySelector('#profilePanel [data-close]').click()"); page.wait_for_timeout(800)
         check(not page.evaluate(GFX) and page.evaluate(CURSOR, mid) != "crosshair", "closing the tool clears the map and gives the pointer back: " + page.evaluate(CURSOR, mid))
 
@@ -180,6 +187,23 @@ def main():
         check(last[0] <= last[1] + 0.5, "the last distance label is inside the chart: %d of %d" % (last[0], last[1]))
         check(page.evaluate("document.querySelector('#profChart .prof-top').getAttribute('stroke-width')") == "1", "the surface line is 1px")
         page.screenshot(path=str(shots / "elevation-atlantic.png"))
+        # the scales: at least three heights, and the vertical exaggeration shown is the one drawn
+        SC = """(() => { const svg = document.querySelector('#profChart svg'), r = svg.querySelector('rect'), w = +r.getAttribute('width');
+          const num = s => +s.replace(/[^0-9.\u2212-]/g, '').replace('\u2212', '-');
+          const hz = [...svg.querySelectorAll('text.prof-tick')].filter(t => / (m|ft)$/.test(t.textContent) && +t.getAttribute('x') < 70).map(t => ({ v: num(t.textContent) * (/ft$/.test(t.textContent) ? 0.3048 : 1), y: +t.getAttribute('y') }));
+          const s = [...document.querySelectorAll('#profStats .prof-stat')].map(x => [x.querySelector('dt').textContent, x.querySelector('dd').textContent]);
+          const len = s[0][1], m = num(len) * (/mi$/.test(len) ? 1609.344 : /km$/.test(len) ? 1000 : 1);
+          const ve = s.find(x => x[0] === 'Vertical exaggeration');
+          return { n: hz.length, mpx: m / w, vpx: hz.length > 1 ? Math.abs((hz[0].v - hz[hz.length - 1].v) / (hz[0].y - hz[hz.length - 1].y)) : null, ve: ve && num(ve[1]), stats: s.slice(0, 3).map(x => x.join(' ')), pts: +document.getElementById('profChart').getAttribute('aria-valuemax') + 1 }; })()"""
+        sc = page.evaluate(SC)
+        check(sc["n"] >= 3, "at least three heights on the scale of a 1366 x 768 screen: %d" % sc["n"])
+        drawn = sc["mpx"] / sc["vpx"] if sc["vpx"] else 0
+        check(sc["ve"] and abs(sc["ve"] - drawn) / drawn < 0.03, "the vertical exaggeration shown (x%s) is the one drawn (x%.1f)" % (sc["ve"], drawn))
+        page.set_viewport_size({"width": 1024, "height": 640}); page.wait_for_timeout(2500)
+        sc2 = page.evaluate(SC)
+        check(sc2["stats"] == sc["stats"] and sc["pts"] == sc2["pts"] == 512, "the same figures on a smaller screen, from the same 512 points: " + " | ".join(sc2["stats"]))
+        check(sc2["n"] >= 3 and sc2["ve"] != sc["ve"], "there too at least three heights, and the stretch shown follows the chart's new shape: x%s, then x%s" % (sc["ve"], sc2["ve"]))
+        page.set_viewport_size({"width": 1366, "height": 768}); page.wait_for_timeout(2500)
         page.evaluate("document.querySelector('#profilePanel [data-close]').click()"); page.wait_for_timeout(800); go(-9.6, 39.0, 8)
         page.click("#tool-profile"); page.wait_for_selector("#profChart .prof-land", timeout=60000)
         check(len([g for g in page.evaluate(GFX) if g["type"] == "polyline"]) == 1, "opened again, the tool still has the last line and its chart")
