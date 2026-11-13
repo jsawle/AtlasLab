@@ -2,22 +2,23 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.30";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.31";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.30";
+  WEBSCENE_SPEC_VERSION, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.31";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.30";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.30";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.30";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.31";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.31";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.31";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.31";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.30";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.30";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.30";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.31";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.31";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.31";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.30";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.31";
 
-const APP_VERSION = "5.0.0-beta.30";
+const APP_VERSION = "5.0.0-beta.31";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.0";
 const PROFILE_VERSION = "3.1";
@@ -42,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.30). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.31). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -1729,17 +1730,30 @@ const TILT_3D = Math.max(0, Math.min(80, Number(cfg.threeDTilt) || 0));
 //  - a web map tagged "atlas-2d-only" on its ArcGIS Online item is 2D only (twoDOnly): its author switched 3D off
 const TAG_2D_ONLY = "atlas-2d-only";
 let sceneOnly = false, twoDOnly = false;
+// Paired 2D and 3D maps (lab, features.pairs; lib/pairs.js): a web map and a web scene their author tagged as the 2D and
+// 3D versions of one map. The 3D button on the web map opens the scene, and the 2D button on the scene opens the web
+// map, in place of drawing the same map in the other view. Sketches, spreadsheet layers and added layers go across,
+// and the view stays on the same place; the author's layers, with their filters and what is switched on, are each
+// version's own. A version already visited is kept as it was left while the pair is open.
+const pairOn = F.pairs === true && F.threeD !== false;
+let mapPair = null;           // { webmap, scene } (item IDs) when the map on screen is one of a pair
+const idleMap = new EsriMap({});   // what the 3D view holds while the 2D version of a pair is on screen: nothing to draw
+const pairSides = {};         // "2d" / "3d": { map, source, agol, bookmarks } of the version not on screen
+const sourceBms = new WeakSet();   // bookmarks that came with a version (its author's), as opposed to ones made here
+let pairBusy = false, pairNoteShown = false;
+const partnerFor = (m) => (pairOn && mapPair && !twoDOnly && (m === "3d" ? !sceneOnly : sceneOnly) ? (m === "3d" ? mapPair.scene : mapPair.webmap) : null);
+function usePair(p) { mapPair = pairOn && p ? p : null; for (const k of Object.keys(pairSides)) delete pairSides[k]; syncViewLocks(); }
 const isScene = (m) => !!m && m.declaredClass === "esri.WebScene";
 const has2dOnlyTag = (item) => !!item && Array.isArray(item.tags) && item.tags.some((tg) => String(tg).trim().toLowerCase() === TAG_2D_ONLY);
 function syncViewLocks() {
   const lock = (id, on, why) => { const b = $(id); if (on) { b.setAttribute("aria-disabled", "true"); b.title = why; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); } };
-  lock("tg2d", sceneOnly, S.only3d); lock("tg3d", twoDOnly, S.only2d);
+  lock("tg2d", sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", twoDOnly, S.only2d);
 }
 async function setMode(m, opts) {
   opts = opts || {};
   if ((m === mode && !opts.force) || switching) return;
   if (m === "3d" && F.threeD === false) return;
-  if (m === "2d" && sceneOnly) { toast(S.only3d, 5000); return; }
+  if (m === "2d" && sceneOnly && !opts.map) { toast(S.only3d, 5000); return; }
   if (m === "3d" && twoDOnly) { toast(S.only2d, 5000); return; }
   if (openPanelName === "filter") closePanels(false);   // the filter preview belongs to this view's copy of the layer
   switching = true;
@@ -1800,19 +1814,87 @@ async function setMode(m, opts) {
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
   if (addState && !$("dataPanel").hidden) { renderStyleList(); renderFieldRows(); }   // what the styles offer depends on the view
 }
-$("tg2d").addEventListener("click", () => setMode("2d"));
-$("tg3d").addEventListener("click", () => setMode("3d"));
+// The 2D and 3D buttons. A map with a partner goes to its partner; any other map is drawn in the other view.
+function requestMode(m) { return m !== mode && partnerFor(m) ? switchToPartner(m) : setMode(m); }
+async function switchToPartner(m) {
+  if (pairBusy || switching) return;
+  pairBusy = true;
+  const id = partnerFor(m), here = m === "3d" ? "2d" : "3d", btn = $(m === "3d" ? "tg3d" : "tg2d");
+  btn.setAttribute("aria-busy", "true");
+  let side = pairSides[m];
+  try {
+    if (!side) {
+      const map = new (m === "3d" ? WebScene : WebMap)({ portalItem: { id } });
+      await map.load();
+      const { item, data } = await loadedItemJson(map, id);
+      if (item.type !== (m === "3d" ? "Web Scene" : "Web Map")) throw new Error("The partner is a " + item.type);
+      let bms, srcData = data;
+      if (m === "3d") bms = slidesToBookmarks(map);
+      else { const parsed = readWebMap(data, { trusted: true }); if (!parsed.ok) throw new Error("Not a web map"); bms = parsed.bookmarks; srcData = parsed.webmap; }
+      bms.forEach((b) => sourceBms.add(b));
+      side = { map, bookmarks: bms, agol: portalUser && item.owner === portalUser.username ? { id, owner: item.owner, title: item.title } : null,
+        source: { itemId: id, title: item.title, item, data: srcData, ...(m === "3d" ? { scene: true } : {}), restricted: !!portalUser && !!item.access && item.access !== "public" } };
+    }
+  } catch (e) {
+    console.warn("The map's " + m.toUpperCase() + " version couldn't be opened", e);
+    btn.removeAttribute("aria-busy"); pairBusy = false;
+    if (m === "3d") { toast(S.pairNo3d, 6000); return setMode("3d"); }   // as any other map: drawn in 3D as it is
+    toast(S.pairNo2d, 6000); return;
+  }
+  if (openPanelName === "filter") closePanels(false);
+  endLayerTools(null);
+  const prev = activeMap(), vp = view.viewpoint ? view.viewpoint.clone() : null;
+  const mine = bookmarks.filter((b) => !sourceBms.has(b));
+  const carried = [...dataLayers, ...portalLayers.values()].concat(previewLayer ? [previewLayer] : []);
+  const leaving = { map: prev, bookmarks: bookmarks.filter((b) => sourceBms.has(b)), source: currentSource, agol: currentAgolItem };
+  for (const l of carried.concat([graphicsLayer])) { try { prev.remove(l); } catch (e) { /* not there */ } }
+  const keepPair = mapPair, wasScene = sceneOnly;
+  await setMode(m, { map: side.map, force: true, keepCamera: true });
+  if (mode !== m) {   // the other view couldn't start: everything goes back where it was
+    for (const l of carried) prev.add(l);
+    sceneOnly = wasScene; setActiveMap(prev); mapPair = keepPair; syncViewLocks(); keepSketchOnTop();
+    btn.removeAttribute("aria-busy"); pairBusy = false;
+    return;
+  }
+  setActiveMap(side.map, m === "2d" ? { not3d: true } : { keep2d: true }); mapPair = keepPair;
+  for (const l of carried) side.map.add(l);
+  keepSketchOnTop();
+  pairSides[here] = leaving; delete pairSides[m];
+  currentSource = side.source; currentAgolItem = side.agol;
+  const names = new Set(mine.map((b) => b.title));
+  bookmarks = side.bookmarks.filter((b) => !names.has(b.title)).concat(mine); updateToolBadges();
+  syncViewLocks();
+  // The same place: what the other version was looking at, at the same scale (tilted, in 3D, as any map is).
+  const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : null;
+  if (c && vp.scale) {
+    if (m === "3d") viewSettled = sceneView.goTo({ target: c, scale: vp.scale, ...(TILT_3D ? { tilt: TILT_3D } : {}) }, { animate: false }).catch(() => {});
+    else goToSafe({ target: c, scale: vp.scale }, { animate: false });
+  }
+  dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
+  if (!$("bookmarksPanel").hidden) showBmList();
+  if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
+  if (catalogLoaded) refreshCatalogButtons();
+  if (legend) legend.view = view;
+  btn.removeAttribute("aria-busy"); pairBusy = false;
+  toast(pairNoteShown ? (m === "3d" ? S.pairNow3d : S.pairNow2d) : (m === "3d" ? S.pairFirst3d : S.pairFirst2d), pairNoteShown ? 3000 : 9000);
+  pairNoteShown = true;
+}
+$("tg2d").addEventListener("click", () => requestMode("2d"));
+$("tg3d").addEventListener("click", () => requestMode("3d"));
 
 // ============================================================ Maps and layers
-function setActiveMap(m) {
+function setActiveMap(m, opts) {
   const old = view.map;
   endLayerTools(null);
   if (old && old !== m) { try { old.remove(graphicsLayer); } catch (e) { /* not there */ } }
   if (!m.layers.includes(graphicsLayer)) m.add(graphicsLayer);
   // a web scene is shown by the 3D view only; the 2D view goes back to the plain starting map meanwhile
   sceneOnly = isScene(m); twoDOnly = false;
-  setViewMap(mapView, sceneOnly ? localMap : m);
-  if (sceneView) setViewMap(sceneView, m);
+  // One of a pair (see switchToPartner): the 2D view keeps the web map while its scene is on screen, and the 3D view is
+  // given nothing to prepare while the web map is. Handing the same basemap from one view to the other and back made
+  // the SDK's drawing worker answer a layer view that had gone (an error in the console).
+  setViewMap(mapView, sceneOnly ? (opts && opts.keep2d ? mapView.map : localMap) : m);
+  if (sceneView) setViewMap(sceneView, opts && opts.not3d ? idleMap : m);
   syncViewLocks();
   updateToolBadges();
   syncTimeBar();
@@ -1882,7 +1964,7 @@ function resetWorkspace() {
   [...portalLayers.values()].forEach(removeFromMaps); portalLayers.clear();
   endSketchOps(); graphicsLayer.removeAll(); graphicsLayer.visible = true; setSelection([]);
   bookmarks = []; updateToolBadges();
-  currentSource = null; currentAgolItem = null;
+  currentSource = null; currentAgolItem = null; usePair(null);
   if (!$("bookmarksPanel").hidden) showBmList();
   if (!$("layersPanel").hidden) renderLayers();
   if (catalogLoaded) refreshCatalogButtons();
@@ -1938,13 +2020,14 @@ async function openWebMapItem(itemId, opts) {
     for (const op of (data.operationalLayers || []).filter(isOwnLayerJson)) { const l = wm.layers.find((x) => x.id === op.id); if (l) wm.remove(l); }
     const wasScene = sceneOnly;
     setActiveMap(wm);
-    twoDOnly = has2dOnlyTag(item); syncViewLocks();
-    if (mode === "3d" && (twoDOnly || wasScene)) await setMode("2d");   // a web map opens in 2D after a scene, and always when its author switched 3D off
+    twoDOnly = has2dOnlyTag(item); usePair(opts.pair || pairOf(item, data));
+    if (mode === "3d" && (twoDOnly || wasScene || partnerFor("3d"))) await setMode("2d");   // a web map opens in 2D after a scene, when it has a 3D version of its own, and always when its author switched 3D off
     // A map that isn't public, opened while signed in, can hold layers only that account can see. Its layers are never written to a file.
     currentSource = { itemId, title: item.title, item, data: parsed.webmap, restricted: !!portalUser && !!item.access && item.access !== "public" };
     if (portalUser && item.owner === portalUser.username) currentAgolItem = { id: itemId, owner: item.owner, title: item.title };
     if (!opts.keepWorkspace) {
       applyParsedWebMap(parsed);
+      bookmarks.forEach((b) => sourceBms.add(b));
       setTitle(item.title); markClean(); unbindFile();
       const vp = wm.initialViewProperties && wm.initialViewProperties.viewpoint;
       if (vp) goToSafe(vp, { animate: false });
@@ -2016,6 +2099,8 @@ async function openWebSceneItem(itemId, opts) {
     await showScene(ws);
     currentSource = { itemId, title: item.title, item, data, scene: true, restricted: !!portalUser && !!item.access && item.access !== "public" };
     bookmarks = slidesToBookmarks(ws); updateToolBadges();
+    bookmarks.forEach((b) => sourceBms.add(b));
+    usePair(opts.pair || pairOf(item, data));
     setTitle(item.title); markClean(); unbindFile();
     if (!opts.quiet) toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
     if (!$("bookmarksPanel").hidden) showBmList();
@@ -2044,6 +2129,7 @@ async function openWebSceneFile(raw, fileName) {
     await showScene(ws);
     const title = titleFromFileName(fileName);
     currentSource = { itemId: null, title, item: null, data: parsed.webscene, scene: true };
+    usePair(savedPair(raw));
     applyParsedWebMap(parsed);
     bookmarks = parsed.bookmarks.map((b) => ({ ...b, camera: Camera.fromJSON(b.camera) })); updateToolBadges();
     setTitle(title);
@@ -2080,10 +2166,10 @@ async function openWebMapFile(raw, fileName) {
     applyParsedWebMap(parsed);
     setTitle(title);
     await setMode("2d");   // a web map is a 2D document; switch to 3D again if you like
-    twoDOnly = raw[TWO_D_ONLY_PROP] === true; syncViewLocks();
+    twoDOnly = raw[TWO_D_ONLY_PROP] === true; usePair(savedPair(raw));
     const vp = wm.initialViewProperties && wm.initialViewProperties.viewpoint;
     if (vp) goToSafe(vp, { animate: false });
-    const cam3d = !twoDOnly && F.threeD !== false ? saved3dCamera(raw) : null;   // saved while in 3D: back to 3D, seen from the same place
+    const cam3d = !twoDOnly && !partnerFor("3d") && F.threeD !== false ? saved3dCamera(raw) : null;   // saved while in 3D: back to 3D, seen from the same place
     if (cam3d) { await setMode("3d", { keepCamera: true }); if (mode === "3d") goToSafe(Camera.fromJSON(cam3d), { animate: false }); }
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
@@ -3019,7 +3105,8 @@ function createBrowser(o) {
       const items = (first.results || []).slice();
       for (let next = first.nextStart; next > 0 && items.length < MAX_INDEX;) { const d = await restGet(path, { ...q, start: next }); items.push(...(d.results || [])); next = d.nextStart; }
       st.mode = "index";
-      st.entries = indexItems(items.filter(o.accept));
+      st.entries = indexItems(items.filter(o.accept)); st.pairs = null;
+      if (pairOn && o.kind === "maps") { const mp = mergePairs(st.entries); st.entries = mp.entries; st.pairs = mp.pairs; }
       const c = countTopics(tree, st.entries); st.counts = c.counts; st.other = c.other;
     })();
     st.ready.catch(() => { st.ready = null; });
@@ -3073,8 +3160,10 @@ function createBrowser(o) {
     const top = document.createElement("div"); top.className = "cat-card-top";
     const txt = document.createElement("div"); txt.className = "cat-card-text";
     const h = document.createElement("h4"); h.className = "cat-card-title"; h.textContent = item.title || S.untitled;
-    const scene = item.type === "Web Scene";
-    if (scene) { li.classList.add("is-scene"); const sr = document.createElement("span"); sr.className = "sr-only"; sr.textContent = " (" + S.sceneCard + ")"; h.append(sr); }
+    const scene = item.type === "Web Scene", paired = !!(st.pairs && st.pairs.has(item.id));
+    if (scene) li.classList.add("is-scene");
+    if (paired) li.classList.add("is-pair");
+    if (scene || paired) { const sr = document.createElement("span"); sr.className = "sr-only"; sr.textContent = " (" + (paired ? S.pairCard : S.sceneCard) + ")"; h.append(sr); }
     const sn = document.createElement("p"); sn.className = "cat-card-snippet"; sn.textContent = item.snippet || "";
     const act = document.createElement("button"); act.type = "button"; act.className = "cat-act"; act._item = item;
     o.decorate(act, item);
@@ -3089,7 +3178,7 @@ function createBrowser(o) {
     const th = document.createElement("div"); th.className = "cat-thumb" + (o.thumbOpens ? " open" : ""); th.setAttribute("aria-hidden", "true");
     const tu = thumbUrl(item); if (tu) th.style.backgroundImage = "url('" + tu.replace(/'/g, "%27") + "')";
     if (o.thumbOpens) th.addEventListener("click", () => o.run(item, act));
-    if (scene) { const bd = document.createElement("span"); bd.className = "cat-3d"; bd.innerHTML = calIcon("cube"); bd.append(S.view3d); th.appendChild(bd); }   // marked on its picture, where the eye goes first
+    if (scene || paired) { const bd = document.createElement("span"); bd.className = "cat-3d"; bd.innerHTML = calIcon("cube"); bd.append(paired ? S.pairBadge : S.view3d); th.appendChild(bd); }   // marked on its picture, where the eye goes first
     top.append(txt, th);
     const id = "desc" + (++descSeq);
     const db = document.createElement("button"); db.type = "button"; db.className = "cat-desc-btn"; db.setAttribute("aria-expanded", "false"); db.setAttribute("aria-controls", id);
@@ -3126,15 +3215,18 @@ function createBrowser(o) {
   // them, the 2D maps or the 3D scenes. It works with the category chosen and with the search, and says how many of each.
   const DIMS = [["all", "dimAll"], ["2d", "dim2d"], ["3d", "dim3d"]];
   const isSceneEntry = (e) => e.item.type === "Web Scene";
+  // A pair is one card. It is among the 2D maps and, when its scene is in the collection, among the 3D maps too, where
+  // the card is the scene's and opens it.
+  const shownItem = (e) => (st.dim === "3d" && e.pair && e.pair.scene ? e.pair.scene : e.item);
   function renderDims(list) {
-    const any = o.kind === "maps" && st.mode !== "server" && (st.entries || []).some(isSceneEntry);
+    const any = o.kind === "maps" && st.mode !== "server" && (st.entries || []).some(entryIs3d);
     if (!any) { if (st.dims) st.dims.hidden = true; st.dim = "all"; return; }
     if (!st.dims) {
       const g = st.dims = document.createElement("div"); g.className = "cat-dims"; g.setAttribute("role", "group"); g.setAttribute("aria-label", S.dimLabel);
       for (const [key] of DIMS) { const b = document.createElement("button"); b.type = "button"; b.dataset.dim = key; b.addEventListener("click", () => { st.dim = key; st.page = 1; renderList(false); }); g.appendChild(b); }
       el("Status").before(g);
     }
-    const n3 = list.filter(isSceneEntry).length, n = { all: list.length, "2d": list.length - n3, "3d": n3 };
+    const n = { all: list.length, "2d": list.filter(entryIs2d).length, "3d": list.filter(entryIs3d).length };
     st.dims.hidden = false;
     for (const b of st.dims.children) {
       const key = b.dataset.dim, label = S[DIMS.find((d) => d[0] === key)[1]];
@@ -3150,9 +3242,9 @@ function createBrowser(o) {
     let list = filterEntries(st.entries, st.tree, st.topic, text, cfg.locale);
     renderDims(list);
     if (st.dim !== "all") {
-      list = list.filter((e) => isSceneEntry(e) === (st.dim === "3d"));
+      list = list.filter(st.dim === "3d" ? entryIs3d : entryIs2d);
       const pg = Math.max(1, Math.ceil(list.length / PAGE_SIZE)); if (st.page > pg) st.page = pg;
-      paint(list.slice((st.page - 1) * PAGE_SIZE, st.page * PAGE_SIZE).map((e) => e.item), list.length, pg, text, focusList);
+      paint(list.slice((st.page - 1) * PAGE_SIZE, st.page * PAGE_SIZE).map(shownItem), list.length, pg, text, focusList);
       const count = st.dim === "3d" ? (list.length === 1 ? S.scenesCountOne : t("scenesCount", { n: list.length })) : unitText(list.length), topic = topicName(st.topic);
       el("Status").textContent = topic ? t("inTopic", { count, topic }) : count;
       return;
@@ -3224,12 +3316,13 @@ function createBrowser(o) {
   return {
     start,
     forget() { st.ready = null; st.loaded = false; },
+    pairFor(id) { return (st.pairs && st.pairs.get(id)) || null; },
     refreshActions() { el("List").querySelectorAll(".cat-act").forEach((b) => o.decorate(b, b._item)); }
   };
 }
 
 // ---------- Open map
-const openCollectionMap = (it) => (it.type === "Web Scene" ? openWebSceneItem(it.id, { title: it.title }) : openWebMapItem(it.id, { title: it.title }));
+const openCollectionMap = (it) => { const o = { title: it.title, pair: mapBrowser.pairFor(it.id) }; return it.type === "Web Scene" ? openWebSceneItem(it.id, o) : openWebMapItem(it.id, o); };
 // The collection's web maps and, where 3D is on, its web scenes (5.0.0-beta.9); a scene's card says 3D.
 const mapBrowser = createBrowser({ p: "om", query: F.threeD === false ? 'type:"Web Map"' : '(type:"Web Map" OR type:"Web Scene")', accept: () => true, kind: "maps", thumbOpens: true, descLabel: () => S.mapDescription,
   decorate(b, item) { const w = item.type === "Web Scene" ? S.openThisScene : S.openThisMap; b.textContent = w; b.setAttribute("aria-label", w + ": " + (item.title || "")); },
@@ -3839,8 +3932,10 @@ async function buildWebMapJson(toFile) {
     sketchIcon: (a) => { const v = vectorSymbol(styleOf(a)); try { return v ? v.toJSON() : null; } catch (e) { return null; } },   // the vector symbol itself, as Map Viewer saves it
     order: activeMap().layers.toArray().filter((l) => l !== graphicsLayer && l !== previewLayer).map((l) => l.id) };
   // A web scene is saved as a web scene (3.0): its ground, lighting and kind of scene, the camera, and the bookmarks as slides.
-  if (sceneOnly) return docToWebScene(doc, { ...ctx, camera: sceneView && sceneView.camera ? sceneView.camera.toJSON() : null, scene: (currentSource && currentSource.data) || null });
-  const wm = docToWebMap(doc, ctx);
+  // One of a pair: the saved map names both versions, so it can still switch after it is opened again.
+  const pairNote = (o) => { if (mapPair) o[PAIR_PROP] = { webmap: mapPair.webmap, scene: mapPair.scene }; return o; };
+  if (sceneOnly) return pairNote(docToWebScene(doc, { ...ctx, camera: sceneView && sceneView.camera ? sceneView.camera.toJSON() : null, scene: (currentSource && currentSource.data) || null }));
+  const wm = pairNote(docToWebMap(doc, ctx));
   if (twoDOnly) wm[TWO_D_ONLY_PROP] = true;   // its author switched 3D off: the saved copy stays 2D only
   // Saved to a file while in 3D: the file says so and from where it was seen, and opens that way again.
   if (toFile && mode === "3d" && sceneView && sceneView.camera) wm[VIEW_3D_PROP] = { camera: sceneView.camera.toJSON() };
@@ -4328,6 +4423,7 @@ function renderVersions() {
     ["Sketch styles", "2.3", "Points: symbols from 14 of Esri's sketch styles, the ones Map Viewer's Sketch offers. Lines: patterns and arrows. Text, set up as in Map Viewer: a font (11, from Esri's font service), bold and italic where the font has them, size, colour, a halo with its colour and size, and rotation. Areas, set up as in Map Viewer: fill colour and transparency, outline colour, transparency, width and pattern, or a styled fill (hatches, land use, pencil landscape; 2D only). Tooltips are on while drawing."],
     ["Sketch in 3D", "1.0", "The Sketch toolbar works in the 3D view and in 3D maps with the same tools. Sketches lie on the ground and are saved as flat shapes, so they are the same in 2D."],
     ["Columns in 3D (lab)", COLUMNS_VERSION, "Only where a config turns it on (features.columns3d). A spreadsheet layer sized by a number column can be drawn in 3D as a column on each point. Height shows the number, from zero when no value is below zero; the tallest column is about a sixth of the distance across the points, and Size sets how thick the columns are. 2D and the saved style are unchanged; the saved file notes the choice, so the columns come back when it is opened here."],
+    ["Paired 2D and 3D maps (lab)", PAIRS_VERSION, "Only where a config turns it on (features.pairs). A web map and a 3D map their author made as two versions of one map: the web map's item has the tag atlas-3d-<the 3D map's item ID> and the 3D map's has atlas-2d-<the web map's item ID>. The 3D button then opens the 3D map, and 2D the web map, at the same place, with your sketches, spreadsheet data and added layers. Filters and the layers switched on belong to each version. Open map shows the pair as one card marked 2D + 3D."],
     ["3D quality", "1.0", "How much work the 3D view does. Low (smaller textures, less memory, no shadows or stars) is chosen for a device with 4 GB of memory or less, 4 processor cores or fewer, or no graphics chip; otherwise medium. A config (threeDQuality) or a link (?quality=low, medium or high) can fix it."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],
     ["Time", "1.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider, set up from the map's own settings."],

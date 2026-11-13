@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.0",
+  "version": "1.1",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -160,6 +160,12 @@
     "only3d": "Este es un mapa 3D, por lo que no se puede mostrar en 2D.",
     "only2d": "Este mapa está configurado solo en 2D.",
     "sceneCard": "Mapa 3D",
+    "pairBadge": "2D + 3D", "pairCard": "Versiones 2D y 3D",
+    "pairFirst3d": "Este mapa tiene su propia versión 3D, que ahora está abierta. Tus dibujos y los datos que añadiste siguen contigo. Los filtros y las capas activadas son propios de cada versión.",
+    "pairFirst2d": "Esta es la versión 2D del mapa. Tus dibujos y los datos que añadiste siguen contigo. Los filtros y las capas activadas son propios de cada versión.",
+    "pairNow3d": "Versión 3D abierta.", "pairNow2d": "Versión 2D abierta.",
+    "pairNo3d": "No se pudo abrir la versión 3D de este mapa, así que el mapa se dibuja en 3D tal como es.",
+    "pairNo2d": "No se pudo abrir la versión 2D de este mapa.",
     "sceneNoArcgisSave": "Todavía no se puede guardar un mapa 3D en ArcGIS Online desde aquí. Cierra sesión para guardarlo en este dispositivo.",
     "layersIntro": "Activa y desactiva capas. Los marcadores recuerdan esta configuración.",
     "noLayers": "Aún no hay capas. Abre un mapa o agrega una capa.",

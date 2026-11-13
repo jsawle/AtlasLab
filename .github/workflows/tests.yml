@@ -25,6 +25,8 @@ jobs:
         run: node tests/config.test.mjs
       - name: Columns in 3D tests
         run: node tests/columns.test.mjs
+      - name: Paired 2D and 3D maps tests
+        run: node tests/pairs.test.mjs
       - name: The app's code parses as a module
         # "node --check app.js" passes a .js file with a syntax error in it; checked as .mjs it does not
         run: cp app.js "$RUNNER_TEMP/app.mjs" && node --check "$RUNNER_TEMP/app.mjs"
