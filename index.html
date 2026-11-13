@@ -21,7 +21,7 @@
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; overflow:hidden; }
-    /* A pinch zooms the map, never the page (5.0.0-beta.38): on a touchscreen a pinch that began on the header, a toolbar or a
+    /* A pinch zooms the map, never the page (5.0.0-beta.39): on a touchscreen a pinch that began on the header, a toolbar or a
        panel used to enlarge the whole app. One-finger scrolling is kept; the map handles its own touches. The browser's own
        zoom (Safari's aA menu, Ctrl/Cmd and +) and the device's Zoom accessibility setting are not affected. */
     html{ touch-action:pan-x pan-y; }
@@ -145,7 +145,7 @@
     .units-seg button[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); }
     .units-seg button:focus-visible{ outline:3px solid var(--focus, #005e95); outline-offset:-3px; }
     #app.docked .toolbar{ display:none; }
-    /* (5.0.0-beta.38) with a chart, table or profile open the toolbar is tucked away, so panels over the map don't keep room for it */
+    /* (5.0.0-beta.39) with a chart, table or profile open the toolbar is tucked away, so panels over the map don't keep room for it */
     #app.docked:not(.tools-shown) .panel{ max-height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.docked:not(.tools-shown) #sketchPanel.tall{ height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.docked.tools-shown .toolbar{ display:flex; }
@@ -1068,6 +1068,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.38"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.39"></script>
 </body>
 </html>

@@ -32,3 +32,13 @@ jobs:
       - name: The app's code parses as a module
         # "node --check app.js" passes a .js file with a syntax error in it; checked as .mjs it does not
         run: cp app.js "$RUNNER_TEMP/app.mjs" && node --check "$RUNNER_TEMP/app.mjs"
+  lint:
+    # ESLint over the app's code and the unit tests: a misspelt or missing name, a name declared twice, unused code.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
