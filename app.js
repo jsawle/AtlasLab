@@ -2,26 +2,26 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.32";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.33";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.32";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.33";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.32";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.32";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.32";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.32";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.33";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.33";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.33";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.33";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.32";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.32";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.32";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.33";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.33";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.33";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.32";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.33";
 
-const APP_VERSION = "5.0.0-beta.32";
+const APP_VERSION = "5.0.0-beta.33";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.0";
-const PROFILE_VERSION = "3.1";
+const PROFILE_VERSION = "3.2";
 const SKETCH_VERSION = "2.2";   // 1.1: rotation only for text. 2.0: the SDK's Sketch component (Map Viewer's tools) replaces the app's own. 2.1: freehand segments. 2.2: keyboard route to the drawing tools
 const CONFIG_SCHEMA = 2;
 const SDK_VERSION = "5.2";
@@ -43,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.32). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.33). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -1500,10 +1500,19 @@ const TOPOBATHY_URL = "https://elevation3d.arcgis.com/arcgis/rest/services/World
 // could not be given a sea-level line or a filled chart (and is one of the widgets SDK 6 removes).
 //  - The line: click the map for each point and double-click to finish, or click a line already on the map (a
 //    sketched line, or a line feature of a layer). Over a line that can be chosen the pointer becomes a hand.
-//  - The heights: up to 512 points along the line, asked of the elevation service in one request.
+//  - The heights: 512 points along the line, asked of the elevation service in one request. Always 512 (3.2; before, fewer
+//    on a narrower screen), so a line gives the same figures on every screen.
+//  - Total climb and total descent (3.2): only for a line up to 50 km. They add up every rise and fall between the points,
+//    so on a longer line they count the bumps of the land or sea floor between points kilometres apart, and change with
+//    how many points are taken (Venezuela to Mali: 18,310 m of climb from 128 points, 36,769 m from 512, 60,751 m from
+//    4,096). Up to 50 km the points are 100 m apart or less.
+//  - Vertical exaggeration (3.2): the chart stretches heights to fill its box, by an amount that depends on the line and
+//    the screen (64 times for an Atlantic crossing, 132 for 65 km of the Hungarian plain). The figure is shown under the
+//    chart and told to screen readers, as a printed profile states its vertical exaggeration.
 //  - The chart: the whole width under the map. Land is filled in earth colours, lighter at the top and darker with
 //    depth; where the line goes below sea level the water is shown and a dashed line marks sea level.
 //  - Moving along the chart (pointer, or the arrow keys) shows a dot at that place on the line on the map.
+const PROF_POINTS = 512, PROF_CLIMB_MAX = 50000;   // points along every line; the longest line (m) given total climb and descent
 let topoBathy = null, prof = null, profDraft = null, profHover = null, profBusy = 0, profAt = -1;
 const profGraphics = { line: null, dot: null, draft: null };
 const PROF_LINE = { type: "simple-line", color: [255, 127, 0, 1], width: 3 };
@@ -1574,7 +1583,7 @@ async function profileOf(geometry, via) {
   if (verts.length < 2) return;
   const segs = []; let total = 0; for (let i = 1; i < verts.length; i++) { const l = via ? haversine(verts[i - 1], verts[i]) : Math.hypot(verts[i][0] - verts[i - 1][0], verts[i][1] - verts[i - 1][1]); segs.push(l); total += l; }
   if (!(total > 0)) return;
-  const N = Math.min(512, Math.max(120, Math.round(($("profChart").clientWidth || 900) / 2.5)));
+  const N = PROF_POINTS;
   const pts = [];
   for (let k = 0; k < N; k++) {
     let d = (total * k) / (N - 1), i = 0; while (i < segs.length - 1 && d > segs[i]) { d -= segs[i]; i++; }
@@ -1610,10 +1619,21 @@ function profDist(m, totalM) {
   if (units === "imperial") { const mi = m / 1609.344; return totalM < 1609.344 ? profNum(m * 3.28084, 0) + " ft" : profNum(mi, totalM < 16093 ? 1 : 0) + " mi"; }
   return totalM < 1000 ? profNum(m, 0) + " m" : profNum(m / 1000, totalM < 10000 ? 1 : 0) + " km";
 }
-function niceTicks(lo, hi, want) {
-  const span = hi - lo || 1, raw = span / want, pow = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 2.5, 5, 10].map((m) => m * pow).find((st) => span / st <= want) || 10 * pow;
-  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step) out.push(Math.abs(v) < step * 1e-6 ? 0 : v);
+// Round numbers for a scale between lo and hi: about `want` of them, and at least `least` when that is given (the height
+// scale asks for 3: with a short chart and a large range the round steps could otherwise leave only two, 0 and -5,000).
+function niceTicks(lo, hi, want, least) {
+  const span = hi - lo || 1, raw = span / want, pow = 10 ** Math.floor(Math.log10(raw)), steps = [0.1, 0.2, 0.25, 0.5, 1, 2, 2.5, 5, 10].map((m) => m * pow);
+  const at = (step) => { const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step) out.push(Math.abs(v) < step * 1e-6 ? 0 : v); return out; };
+  let i = steps.findIndex((st) => st >= pow && span / st <= want); if (i < 0) i = steps.length - 1;
+  let out = at(steps[i]);
+  while (least && out.length < least && i > 0) out = at(steps[--i]);
   return out;
+}
+// How many times taller than true the chart draws heights: metres per pixel along the line over metres per pixel up the chart.
+function profStretch(total, w, lo, hi, h) { return total > 0 && hi > lo && w > 0 && h > 0 ? (total / w) / ((hi - lo) / h) : 1; }
+function profStretchText(ve) {
+  if (ve >= 0.67 && ve < 1.5) return S.profileTrueShape;
+  return "×" + profNum(ve, ve >= 10 ? 0 : ve >= 1 ? 1 : 2);
 }
 // --- the chart
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -1639,7 +1659,7 @@ function renderProfile() {
   defs.append(earth, water); svg.appendChild(defs);
   svg.appendChild(svgEl("rect", { x: m.l, y: m.t, width: w, height: h, fill: "#fbfaf7" }));
   // grid and the height scale
-  for (const v of niceTicks(lo * hz, hi * hz, Math.max(2, Math.min(5, Math.floor(h / 34))))) {
+  for (const v of niceTicks(lo * hz, hi * hz, Math.max(2, Math.min(5, Math.floor(h / 34))), 3)) {
     const y = Y(v / hz); if (y < m.t - 0.5 || y > m.t + h + 0.5) continue;
     svg.appendChild(svgEl("line", { x1: m.l, x2: m.l + w, y1: y, y2: y, stroke: "#dcd8cf", "stroke-width": 1 }));
     svg.appendChild(svgEl("text", { x: m.l - 8, y: y + 4.5, "text-anchor": "end", class: "prof-tick" }, profNum(v, 0) + (units === "imperial" ? " ft" : " m")));
@@ -1667,9 +1687,16 @@ function renderProfile() {
   host.replaceChildren(svg);
   const tip = document.createElement("div"); tip.className = "prof-tip"; tip.id = "profTip"; tip.hidden = true; host.appendChild(tip);
   // what the chart says, in words, and the figures along the bottom
-  const stats = [[S.profileLength, profDist(prof.total, prof.total)], [S.profileHighest, profHeight(prof.max)], [S.profileLowest, profHeight(prof.min)], [S.profileClimb, profHeight(prof.gain)], [S.profileDescent, profHeight(prof.loss)]];
-  $("profStats").replaceChildren(...stats.map(([k, v]) => { const d = document.createElement("div"); d.className = "prof-stat"; const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v; d.append(dt, dd); return d; }));
-  $("profStatus").textContent = t("profileSummary", { length: stats[0][1], high: stats[1][1], low: stats[2][1] }) + (under ? " " + S.profileBelowSea : "");
+  const ve = profStretch(prof.total, w, lo, hi, h), veText = profStretchText(ve), trueShape = ve >= 0.67 && ve < 1.5;
+  const veSay = trueShape ? S.profileTrueShapeSay : t("profileStretchSay", { n: profNum(ve, ve >= 10 ? 0 : ve >= 1 ? 1 : 2) });
+  const short = prof.total <= PROF_CLIMB_MAX;
+  const stats = [[S.profileLength, profDist(prof.total, prof.total)], [S.profileHighest, profHeight(prof.max)], [S.profileLowest, profHeight(prof.min)]];
+  if (short) stats.push([S.profileClimb, profHeight(prof.gain)], [S.profileDescent, profHeight(prof.loss)]);
+  stats.push([S.profileStretch, veText, veSay + (ve >= 1.5 ? " " + S.profileStretchWhy : "")]);
+  const items = stats.map(([k, v, tip]) => { const d = document.createElement("div"); d.className = "prof-stat"; const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v; if (tip) { d.title = tip; d.classList.add("prof-stretch"); } d.append(dt, dd); return d; });
+  if (!short) { const n = document.createElement("div"); n.className = "prof-stat prof-note"; const dt = document.createElement("dt"); dt.textContent = S.profileClimbBoth; const dd = document.createElement("dd"); dd.textContent = t("profileClimbLong", { dist: profDist(PROF_CLIMB_MAX, PROF_CLIMB_MAX) }); n.append(dt, dd); items.push(n); }
+  $("profStats").replaceChildren(...items);
+  $("profStatus").textContent = t("profileSummary", { length: stats[0][1], high: stats[1][1], low: stats[2][1] }) + (under ? " " + S.profileBelowSea : "") + " " + veSay;
   host.setAttribute("aria-valuemin", "0"); host.setAttribute("aria-valuemax", String(prof.pts.length - 1));
   profMark(profAt, false);
 }
@@ -4585,7 +4612,7 @@ function renderVersions() {
     ["Units", UNITS_VERSION, "Kilometres and metres, or miles and feet, in Measure, Elevation and Sketch. With units set to auto the app starts in miles on a device whose time zone is in the United States and in kilometres elsewhere; if the time zone isn't known, the browser's language decides. Nothing is sent anywhere to work this out. The km / mi switch changes the units, and the choice is kept on this device."],
     ["Docks", "1.0", "The chart, the table and Elevation open in a dock under the map. Drag the bar along the dock's top, or use the arrow keys on it, to make it taller or shorter; double-click the bar for the usual height. The height is kept for each kind of dock while the app is open."],
     ["Charts", CHARTS_VERSION, "A chart set up on a layer in Map Viewer, drawn by the SDK's chart component under the map: Map layers, then the layer's Chart button. Selecting on the chart highlights those features on the map. The chart's own toolbar has its legend, selection, only what is in view, zoom and saving."],
-    ["Elevation profile", PROFILE_VERSION, "The height of the land and the sea floor along a line, from Esri's World Elevation TopoBathy 3D service (up to 512 points along the line). A line you draw takes the shortest way round the Earth between the places you click (a great circle), so on the flat map a long line is a curve; a line you choose on the map is followed as it is drawn. The app's own chart, the full width under the map: earth colours that darken with depth, the sea and a sea-level line where the line goes below it, and a dot on the map at the place the pointer is at on the chart."],
+    ["Elevation profile", PROFILE_VERSION, "The height of the land and the sea floor along a line, from Esri's World Elevation TopoBathy 3D service (512 points along the line, on every screen). The chart stretches heights to fill its space, and says by how much (vertical exaggeration). Total climb and descent are given for lines up to 50 km. A line you draw takes the shortest way round the Earth between the places you click (a great circle), so on the flat map a long line is a curve; a line you choose on the map is followed as it is drawn. The app's own chart, the full width under the map: earth colours that darken with depth, the sea and a sea-level line where the line goes below it, and a dot on the map at the place the pointer is at on the chart."],
     ["Compass", COMPASS_VERSION, "MapMaker's compass rose: turns with the map in 2D and 3D; select it to face north."],
     ["Saved map (.amap file and ArcGIS Online)", WEBMAP_WRITER_VERSION, "An ArcGIS web map (Web Map Specification " + WEBMAP_SPEC_VERSION + "): sketches, spreadsheet data, layers and their filters, basemap, view, bookmarks and a time-aware map's time settings. The same JSON is stored in ArcGIS Online. 3.0: a 3D scene is saved as a web scene (Web Scene Specification " + WEBSCENE_SPEC_VERSION + ") in the same kind of file, with its camera and its bookmarks as slides. 3.4: a map saved to a file while in 3D opens in 3D again, seen from the same place. 3.5: the sketch layer's transparency. 3.6: more than one sketch layer, and sketch layers anywhere in the layer order."],
     ["Sketch layers (lab)", SKETCH_LAYERS_VERSION, "A sketch layer is listed in Map layers once it has a sketch, can be moved in the drawing order like any other layer, and has transparency, swipe and remove. Where a config turns it on (features.sketchLayers): more sketch layers can be made from Add layer or the Sketch panel, each with its own name; Sketch says which one it is drawing on. A saved map that has several opens with them in any config."],
