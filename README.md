@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.30**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.31**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -8,12 +8,43 @@
 | `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
 | `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
 | `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: columns in 3D |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: columns in 3D, paired 2D and 3D maps |
 | `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Paired 2D and 3D maps (5.0.0-beta.31, lab)
+
+Paired maps 1.0; Collection browser 2.1 unchanged apart from the pair's card. On in `?config=lab` only (`features.pairs`).
+
+The 3D button draws a web map in the 3D view as it is, and the result is often not what its author would have made. An author can now make the 3D version themselves, as a web scene with 3D symbols, and tell the app the two belong together. The 3D button then opens the scene, and the 2D button on the scene opens the web map.
+
+**For authors: two tags.** In ArcGIS Online, on each item's page:
+
+| On | Add the tag |
+|---|---|
+| the web map | `atlas-3d-<the scene's item ID>` |
+| the web scene | `atlas-2d-<the web map's item ID>` |
+
+The item ID is the 32 characters after `id=` in the item's address. Capitals don't matter. Both items need to be public, and for one card in Open map both need to be in the content group. Tag both: a scene opened from a link only knows its 2D version from its own tag.
+
+**What goes across** when the button swaps one version for the other:
+
+- **Kept:** sketches, spreadsheet layers, layers added with Add layer, bookmarks made in the app, the map's title, and the place being looked at (same centre and scale; 3D is tilted as usual).
+- **Each version's own:** the author's layers, so filters and layers switched on or off stay with the version they were set on. The author's bookmarks are replaced by the other version's (a scene's slides).
+- **While the pair is open** a version already visited is kept as it was left, so going 2D, 3D, 2D finds the 2D filters still on. The first swap says what happened; later ones say only which version is open.
+
+**Open map.** A pair is one card marked **2D + 3D**. Under *All* and *2D maps* it is the web map's card and opens in 2D. Under *3D maps* it is the scene's card and opens in 3D. It counts in both. Either item's words and categories find it. If the scene is tagged but not in the group, the web map's card is still marked and the buttons still work, but the pair is not under *3D maps*.
+
+**Saved maps.** A saved file is still a web map (saved from 2D) or a web scene (saved from 3D). It names the pair (`atlasPair`, beside `atlasLocked` and `atlas2dOnly`), so it can still swap after it is opened again.
+
+- **If the partner can't be opened** (deleted, not public, the wrong kind of item): going to 3D draws the web map in 3D as before, with a message; going to 2D stays in 3D, with a message.
+- **`atlas-2d-only` comes first:** a web map with that tag stays 2D whatever else it is tagged.
+- **Not included:** a file saved from 3D does not hold filters set on the 2D version, and the other way round. A collection of more than 1,000 maps (searched in ArcGIS Online, not in the browser) shows the two as separate cards. Two web maps naming the same scene: the first in the list has it.
+- **Also fixed on the way:** swapping a basemap between the 2D and 3D views and back made the SDK log an error (`openGlyphPorts`). For a pair, the 2D view now keeps the web map while its scene is on screen, which also makes going back quicker.
+- Tests: `node tests/pairs.test.mjs` (39) and `python3 tests/live-pairs.py` (37 checks, with axe-core scans). Until the test group has a pair its author tagged, the live test adds the two tags to what ArcGIS Online answers for "Volcanoes Around the World" and the La Palma scene; everything else in it is real.
 
 ## Its own repository (5.0.0-beta.30)
 
