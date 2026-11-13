@@ -57,7 +57,7 @@ def main():
             return deep(sel)
         analyses = lambda: page.evaluate(V + ".analyses.length")
 
-        page.goto(f"{base}/index.html?config=mapmaker"); page.wait_for_function(V + " && " + V + ".ready", timeout=120000); page.wait_for_timeout(1500)
+        page.goto(f"{base}/index.html?config=mapmaker"); page.wait_for_function("(() => { try { return !!(" + V + ".ready); } catch (e) { return false; } })()", timeout=120000); page.wait_for_timeout(1500)
         page.evaluate("async () => { await " + V + ".goTo({ center: [-9.6, 39.0], zoom: 8 }, { animate: false }); }"); page.wait_for_timeout(1200)
         page.evaluate("""([name, text]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: 'text/csv' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", ["places.csv", CSV])
         page.wait_for_selector("#dataSubmit:not([disabled])", timeout=60000); page.click("#dataSubmit")
