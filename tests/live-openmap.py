@@ -10,6 +10,7 @@ the category chosen and the search; 2D maps lists no scene; a collection without
 """
 import argparse, functools, glob, http.server, json, math, os, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
@@ -97,7 +98,7 @@ def main():
         browser.close()
     srv.shutdown()
     print(f"\n{checks[0] - len(failures)} of {checks[0]} checks passed")
-    sys.exit(1 if failures else 0)
+    sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ charts beside a layer's table.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
@@ -40,7 +41,7 @@ def main():
         browser = p.chromium.launch(**launch)
         ctx = browser.new_context(viewport={"width": 1366, "height": 768}, permissions=["clipboard-read", "clipboard-write"])
         page = ctx.new_page(); errors = []
-        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.on("pageerror", lambda e: errors.append((getattr(e, "stack", "") or str(e))[:400]))
         dialogs = []
         page.on("dialog", lambda d: (dialogs.append(d.message), d.accept()))
         def axe(sel, what):
@@ -137,7 +138,7 @@ def main():
         check(not errors, "no uncaught errors: " + " | ".join(errors[:3]))
         browser.close()
     print(f"{checks[0] - len(failures)}/{checks[0]} checks passed")
-    sys.exit(1 if failures else 0)
+    sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__":
     main()

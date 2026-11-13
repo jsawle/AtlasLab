@@ -6,6 +6,7 @@ point in the 3D view; 2D, and the saved style, stay as they were. Without the sw
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent; APP = HERE.parent
 CSV = ("Site,Latitude,Longitude,Area,Fast Food wrappers,Bottles,Cans\n"
@@ -200,6 +201,6 @@ def main():
         if known: print(f"  note {len(known)} 'n' error(s) from the 3D preview (known)")
         check(not real, "no other script errors: " + "; ".join(real[:3]))
         browser.close()
-    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(1 if failures else 0)
+    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__": main()

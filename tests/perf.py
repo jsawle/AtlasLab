@@ -9,6 +9,7 @@ listed. It reports requests and bytes by where they come from, and repeat reques
 """
 import argparse, collections, functools, glob, http.server, json, os, pathlib, sys, threading, time, urllib.parse
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent
 QUAKES = "85997c9571e74256af71dc20566b47f1"

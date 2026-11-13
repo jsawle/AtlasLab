@@ -8,6 +8,7 @@ either side. The app opens at the config's zoom, or closer when that would happe
 """
 import argparse, functools, glob, http.server, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
@@ -53,7 +54,7 @@ def main():
         check(e["zoom"] == 7, "a config's own closer zoom is kept (Panama, zoom %s)" % e["zoom"])
         browser.close()
     print(f"{checks[0] - len(failures)}/{checks[0]} checks passed")
-    sys.exit(1 if failures else 0)
+    sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__":
     main()

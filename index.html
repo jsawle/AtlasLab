@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://js.arcgis.com; style-src 'self' 'unsafe-inline' https://js.arcgis.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: data: blob:; worker-src 'self' blob:; child-src 'self' blob:; media-src 'self' https: blob:; frame-src 'self' https://www.arcgis.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atlas</title>
   <meta name="description" content="A configurable (white-label) version of the MapMaker classroom map app: curated maps and layers, sketch, measure, bookmarks, 2D and 3D, your own spreadsheet data, local save without an account, and ArcGIS Online sign-in." />
@@ -20,6 +21,10 @@
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; overflow:hidden; }
+    /* A pinch zooms the map, never the page (5.0.0-beta.38): on a touchscreen a pinch that began on the header, a toolbar or a
+       panel used to enlarge the whole app. One-finger scrolling is kept; the map handles its own touches. The browser's own
+       zoom (Safari's aA menu, Ctrl/Cmd and +) and the device's Zoom accessibility setting are not affected. */
+    html{ touch-action:pan-x pan-y; }
     body{ font-family:var(--font); color:var(--ink); background:#fff; -webkit-font-smoothing:antialiased; }
     button,input,select,textarea{ font-family:inherit; }
     :focus-visible{ outline:3px solid var(--focus); outline-offset:2px; }
@@ -140,7 +145,7 @@
     .units-seg button[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); }
     .units-seg button:focus-visible{ outline:3px solid var(--focus, #005e95); outline-offset:-3px; }
     #app.docked .toolbar{ display:none; }
-    /* (5.0.0-beta.37) with a chart, table or profile open the toolbar is tucked away, so panels over the map don't keep room for it */
+    /* (5.0.0-beta.38) with a chart, table or profile open the toolbar is tucked away, so panels over the map don't keep room for it */
     #app.docked:not(.tools-shown) .panel{ max-height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.docked:not(.tools-shown) #sketchPanel.tall{ height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.docked.tools-shown .toolbar{ display:flex; }
@@ -1063,6 +1068,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.37"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.38"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@ drawing order and removed, and they come back from a saved file, also in a confi
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent; APP = HERE.parent
 QUAKES = "85997c9571e74256af71dc20566b47f1"
@@ -199,6 +200,6 @@ def main():
         check(page.evaluate(ROWS) == ["My sketches"] and "(2)" in dialogs[-1], "Remove all layers counts and removes the map's layers only: " + dialogs[-1][:40] + " → " + str(page.evaluate(ROWS)))
         check(not errors, "no script errors: " + "; ".join(errors[:3]))
         browser.close()
-    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(1 if failures else 0)
+    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__": main()

@@ -10,6 +10,7 @@ What each slide should show is read from the scene's own JSON, not written here.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading, urllib.request
 from playwright.sync_api import sync_playwright
+import csp_shim   # waits that work under the app's Content Security Policy; collects what it blocked
 
 HERE = pathlib.Path(__file__).resolve().parent; APP = HERE.parent
 GARDEN = "98dafc87ffe94961a96fea4b0750c930"; PALMA = "87bf66faa047472bb3bf3d8cfe23ffc2"
@@ -96,6 +97,6 @@ def main():
 
         check(not errors, "no script errors: " + "; ".join(errors[:3]))
         browser.close()
-    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(1 if failures else 0)
+    print(f"\n{checks[0] - len(failures)}/{checks[0]} checks passed"); sys.exit(csp_shim.finish(failures))
 
 if __name__ == "__main__": main()
