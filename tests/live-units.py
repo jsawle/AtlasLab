@@ -47,7 +47,7 @@ def main():
             page.on("pageerror", lambda e: errors.append(str(e)[:300])); page.on("request", lambda r: hosts.add(r.url.split("/")[2] if "//" in r.url else r.url[:20]))
             return ctx, page, errors
         def load(page, query="config=mapmaker"):
-            page.goto(f"{base}/index.html?{query}"); page.wait_for_function(V + " && " + V + ".ready", timeout=120000); page.wait_for_timeout(1500)
+            page.goto(f"{base}/index.html?{query}"); page.wait_for_function("(() => { try { return !!(" + V + ".ready); } catch (e) { return false; } })()", timeout=120000); page.wait_for_timeout(1500)
             page.evaluate("async () => { await " + V + ".goTo({ center: [-9.6, 39.0], zoom: 8 }, { animate: false }); }"); page.wait_for_timeout(1200)
         def profile(page):
             page.click("#tool-profile"); page.wait_for_selector("#profChart .prof-msg, #profChart .prof-land", timeout=60000); page.wait_for_timeout(600)

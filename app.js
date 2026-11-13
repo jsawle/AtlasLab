@@ -2,25 +2,25 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.34";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.35";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.34";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.35";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.34";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.34";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.34";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.34";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.35";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.35";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.35";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.35";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.34";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.34";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.34";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.35";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.35";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.35";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.34";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.35";
 
-const APP_VERSION = "5.0.0-beta.34";
+const APP_VERSION = "5.0.0-beta.35";
 const COMPASS_VERSION = "1.1";
-const CHARTS_VERSION = "1.0";
+const CHARTS_VERSION = "1.1";
 const PROFILE_VERSION = "3.3";
 const SKETCH_VERSION = "2.2";   // 1.1: rotation only for text. 2.0: the SDK's Sketch component (Map Viewer's tools) replaces the app's own. 2.1: freehand segments. 2.2: keyboard route to the drawing tools
 const CONFIG_SCHEMA = 2;
@@ -43,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.34). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.35). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -365,7 +365,15 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 const viewEls = new Map();
 function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-const mapView = await componentView("arcgis-map", "viewDiv", { map: localMap, center: startCenter, zoom: Number(cfg.startView.zoom) || 2 });
+// The zoom the app opens at (5.0.0-beta.35): the config's, or closer when that would leave the world narrower than the map.
+// The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
+// white bands either side. A config's own closer zoom (example-es: 7) is kept.
+function startZoom() {
+  const w = ($("viewDiv") && $("viewDiv").clientWidth) || window.innerWidth || 1024;
+  const fill = Math.ceil(Math.log2(Math.max(256, w) / 256) - 1e-9);   // the world is 256 px wide at zoom 0, twice that at each zoom
+  return Math.max(Number(cfg.startView.zoom) || 2, fill);
+}
+const mapView = await componentView("arcgis-map", "viewDiv", { map: localMap, center: startCenter, zoom: startZoom() });
 let view = mapView, sceneView = null, mode = "2d";
 const viewHandlers = [];
 function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt, fn); if (sceneView) sceneView.on(evt, fn); }
@@ -2244,7 +2252,8 @@ async function openWebMapItem(itemId, opts) {
       setTitle(item.title); markClean(); unbindFile();
       const vp = wm.initialViewProperties && wm.initialViewProperties.viewpoint;
       if (vp) goToSafe(vp, { animate: false });
-      if (!opts.quiet) toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
+      const say = () => toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
+      if (!opts.quiet) { say(); chartNoteWhenLoaded(activeMap(), say); }
     }
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
@@ -2315,7 +2324,8 @@ async function openWebSceneItem(itemId, opts) {
     bookmarks.forEach((b) => sourceBms.add(b));
     usePair(opts.pair || pairOf(item, data));
     setTitle(item.title); markClean(); unbindFile();
-    if (!opts.quiet) toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
+    const say = () => toast(t("openedMap", { title: item.title }) + chartNote(), chartNote() ? 8000 : undefined);
+    if (!opts.quiet) { say(); chartNoteWhenLoaded(ws, say); }
     if (!$("bookmarksPanel").hidden) showBmList();
     if (!$("layersPanel").hidden) renderLayers();
     if (catalogLoaded) refreshCatalogButtons();
@@ -2415,7 +2425,7 @@ function newBlankMap() {
   setActiveMap(localMap);
   localMap.basemap = defaultBasemap();
   setTitle(""); unbindFile(); markClean();
-  goToSafe({ center: startCenter, zoom: Number(cfg.startView.zoom) || 2 });
+  goToSafe({ center: startCenter, zoom: startZoom() });
   toast(S.newMapStarted);
 }
 
@@ -2664,6 +2674,20 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
+// Charts 1.1 (5.0.0-beta.35): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
+// for those. The opening message is given at once as before, and given again with the chart note if the map's feature
+// layers turn out to have charts once they have loaded (waiting up to 8 seconds).
+const layersOf = (x) => (x && x.allLayers ? x.allLayers.toArray() : []);
+async function chartNoteWhenLoaded(map, say) {
+  const fl = layersOf(map).filter((l) => l && l.type === "feature");
+  if (!fl.length) return;
+  const before = chartNote();
+  await Promise.race([Promise.allSettled(fl.map((l) => l.load())), new Promise((r) => setTimeout(r, 8000))]);
+  if (shownMap() !== map) return;   // another map has been opened since
+  if (!before && chartNote()) say();
+  if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
+}
 const chartsOf = (l) => { try { const c = l && l.charts; return Array.isArray(c) ? c.filter((x) => x && x.series) : []; } catch (e) { return []; } };
 const chartTitle = (c, i) => { const x = c && c.title && c.title.content; return String((x && x.text) || (typeof c.title === "string" ? c.title : "") || t("chartN", { n: i + 1 })).trim(); };
 async function openChart(l, index) {
@@ -4679,7 +4703,7 @@ function renderVersions() {
     ["Collection browser (Open map, Add layer)", CATALOG_VERSION, "MapMaker's category tree from the group's categories, with counts, search within a category, cards with descriptions, and pages. Where the collection has 3D maps (web scenes), a row above the maps shows all, the 2D maps or the 3D maps, with how many of each; a 3D map's card is marked 3D on its picture."],
     ["Units", UNITS_VERSION, "Kilometres and metres, or miles and feet, in Measure, Elevation and Sketch. With units set to auto the app starts in miles on a device whose time zone is in the United States and in kilometres elsewhere; if the time zone isn't known, the browser's language decides. Nothing is sent anywhere to work this out. The km / mi switch changes the units, and the choice is kept on this device."],
     ["Docks", "1.0", "The chart, the table and Elevation open in a dock under the map. Drag the bar along the dock's top, or use the arrow keys on it, to make it taller or shorter; double-click the bar for the usual height. The height is kept for each kind of dock while the app is open."],
-    ["Charts", CHARTS_VERSION, "A chart set up on a layer in Map Viewer, drawn by the SDK's chart component under the map: Map layers, then the layer's Chart button. Selecting on the chart highlights those features on the map. The chart's own toolbar has its legend, selection, only what is in view, zoom and saving."],
+    ["Charts", CHARTS_VERSION, "A chart set up on a layer in Map Viewer, kept in the map or with the layer's own item, drawn by the SDK's chart component under the map: Map layers, then the layer's Chart button. Selecting on the chart highlights those features on the map. The chart's own toolbar has its legend, selection, only what is in view, zoom and saving."],
     ["Elevation profile", PROFILE_VERSION, "The height of the land and the sea floor along a line, from Esri's World Elevation TopoBathy 3D service (512 points along the line, on every screen). The chart stretches heights to fill its space, and says by how much (vertical exaggeration). Total climb and descent are given for lines up to 50 km. A line you draw takes the shortest way round the Earth between the places you click (a great circle), so on the flat map a long line is a curve; a line you choose on the map is followed as it is drawn. The app's own chart, the full width under the map: earth colours that darken with depth, the sea and a sea-level line where the line goes below it, and a dot on the map at the place the pointer is at on the chart."],
     ["Compass", COMPASS_VERSION, "MapMaker's compass rose: turns with the map in 2D and 3D; select it to face north."],
     ["Saved map (.amap file and ArcGIS Online)", WEBMAP_WRITER_VERSION, "An ArcGIS web map (Web Map Specification " + WEBMAP_SPEC_VERSION + "): sketches, spreadsheet data, layers and their filters, basemap, view, bookmarks and a time-aware map's time settings. The same JSON is stored in ArcGIS Online. 3.0: a 3D scene is saved as a web scene (Web Scene Specification " + WEBSCENE_SPEC_VERSION + ") in the same kind of file, with its camera and its bookmarks as slides. 3.4: a map saved to a file while in 3D opens in 3D again, seen from the same place. 3.5: the sketch layer's transparency. 3.6: more than one sketch layer, and sketch layers anywhere in the layer order."],

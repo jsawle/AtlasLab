@@ -78,7 +78,7 @@ def main():
 
         print("== the dock")
         page.goto(f"{base}/index.html?config=mapmaker")
-        page.wait_for_function(V + " && " + V + ".ready", timeout=120000); page.wait_for_timeout(1500)
+        page.wait_for_function("(() => { try { return !!(" + V + ".ready); } catch (e) { return false; } })()", timeout=120000); page.wait_for_timeout(1500)
         go(-9.6, 39.0, 8)   # the coast of Portugal: land to the east, the Atlantic to the west
         page.click("#tool-profile"); page.wait_for_selector("#profilePanel:not([hidden])", timeout=30000)
         page.wait_for_selector("#profChart .prof-msg", timeout=60000)

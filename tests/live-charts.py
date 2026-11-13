@@ -15,6 +15,7 @@ from playwright.sync_api import sync_playwright
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
 V = "document.querySelector('arcgis-map').view"
+def safe(expr): return "(() => { try { return !!(" + expr + "); } catch (e) { return false; } })()"   # the map element is made by the app, so it may not be there yet
 MAP = "69874ffe9be341afbe2e93a51dbfc5c3"
 DEEP = """(sel) => { const out = []; const walk = (n) => { if (!n) return; if (n.nodeType === 3) { const t = n.nodeValue.trim(); if (t) out.push(t); return; } if (n.nodeType !== 1 && n.nodeType !== 11) return; if (n.nodeType === 1 && (n.tagName === 'STYLE' || n.tagName === 'SCRIPT')) return; if (n.shadowRoot) walk(n.shadowRoot); for (const c of n.childNodes) walk(c); }; walk(document.querySelector(sel)); return out.join(' | '); }"""
 COUNT = """([sel, what]) => { let n = 0; const walk = (e) => { if (!e) return; if (e.nodeType === 1 && e.matches && e.matches(what)) n++; if (e.shadowRoot) walk(e.shadowRoot); for (const c of (e.children || [])) walk(c); }; walk(document.querySelector(sel)); return n; }"""
@@ -50,7 +51,7 @@ def main():
             check(not res, what + " passes the accessibility scan" + (": " + "; ".join(res) if res else ""))
         toasts = []
         page.goto(f"{base}/index.html?config=test&webmap={MAP}")
-        page.wait_for_function(V + " && " + V + ".ready && " + V + ".map.loaded && " + V + ".map.portalItem && " + V + ".map.portalItem.id === '" + MAP + "'", timeout=120000)
+        page.wait_for_function(safe(V + ".ready && " + V + ".map.loaded && " + V + ".map.portalItem && " + V + ".map.portalItem.id === '" + MAP + "'"), timeout=120000)
         for _ in range(12):
             toasts.append(page.inner_text("#toast")); page.wait_for_timeout(500)
         check(any("has a chart" in x for x in toasts), "opening the map says it has a chart and where to find it: " + next((x for x in toasts if "chart" in x), "")[:140])
@@ -137,7 +138,7 @@ def main():
             return out
         withc = [l for l in layers(saved.get("operationalLayers"), []) if l.get("charts")]
         check(len(withc) == 1 and withc[0]["charts"][0]["series"][0]["type"] == "scatterSeries" and "Depth and Magnitude" in json.dumps(withc[0]["charts"][0]["title"]), "the saved file keeps the layer's chart set-up")
-        page.goto(f"{base}/index.html?config=test"); page.wait_for_function(V + " && " + V + ".ready", timeout=120000); page.wait_for_timeout(1500)
+        page.goto(f"{base}/index.html?config=test"); page.wait_for_function(safe(V + ".ready"), timeout=120000); page.wait_for_timeout(1500)
         page.evaluate("""([name, text]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: 'application/json' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", ["quakes_chart.amap", json.dumps(saved)])
         page.wait_for_function(V + ".map.allLayers.some(l => l.title === 'Events by Magnitude')", timeout=90000); page.wait_for_timeout(4000)
         if page.is_hidden("#layersPanel"): page.click("#tool-layers")
@@ -147,6 +148,49 @@ def main():
         if n:
             page.evaluate("document.querySelector('#layersPanel [data-key$=\":chart\"]').click()"); page.wait_for_selector("#tableBody arcgis-chart", timeout=60000); page.wait_for_timeout(6000)
             check(page.evaluate(COUNT, ["#tableBody", "canvas"]) > 0, "and the chart is drawn")
+
+        print("== a chart saved with the layer's own item, not in the map")
+        # Map Viewer's "Save layer" keeps a chart in the layer's item. Here the map's chart is moved there: taken out of the
+        # map and put in the item's data under the layer's id, as Map Viewer would.
+        import urllib.request
+        wm = json.load(urllib.request.urlopen(f"https://www.arcgis.com/sharing/rest/content/items/{MAP}/data?f=json"))
+        def every(ls):
+            for l in ls or []: yield l; yield from every(l.get("layers"))
+        lyr = next(l for l in every(wm["operationalLayers"]) if l.get("charts")); chart = lyr["charts"][0]
+        item_id = lyr.get("itemId") or next(l.get("itemId") for l in every(wm["operationalLayers"]) if l.get("itemId") and lyr in list(every(l.get("layers"))))
+        layer_id = int(lyr["url"].rstrip("/").rsplit("/", 1)[1]) if lyr.get("url") else int(lyr.get("layerId", lyr.get("id")))
+        print("  (the chart's layer: item %s, layer %s)" % (item_id, layer_id))
+        def map_without(route):
+            r = route.fetch(); j = r.json()
+            for l in every(j.get("operationalLayers")): l.pop("charts", None)
+            route.fulfill(response=r, json=j)
+        def item_with(route):
+            r = route.fetch()
+            try: j = r.json()
+            except Exception: j = {}
+            if not isinstance(j, dict): j = {}
+            ls = j.setdefault("layers", []); e = next((x for x in ls if x.get("id") == layer_id), None)
+            if not e: e = {"id": layer_id}; ls.append(e)
+            e["charts"] = [chart]
+            route.fulfill(response=r, json=j)
+        page2 = ctx.new_page(); page2.on("pageerror", lambda e: errors.append((getattr(e, "stack", "") or str(e))[:400]))
+        page2.route(lambda u: f"/content/items/{MAP}/data" in u, map_without)
+        page2.route(lambda u: f"/content/items/{item_id}/data" in u, item_with)
+        page2.goto(f"{base}/index.html?config=test&webmap={MAP}")
+        page2.wait_for_function(safe(V + ".ready && " + V + ".map.loaded && " + V + ".map.portalItem && " + V + ".map.portalItem.id === '" + MAP + "'"), timeout=120000)
+        t2 = []
+        for _ in range(16): t2.append(page2.inner_text("#toast")); page2.wait_for_timeout(500)
+        check(any("has a chart" in x for x in t2), "a map whose chart is kept with the layer's item says it has a chart")
+        page2.click("#tool-layers"); page2.wait_for_selector("#layersPanel:not([hidden])", timeout=30000); page2.wait_for_timeout(1500)
+        page2.evaluate("document.querySelectorAll('#layersPanel [aria-expanded=\"false\"]').forEach(b => { if (b.querySelector('calcite-icon[icon=\"chevron-right\"]')) b.click(); })"); page2.wait_for_timeout(1200)
+        b2 = page2.evaluate("[...document.querySelectorAll('#layersPanel [data-key$=\":chart\"]')].map(b => b.getAttribute('aria-label') || b.title)")
+        check(len(b2) == 1 and "Events by Magnitude" in b2[0], "and the layer has its Chart button: " + json.dumps(b2))
+        if b2:
+            page2.evaluate("document.querySelector('#layersPanel [data-key$=\":chart\"]').click()"); page2.wait_for_selector("#tableBody arcgis-chart", timeout=60000); page2.wait_for_timeout(7000)
+            ty = page2.evaluate("(() => { const c = document.querySelector('#tableBody arcgis-chart'); return c && c.model && c.model.series && c.model.series[0].type; })()")
+            check(ty == "scatterSeries" and page2.evaluate(COUNT, ["#tableBody", "canvas"]) > 0, "which draws the chart from the item: " + str(ty))
+            page2.screenshot(path=str(shots / "chart-from-item.png"))
+        page2.close()
         check(not errors, "no script errors" + (": " + " | ".join(errors[:2]) if errors else ""))
         browser.close()
     srv.shutdown()
