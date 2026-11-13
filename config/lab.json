@@ -1,5 +1,5 @@
 {
-  "configVersion": 9,
+  "configVersion": 10,
   "extends": "mapmaker",
-  "features": { "columns3d": true, "pairs": true }
+  "features": { "columns3d": true, "pairs": true, "sketchLayers": true }
 }

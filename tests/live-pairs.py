@@ -29,7 +29,7 @@ MODE = "({ p2: document.querySelector('#tg2d').getAttribute('aria-pressed'), p3:
 NOW = """(() => { const s = document.querySelector('arcgis-scene'), m = document.querySelector('arcgis-map'); const in3 = !!s && !document.querySelector('#sceneDiv').hidden; const v = in3 ? s.view : m.view, mp = v.map;
   const sk = mp.layers.find(x => x.id === '__sketch'), c = v.center;
   return { in3, kind: mp.declaredClass, item: mp.portalItem ? mp.portalItem.id : null, ready: !!v.ready, layers: mp.layers.map(l => l.title || l.id).toArray(), ids: mp.layers.map(l => l.id).toArray(),
-    sketches: sk ? sk.graphics.length : -1, sketchTop: !!sk && mp.layers.getItemAt(mp.layers.length - 1) === sk, lon: c ? c.longitude : null, lat: c ? c.latitude : null, scale: v.scale, tilt: in3 && v.camera ? v.camera.tilt : 0 }; })()"""
+    sketches: sk ? sk.graphics.length : -1, drawn: Object.fromEntries(mp.layers.filter(l => String(l.id).startsWith('__sketch')).map(l => [l.title, l.graphics.length]).toArray()), sketchTop: !!sk && mp.layers.getItemAt(mp.layers.length - 1) === sk, lon: c ? c.longitude : null, lat: c ? c.latitude : null, scale: v.scale, tilt: in3 && v.camera ? v.camera.tilt : 0 }; })()"""
 CARDS = "[...document.querySelectorAll('#omList .cat-card')].map(c => ({ title: c.querySelector('.cat-card-title').textContent.trim(), scene: c.classList.contains('is-scene'), pair: c.classList.contains('is-pair'), badge: (c.querySelector('.cat-thumb .cat-3d') || {}).textContent || '', act: c.querySelector('.cat-act').textContent }))"
 DIMS = "Object.fromEntries([...document.querySelectorAll('#omBrowser .cat-dims button')].map(b => [b.dataset.dim, +b.querySelector('.cat-dim-n').textContent]))"
 
@@ -136,6 +136,14 @@ def main():
         page.mouse.move(x, y); page.wait_for_timeout(1200); page.mouse.click(x, y); page.wait_for_timeout(3000)
         page.evaluate("(() => { const s = document.querySelector('arcgis-sketch'); try { if (s.state === 'active') s.cancel(); } catch (e) {} })()"); page.wait_for_timeout(1000)
         page.keyboard.press("Escape"); jsclick("#tool-sketch"); page.wait_for_timeout(800)
+        # a second sketch layer (lab too), with one sketch
+        jsclick("#tool-add"); page.wait_for_selector("#addModal:not([hidden])"); jsclick("#tabSketchLayer"); page.wait_for_selector("#paneSketchLayer:not([hidden])")
+        page.fill("#sketchLayerName", "Rivers"); jsclick("#sketchLayerCreate"); page.wait_for_timeout(1500)
+        wf("(() => { const s = document.querySelector('arcgis-sketch'); return !!s && s.state === 'ready' && !!s.view; })()"); page.wait_for_timeout(1500)
+        page.evaluate("document.querySelector('arcgis-sketch').create('point')"); page.wait_for_timeout(2500)
+        page.mouse.move(x + 90, y - 60); page.wait_for_timeout(1200); page.mouse.click(x + 90, y - 60); page.wait_for_timeout(3000)
+        page.evaluate("(() => { const s = document.querySelector('arcgis-sketch'); try { if (s.state === 'active') s.cancel(); } catch (e) {} })()"); page.wait_for_timeout(1000)
+        page.keyboard.press("Escape"); jsclick("#tool-sketch"); page.wait_for_timeout(800)
         bm2d = bm_titles()
         jsclick("#bmAddBtn"); page.fill("#bmTitleInput", "My place"); jsclick("#bmSave"); page.wait_for_timeout(600)
         jsclick("#tool-bookmarks"); page.wait_for_timeout(500)
@@ -148,7 +156,8 @@ def main():
         n3 = now(); st = page.evaluate(MODE)
         check(n3["in3"] and n3["kind"] == "esri.WebScene" and n3["item"] == SCENE, "3D opens the map's own 3D version (the web scene), not the web map drawn in 3D")
         check("its own 3D version" in note and "came with you" in note, "and says so the first time: " + note)
-        check(n3["sketches"] == 1 and n3["sketchTop"] and "ash" in n3["layers"], f"the sketch and the spreadsheet layer came across, the sketch on top: {n3['layers']}")
+        check(n3["sketches"] == 1 and "ash" in n3["layers"], f"the sketch and the spreadsheet layer came across: {n3['layers']}")
+        check(n3["drawn"] == {"My sketches": 1, "Rivers": 1} and n3["layers"][-3:] == before["layers"][-3:], f"both sketch layers did, and your own layers are on top in the order they had: {n3['layers'][-3:]}")
         check(not any(l in n3["layers"] for l in own2d), "the web map's own layers did not: the scene has its own")
         check(abs(n3["lon"] - before["lon"]) < 0.05 and abs(n3["lat"] - before["lat"]) < 0.05, f"the 3D view looks at the same place ({n3['lon']:.3f}, {n3['lat']:.3f}), tilted {n3['tilt']:.0f}°")
         check(st["p3"] == "true" and st["d2"] is None and not page.get_attribute("#tg2d", "title"), "2D is not locked on a 3D map that has a 2D version")
@@ -164,7 +173,7 @@ def main():
         jsclick("#tg2d"); in_2d(); page.wait_for_timeout(1200); note2 = toast(); page.wait_for_timeout(4000)
         n2 = now(); st = page.evaluate(MODE)
         check(not n2["in3"] and n2["kind"] == "esri.WebMap" and n2["item"] == WEBMAP and st["d3"] is None, "2D goes back to the web map")
-        check(n2["sketches"] == 1 and n2["sketchTop"] and "ash" in n2["layers"] and all(l in n2["layers"] for l in own2d), f"with the sketch, the spreadsheet and its own layers: {n2['layers']}")
+        check(n2["drawn"] == {"My sketches": 1, "Rivers": 1} and n2["layers"][-3:] == before["layers"][-3:] and "ash" in n2["layers"] and all(l in n2["layers"] for l in own2d), f"with the sketch, the spreadsheet and its own layers: {n2['layers']}")
         kept = page.evaluate("(t) => { const l = document.querySelector('arcgis-map').view.map.allLayers.find(x => x.title === t); return l ? l.definitionExpression : null; }", vol) if vol else "1=1"
         check(kept == "1=1", "as it was left: the filter on its own layer is still on")
         check(abs(n2["lon"] - n3["lon"]) < 0.05 and abs(n2["lat"] - n3["lat"]) < 0.05, f"looking at the same place ({n2['lon']:.3f}, {n2['lat']:.3f})")
