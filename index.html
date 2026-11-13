@@ -95,7 +95,7 @@
     .tool-menu .tool:not([hidden]) ~ .tool{ border-left:1px solid var(--tool-line); }
     .ti.md{ width:24px; height:24px; }
     /* Elevation profile docked under the map: the chart runs the whole width, with the line's figures in one row beneath it. */
-    .dock{ flex:0 0 auto; height:clamp(230px, 34vh, 320px); display:flex; flex-direction:column; background:#fff; border-top:2px solid var(--brand); z-index:5; }
+    .dock{ flex:0 0 auto; height:clamp(230px, 34vh, 320px); height:clamp(230px, 34dvh, 320px); display:flex; flex-direction:column; background:#fff; border-top:2px solid var(--brand); z-index:5; }
     .dock .panel-head{ padding:5px 8px 5px 14px; gap:14px; }
     .dock .panel-head h2{ font-size:16px; white-space:nowrap; }
     .dock-source{ flex:1 1 auto; min-width:0; font-size:12px; color:#4a4a4a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; }
@@ -140,6 +140,9 @@
     .units-seg button[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); }
     .units-seg button:focus-visible{ outline:3px solid var(--focus, #005e95); outline-offset:-3px; }
     #app.docked .toolbar{ display:none; }
+    /* (5.0.0-beta.37) with a chart, table or profile open the toolbar is tucked away, so panels over the map don't keep room for it */
+    #app.docked:not(.tools-shown) .panel{ max-height:calc(100% - var(--attr-h, 16px) - 30px); }
+    #app.docked:not(.tools-shown) #sketchPanel.tall{ height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.docked.tools-shown .toolbar{ display:flex; }
     .tools-toggle{ display:none; width:32px; height:32px; border:none; border-radius:0; background:#fff; color:#323232; cursor:pointer; align-items:center; justify-content:center; box-shadow:0 1px 2px rgba(0,0,0,.3); }
     #app.docked .tools-toggle{ display:inline-flex; }
@@ -348,10 +351,10 @@
     .lyr.dragging{ opacity:.55; }
     .lyr.drop-before{ box-shadow:inset 0 2px 0 var(--brand); }
     .lyr.drop-after{ box-shadow:inset 0 -2px 0 var(--brand); }
-    .table-dock{ height:clamp(240px, 42vh, 460px); }
+    .table-dock{ height:clamp(240px, 42vh, 460px); height:clamp(240px, 42dvh, 460px); }
     .table-dock .panel-head h2{ font-size:14px; font-weight:500; }
     .table-dock .dock-body, .table-host{ height:100%; }
-    .chart-dock{ height:clamp(280px, 46vh, 520px); }
+    .chart-dock{ height:clamp(280px, 46vh, 520px); height:clamp(280px, 46dvh, 520px); }
     .chart-host arcgis-chart{ display:flex; width:100%; height:100%; }
     .chart-pick{ flex:0 1 320px; min-width:0; margin-left:auto; }
     .chart-pick .field{ padding:5px 8px; }
@@ -481,7 +484,7 @@
     .filename-row{ display:flex; border:1px solid var(--line2); border-radius:4px; overflow:hidden; }
     .filename-row .field{ border:none; border-radius:0; }
     .ext{ padding:0 12px; font-size:14px; color:var(--muted); background:#f4f6f9; display:flex; align-items:center; border-left:1px solid var(--line2); }
-    .open-card{ background:#fff; border-radius:8px; width:100%; max-width:1120px; height:calc(100vh - 80px); max-height:860px; display:flex; flex-direction:column; box-shadow:0 16px 50px rgba(0,0,0,.32); overflow:hidden; }
+    .open-card{ background:#fff; border-radius:8px; width:100%; max-width:1120px; height:100%; max-height:860px; display:flex; flex-direction:column; box-shadow:0 16px 50px rgba(0,0,0,.32); overflow:hidden; }
     .open-head{ flex:0 0 auto; display:flex; align-items:flex-start; justify-content:space-between; padding:18px 22px 4px; }
     .open-head h2{ margin:0; font-size:19px; font-weight:600; outline:none; }
     .open-head p{ margin:4px 0 0; font-size:13px; color:var(--muted); }
@@ -626,20 +629,21 @@
       .lyr-extra{ padding-left:30px; }
       .lyr.sub{ padding-left:14px; }
       .panel, .panel.wide, .panel.bmg-panel, .panel.lyr-panel{ left:8px; right:8px; width:auto; top:auto; bottom:calc(var(--tb-h) + var(--attr-h, 16px) + 14px); max-height:58%; }
-      .open-card{ height:calc(100vh - 40px); max-height:none; }
+      .open-card{ height:100%; max-height:none; }
       .sketch-bar{ top:50px; left:56px; right:8px; bottom:auto; flex-direction:row; align-items:flex-start; justify-content:flex-start; }
       .sketch-bar > arcgis-sketch{ max-width:100%; overflow-x:auto; max-height:none; }   /* phones: the panel sits at the bottom, so the toolbar can use the width, under the version button */
       .modal.top{ padding-top:20px; }
+      #app.docked:not(.tools-shown) .panel{ bottom:calc(var(--attr-h, 16px) + 14px); max-height:calc(100% - var(--attr-h, 16px) - 64px); }
     }
     @media (max-width:760px){
       .cat-body{ grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
-      .cat-side{ border-right:none; border-bottom:1px solid var(--line); max-height:40vh; }
+      .cat-side{ border-right:none; border-bottom:1px solid var(--line); max-height:40vh; max-height:40dvh; }
       .cat-thumb{ flex-basis:96px; width:96px; height:64px; }
       .cat-foot{ flex-wrap:wrap; justify-content:center; padding:6px 10px; }
       .cat-foot-side:first-child{ flex:1 0 100%; text-align:center; }
       .cat-foot-side:last-child{ display:none; }
       .cat-foot-side:first-child:empty{ display:none; }
-      .dock{ height:clamp(220px, 40vh, 300px); }
+      .dock{ height:clamp(220px, 40vh, 300px); height:clamp(220px, 40dvh, 300px); }
       /* narrow: the buttons and settings first, then the chart, then the legend */
       .prof-foot{ flex-wrap:wrap; gap:6px 12px; }
       .prof-stats{ gap:2px 16px; } .prof-stat dt{ font-size:13px; } .prof-stat dd{ font-size:14px; }
@@ -1059,6 +1063,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.36"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.37"></script>
 </body>
 </html>
