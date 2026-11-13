@@ -1,7 +1,7 @@
-"""Runs the Filter panel of the lab app (atlas-sketch) in Chromium against the real services: the ArcGIS Maps SDK from
+"""Runs the Filter panel of the lab app in Chromium against the real services: the ArcGIS Maps SDK from
 Esri's CDN, ArcGIS Online, and MapMaker's "Major Earthquakes (1950-2023)" map.
 
-Run:  python3 atlas-sketch/tests/live-filter.py [--shots DIR] [--proxy URL] [--axe FILE]
+Run:  python3 tests/live-filter.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com and www.arcgis.com (an HTTPS proxy is taken from --proxy or HTTPS_PROXY) and
 Python Playwright with Chromium. --axe is axe-core's axe.min.js (the main app's smoke test fetches it); without it the
 accessibility scan is skipped.

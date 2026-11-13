@@ -1,4 +1,4 @@
-// Unit tests for the filter conditions <-> SQL module, and the time settings a saved map keeps. Run: node atlas-sketch/tests/filter.test.mjs
+// Unit tests for the filter conditions <-> SQL module, and the time settings a saved map keeps. Run: node tests/filter.test.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import * as F from "../lib/filter.js";

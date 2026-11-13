@@ -1,19 +1,27 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This folder is 5.0, version **5.0.0-beta.29**, on ArcGIS Maps SDK for JavaScript 5.2. It grew from a lab copy of the earlier white-label app (`../atlas/`, 1.14.8, kept as it is): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.30**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
-| `https://jsawle.github.io/localmapsave/atlas-sketch/` | Neutral "School Atlas" branding |
-| `…/atlas-sketch/?config=mapmaker` | MapMaker's groups, units, colours and wording |
-| `…/atlas-sketch/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
-| `…/atlas-sketch/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/atlas-sketch/?config=lab` | The MapMaker config with lab features switched on. Now: columns in 3D |
-| `…/atlas-sketch/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
+| `https://jsawle.github.io/AtlasLab/` | Neutral "School Atlas" branding |
+| `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
+| `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
+| `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: columns in 3D |
+| `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 
-Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`../atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
+Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Its own repository (5.0.0-beta.30)
+
+No visible change. 5.0 moved from `jsawle/localmapsave/atlas-sketch/` to this repository, with its commit history, and is published at `https://jsawle.github.io/AtlasLab/`. The old address sends people here, keeping whatever followed it in the link (`?config=…&webmap=…`), so shared links still open the same map.
+
+- **Saved maps and settings carry over.** Both addresses are on the same site (`jsawle.github.io`), so *My map files*, the km / mi choice and the other things kept in the browser are the same as before.
+- **Sign-in** needs `https://jsawle.github.io/AtlasLab/oauth-callback.html` added as a redirect URI on the app's client ID in ArcGIS Online.
+- **Tests** run from the repository's top folder: `node tests/<name>.test.mjs` and `python3 tests/live-<name>.py`. The unit tests run on every pull request (`.github/workflows/tests.yml`).
 
 ## A map saved in 3D opens in 3D, with its columns (5.0.0-beta.29)
 
@@ -97,7 +105,7 @@ No "3D" category is needed in the group for this: the app tells maps from scenes
 
 Not done: the category list's counts still say "maps" for maps and scenes together; and in a collection too big to list in the browser (searched on the server instead) the row is not shown.
 
-Tests: `python3 atlas-sketch/tests/live-openmap.py` (15 checks, with axe-core scans), against the test content group.
+Tests: `python3 tests/live-openmap.py` (15 checks, with axe-core scans), against the test content group.
 
 ## A layer that already has a filter (5.0.0-beta.18)
 
@@ -109,7 +117,7 @@ A layer the map's author had filtered with a list (`Dates IN ('April 19, 1775', 
 - **No "Condition" heading** on a card: the field, the comparison and the value, with the bin beside the field. The card is still named for a screen reader.
 - The count is of the whole layer ("Showing 21 of 121 features"), and Clear all shows every feature.
 
-Tests: `node atlas-sketch/tests/filter.test.mjs` (17) and `python3 atlas-sketch/tests/live-filter.py` (52 checks; the new ones use "1775-1776 Revolutionary Battles").
+Tests: `node tests/filter.test.mjs` (17) and `python3 tests/live-filter.py` (52 checks; the new ones use "1775-1776 Revolutionary Battles").
 
 Also: the automatic checks now parse `app.js` as a module (`node --check` on the `.js` file had passed a file with a syntax error) and run the config and language tests.
 
@@ -140,7 +148,7 @@ A chart that a map's author set up on a layer in Map Viewer can now be seen in t
 
 Not built: making or editing a chart in the app; charts for spreadsheet layers added in the app; a mark on a map's card in Open map to say it has a chart (the app would have to download every map to know).
 
-Tests: `python3 atlas-sketch/tests/live-charts.py` (16 checks, with an axe-core scan), against "Real-Time Earthquakes with chart" in the test content group.
+Tests: `python3 tests/live-charts.py` (16 checks, with an axe-core scan), against "Real-Time Earthquakes with chart" in the test content group.
 
 ## Configs and shared language files (5.0.0-beta.15)
 
@@ -156,7 +164,7 @@ One app, one config per partner. A config in `config/` lists only what differs f
 
 `config/example-es.json` is the model for a distributor: 37 lines, no wording of its own. Before this release it carried its own copy of the whole Spanish translation (511 pieces, four behind the app); that is now `locales/es.json`, complete, and shared by any Spanish-language config.
 
-`node atlas-sketch/tests/config.test.mjs` checks every config and language file: it parses, IDs are IDs, colours are colours, what it extends exists, its language has a file, and each language file has every piece of wording with the same `{placeholders}` as the English. The About table shows the config, what it extends, and the language file with its version.
+`node tests/config.test.mjs` checks every config and language file: it parses, IDs are IDs, colours are colours, what it extends exists, its language has a file, and each language file has every piece of wording with the same `{placeholders}` as the English. The About table shows the config, what it extends, and the language file with its version.
 
 Not done: right-to-left layout (the page direction is set from the language file, but the app's own styles are written left-to-right); a config kept as an ArcGIS Online item; `atlas/` (1.14.8) still uses whole-file configs.
 
@@ -187,7 +195,7 @@ Not built: text alignment and multi-line options, a background box, recent text 
 
 The MapMaker config also gains American spellings for the area, halo and units wording that had been left British.
 
-Tests: `python3 atlas-sketch/tests/live-sketch-text.py` (37 checks, with axe-core scans); `node atlas-sketch/tests/scenes.test.mjs` is now 36 checks.
+Tests: `python3 tests/live-sketch-text.py` (37 checks, with axe-core scans); `node tests/scenes.test.mjs` is now 36 checks.
 
 ## The last widgets become components (5.0.0-beta.13)
 
@@ -213,7 +221,7 @@ Still Esri's to finish: `arcgis-feature-table` downloads the `FeatureTable` widg
 
 Also in this release: an Elevation line across the 180° meridian is now tested (Japan to Alaska: one piece, the great-circle length, the dot on the line on both sides).
 
-Tests: `python3 atlas-sketch/tests/live-components.py` (24 checks, with axe-core scans); `live-elevation.py` is now 49 checks.
+Tests: `python3 tests/live-components.py` (24 checks, with axe-core scans); `live-elevation.py` is now 49 checks.
 
 ## Units that fit where the device is (5.0.0-beta.12)
 
@@ -232,7 +240,7 @@ No IP address lookup and no request to any service: the time zone and language a
 
 Limits: a device set to the wrong time zone starts in the wrong units (the switch puts it right). Only the United States is treated as a miles country. The Measure tool's own units menu still works but its choice isn't remembered. Sketch's side labels take their units from the SDK's portal setting, as its documentation describes.
 
-Tests: `node atlas-sketch/tests/units.test.mjs` (42 checks) and `python3 atlas-sketch/tests/live-units.py` (18 checks, run with the browser set to Chicago and to London).
+Tests: `node tests/units.test.mjs` (42 checks) and `python3 tests/live-units.py` (18 checks, run with the browser set to Chicago and to London).
 
 ## Elevation: drawn lines take the shortest way round (5.0.0-beta.11)
 
@@ -240,7 +248,7 @@ A line drawn in the Elevation tool is now geodesic (Elevation profile 3.1): betw
 
 A line **chosen** on the map (a sketch, a line feature) is still followed exactly as it is drawn there, so the dot stays on the sketched line. Lines are kept between 85°N and 85°S (Web Mercator has no poles). Also: the chart's surface line is 1px (was 2px), and the last distance label no longer runs off the right edge.
 
-Tests: `python3 atlas-sketch/tests/live-elevation.py` (44 checks).
+Tests: `python3 tests/live-elevation.py` (44 checks).
 
 ## Elevation: the app's own chart (5.0.0-beta.10)
 
@@ -257,7 +265,7 @@ The Elevation tool no longer uses Esri's Elevation Profile widget (one of the wi
 
 Heights are read at up to 512 points along the line in one request. Units follow `units` in the config. Not built: drawing a new line with the keyboard alone (a sketched line can be chosen from the list); the slope figures the widget had.
 
-Tests: `python3 atlas-sketch/tests/live-elevation.py` (39 checks, with an axe-core scan).
+Tests: `python3 tests/live-elevation.py` (39 checks, with an axe-core scan).
 
 ## Segment labels, snapping, whole-number measurements (5.0.0-beta.8)
 
@@ -272,7 +280,7 @@ On from the start while sketching, each with a switch in the toolbar's Settings 
 
 **How the rounding is done.** The SDK has no setting for decimal places: the Sketch component's value options choose units only. The tooltips and labels are ordinary page text inside the map component, so the app rounds that text as it is written. It depends on how the SDK writes those texts today, so an SDK update could bring the decimals back; the live test would then fail. Coordinates and angles are left as they are. The SDK still changes unit with scale (km, then m), so short lengths do not become "0 km".
 
-Tests: `python3 atlas-sketch/tests/live-sketch-measure.py` (12 checks): the four side labels of a rectangle, no decimals on any length or area, and a line started 4 pixels from a sketched point starting exactly on it (0.00 m apart where a pixel was 19,568 m), against the same start with snapping off (70 km away), and against a spreadsheet point, which is not snapped to. Not tested: labels, snapping and rounding in 3D; snapping to edges and to right angles.
+Tests: `python3 tests/live-sketch-measure.py` (12 checks): the four side labels of a rectangle, no decimals on any length or area, and a line started 4 pixels from a sketched point starting exactly on it (0.00 m apart where a pixel was 19,568 m), against the same start with snapping off (70 km away), and against a spreadsheet point, which is not snapped to. Not tested: labels, snapping and rounding in 3D; snapping to edges and to right angles.
 
 ## Areas as Map Viewer sets them up, and tooltips (5.0.0-beta.7)
 
@@ -295,7 +303,7 @@ Saved-map format 3.2: an area keeps `fillColor`, `outlineTransparency` and `outl
 
 **Tooltips** are on from the start while drawing (the place under the pointer, a line's length, an area's size), as in the Map Viewer screenshot. The toolbar's Settings turns them off; `"sketchTooltips": false` in a config starts with them off.
 
-Tests: `python3 atlas-sketch/tests/live-sketch-styles.py` (59 checks).
+Tests: `python3 tests/live-sketch-styles.py` (59 checks).
 
 ## Sketch panel and symbols, second pass (5.0.0-beta.6)
 
@@ -326,7 +334,7 @@ Left out: Calcite Symbols (609 interface icons), Animated and Firefly. `sketchSy
 - One toolbar on the map. The Sketch component's own Duplicate and Delete made a second bar when a sketch was selected; they are turned off and the panel's buttons call the same component methods.
 - "Go to the drawing tools" is still the first thing Tab reaches in the panel, and is shown only when it has focus.
 
-A sketch's symbol is saved as `web:<style item id>/<symbol name>`; beta.5's `web:school` still opens. Tests: `python3 atlas-sketch/tests/live-sketch-styles.py` (45 checks).
+A sketch's symbol is saved as `web:<style item id>/<symbol name>`; beta.5's `web:school` still opens. Tests: `python3 tests/live-sketch-styles.py` (45 checks).
 
 ## Sketch styles (5.0.0-beta.5)
 
@@ -344,7 +352,7 @@ Modelled on Map Viewer's sketch tools: a toolbar on the map, and a pane that cha
 
 Not done, or not tested: Map Viewer's other symbol sets (animals, arrows, and so on) and uploading your own picture; fonts for text; line and outline transparency; a custom colour picker. The new styles were tested in 2D; in 3D they were seen to draw (vector symbol, dashes, arrowhead) in one check by eye, not in the automated tests. Opening a saved map in Map Viewer itself has not been tried.
 
-Tests: `python3 atlas-sketch/tests/live-sketch-styles.py` (30 checks).
+Tests: `python3 tests/live-sketch-styles.py` (30 checks).
 
 ## Sketch in 3D, and loading on a slow connection (5.0.0-beta.4)
 
@@ -360,7 +368,7 @@ Tests: `python3 atlas-sketch/tests/live-sketch-styles.py` (30 checks).
 
 What changed: the opened map's item and JSON were each downloaded twice, now once; a linked map starts downloading at once and no default basemap is loaded first; the code for Legend, Measure, Coordinates, Elevation and Sketch is downloaded when the tool is first opened. Of what is left, 1.7 MB in 275 requests is the SDK itself. The test serves the app's own files uncompressed (435 kB); GitHub Pages compresses them.
 
-Measure it: `python3 atlas-sketch/tests/perf.py` (add `--fast` for no throttling). Tests: `python3 atlas-sketch/tests/live-sketch3d.py` (16 checks).
+Measure it: `python3 tests/perf.py` (add `--fast` for no throttling). Tests: `python3 tests/live-sketch3d.py` (16 checks).
 
 ## Filtering and spreadsheet data in 3D (5.0.0-beta.3)
 
@@ -374,7 +382,7 @@ Fixed on the way: in a scene the layer count on the Map layers tool stayed at 0,
 
 Not known: how 3D performs on real school devices. The test browser draws 3D in software at one or two frames a second, which says nothing about a Chromebook with a graphics chip. The live test lifts the test scene's camera to look straight down from 30 km for that reason. One of the test's runs in three reported a script error with no message or stack that later runs didn't repeat; its cause isn't found.
 
-Tests: `python3 atlas-sketch/tests/live-3d-data.py` (21 checks).
+Tests: `python3 tests/live-3d-data.py` (21 checks).
 
 ## 3D scenes and the 2D-only tag (5.0.0-beta.2)
 
@@ -395,7 +403,7 @@ Not done yet, or not tested:
 - A scene or map with a layer that isn't shared publicly makes the SDK ask the reader to sign in. Three of Esri's older sample scenes do this. Content for classes needs every layer public.
 - Measurement, Coordinate Conversion, Legend, Swipe and Feature Table were moved to components in beta.13. (Elevation Profile was replaced by the app's own chart in beta.10.)
 
-Tests: `node atlas-sketch/tests/scenes.test.mjs` (24 checks on the file format) and `python3 atlas-sketch/tests/live-scenes.py` (35 checks in Chromium against the real SDK and ArcGIS Online). The MapMaker collection has no web scene and no tagged map yet, so the live test adds the tag, and puts a scene in the list, by changing the services' answers on their way to the app. It also leaves a city scene's 3D buildings out, because the test browser draws 3D in software.
+Tests: `node tests/scenes.test.mjs` (24 checks on the file format) and `python3 tests/live-scenes.py` (35 checks in Chromium against the real SDK and ArcGIS Online). The MapMaker collection has no web scene and no tagged map yet, so the live test adds the tag, and puts a scene in the list, by changing the services' answers on their way to the app. It also leaves a city scene's 3D buildings out, because the test browser draws 3D in software.
 
 ## Parity with MapMaker 4.0 (since 5.0.0-beta.1)
 
@@ -413,7 +421,7 @@ A tool-by-tool inventory of the live MapMaker (11 November 2026) found seven thi
 
 Where 5.0 is ahead of 4.0: local save, Save as and locked copies; the list of saved map files; adding a spreadsheet; filtering; creating bookmarks; print; labels on/off; and Sketch in 3D (4.0 takes Sketch off the toolbar in 3D).
 
-Tests: `python3 atlas-sketch/tests/live-parity.py` runs these tools on the real SDK against MapMaker's own maps (29 checks, with axe-core scans).
+Tests: `python3 tests/live-parity.py` runs these tools on the real SDK against MapMaker's own maps (29 checks, with axe-core scans).
 
 ## Filter (from 1.15.0-sketch.12)
 
@@ -441,11 +449,9 @@ Each layer in **Map layers** that holds features has a **Filter** button beside 
 - **"Apply", not Map Viewer's "Save":** in this app Save means saving the map, and a filter isn't saved until the map is.
 - **Switching 2D/3D** while the panel is open closes it without applying.
 - **The histogram** needs the field to have a range of values; with one value, or if the components don't load, the number box still works.
-- **Tests:** `node atlas-sketch/tests/filter.test.mjs` (the SQL logic and saved time settings, 13 tests) and `python3 atlas-sketch/tests/live-filter.py` (the panel on the real SDK against MapMaker's Major Earthquakes map: 37 checks, with an axe-core scan of the panel).
+- **Tests:** `node tests/filter.test.mjs` (the SQL logic and saved time settings, 13 tests) and `python3 tests/live-filter.py` (the panel on the real SDK against MapMaker's Major Earthquakes map: 37 checks, with an axe-core scan of the panel).
 
-The working app stays at `https://jsawle.github.io/localmapsave/atlas/` (1.14.8), so the two can be shown side by side.
+The demo copy stays at `https://jsawle.github.io/localmapsave/atlas/` (1.14.8, frozen), so the two can be shown side by side.
 
 - **Saved maps** use the same `.amap` format, so a file saved in either app opens in the other. Both apps are on the same site, so *My map files* lists the same maps in both.
-- **Sign-in** needs `https://jsawle.github.io/localmapsave/atlas-sketch/oauth-callback.html` added as a redirect URI on the app's client ID in ArcGIS Online. Until then, use sign-in in the main app.
-- **Tests** live with the main app in `../atlas/tests/` (on the `sketch-mapviewer` branch for this version). This folder holds only what the page loads.
-- **When Sketch moves into the main app**, delete this folder.
+- **Sign-in** needs `https://jsawle.github.io/AtlasLab/oauth-callback.html` added as a redirect URI on the app's client ID in ArcGIS Online.

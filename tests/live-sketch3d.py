@@ -1,6 +1,6 @@
-"""Runs Sketch in 3D for Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs Sketch in 3D for Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-sketch3d.py [--shots DIR] [--proxy URL] [--axe FILE]
+Run:  python3 tests/live-sketch3d.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: in the 3D view of a map the Sketch toolbar offers the same drawing tools as in 2D; a point, a line, an area

@@ -1,6 +1,6 @@
-"""Runs the Sketch styles of Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs the Sketch styles of Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-sketch-styles.py [--shots DIR] [--proxy URL] [--axe FILE]
+Run:  python3 tests/live-sketch-styles.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com, cdn.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: the drawing toolbar runs down the right of the map beside the Sketch panel; the panel shows what suits the

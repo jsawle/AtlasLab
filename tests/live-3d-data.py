@@ -1,6 +1,6 @@
-"""Runs filtering and spreadsheet data in 3D for Atlas 5.0 (atlas-sketch) in Chromium against the real services.
+"""Runs filtering and spreadsheet data in 3D for Atlas 5.0 in Chromium against the real services.
 
-Run:  python3 atlas-sketch/tests/live-3d-data.py [--shots DIR] [--proxy URL] [--axe FILE]
+Run:  python3 tests/live-3d-data.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 Checks: a layer's filter in the 3D view of a web map (the globe follows a typed value without Apply, Cancel puts

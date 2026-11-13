@@ -1,4 +1,4 @@
-// node atlas-sketch/tests/units.test.mjs
+// node tests/units.test.mjs
 import { guessUnits, resolveUnits, isUSTimeZone, UNITS_VERSION } from "../lib/units.js";
 let n = 0, bad = 0;
 const eq = (got, want, msg) => { n++; if (JSON.stringify(got) !== JSON.stringify(want)) { bad++; console.error("FAIL " + msg + ": got " + JSON.stringify(got) + ", wanted " + JSON.stringify(want)); } };
