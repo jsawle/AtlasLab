@@ -914,6 +914,8 @@
           <div class="prof-acts">
             <div class="units-seg" role="group" data-i18n-aria="units" aria-label="Units"><button type="button" data-units="metric" aria-pressed="false" data-i18n-aria="unitsMetric" aria-label="km: kilometres and metres">km</button><button type="button" data-units="imperial" aria-pressed="false" data-i18n-aria="unitsImperial" aria-label="mi: miles and feet">mi</button></div>
             <span id="profLinesWrap" hidden><label class="sr-only" for="profLines" data-i18n="profilePickLine">Use a sketched line</label><select class="field" id="profLines"></select></span>
+            <button class="btn" type="button" id="profUndo" data-i18n="profileUndo" hidden>Undo point</button>
+            <button class="btn primary" type="button" id="profFinish" data-i18n="profileFinish" hidden>Finish line</button>
             <button class="btn" type="button" id="profNew" data-i18n="profileNew" hidden>New profile</button>
           </div>
         </div>
@@ -1057,6 +1059,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.35"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.36"></script>
 </body>
 </html>

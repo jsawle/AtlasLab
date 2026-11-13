@@ -2,26 +2,26 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 import { CSV_VERSION, PALETTE_HEX, PALETTE_RGB, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable,
-  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.35";
+  pickAutoStyle, pickAutoFields, aliasOf, buildLayerDef, stateFromLayerDef, columnScale, pieFields, PIE_MIN, PIE_MAX } from "./lib/csv.js?v=5.0.0-beta.36";
 import { DOC_TYPE, DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, AUTHORING_APP, ITEM_LAYER_PREFIX, DATA_LAYER_PREFIX, sanitizeDoc, docToWebMap,
   isOwnLayerJson, looksLikeWebMap, readWebMap, xyToLonLat, LOCK_PROP, isLockedText, SHAPE_NAME, ARROWS, TEXT_FONTS, textFont,
-  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.35";
+  WEBSCENE_SPEC_VERSION, SKETCH_LAYER_PREFIX, isSketchKey, TWO_D_ONLY_PROP, VIEW_3D_PROP, saved3dCamera, looksLikeWebScene, docToWebScene, readWebScene } from "./lib/doc.js?v=5.0.0-beta.36";
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.35";
-import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.35";
-import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.35";
-import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.35";
+import { PAIRS_VERSION, PAIR_PROP, pairOf, savedPair, mergePairs, entryIs3d, entryIs2d } from "./lib/pairs.js?v=5.0.0-beta.36";
+import { UNITS_VERSION, resolveUnits } from "./lib/units.js?v=5.0.0-beta.36";
+import { DEFAULT_STRINGS } from "./lib/strings.js?v=5.0.0-beta.36";
+import { CONFIG_VERSION, mergeConfig, loadConfig, buildStrings } from "./lib/config.js?v=5.0.0-beta.36";
 import { CATALOG_VERSION, MAX_INDEX, OTHER, ALL, buildTopicTree, findTopic, topicTrail, indexItems, countTopics,
-  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.35";
-import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.35";
-import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.35";
+  filterEntries, pageList } from "./lib/catalog.js?v=5.0.0-beta.36";
+import { BASEMAPS_VERSION, groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "./lib/basemaps.js?v=5.0.0-beta.36";
+import { RECENT_VERSION, makeEntry, openRecentStore } from "./lib/recent.js?v=5.0.0-beta.36";
 import { FILTER_VERSION, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, rangeTypeFor, conditionComplete, buildWhere, parseWhere,
-  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.35";
+  filterFields, isListOp } from "./lib/filter.js?v=5.0.0-beta.36";
 
-const APP_VERSION = "5.0.0-beta.35";
+const APP_VERSION = "5.0.0-beta.36";
 const COMPASS_VERSION = "1.1";
 const CHARTS_VERSION = "1.1";
-const PROFILE_VERSION = "3.3";
+const PROFILE_VERSION = "3.4";
 const SKETCH_VERSION = "2.2";   // 1.1: rotation only for text. 2.0: the SDK's Sketch component (Map Viewer's tools) replaces the app's own. 2.1: freehand segments. 2.2: keyboard route to the drawing tools
 const CONFIG_SCHEMA = 2;
 const SDK_VERSION = "5.2";
@@ -43,7 +43,7 @@ const DEFAULT_CONFIG = {
   partnerLogos: [],
   theme: { brand: "#0b5c8e", brandInk: "", brandSoft: "", toolActive: "", toolActiveInk: "", header: "#ffffff", headerInk: "", headerLine: "#e1e1e1", pill: "#000000", pillInk: "", font: "" },
   portalUrl: "https://www.arcgis.com",
-  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.35). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
+  contentGroup: "c3ac404ac811494ea6fa116abc0cf39b",   // "Schools Living Atlas – 5.0 test" (GIS 4 Schools), while 5.0 is a pilot (5.0.0-beta.36). The live MapMaker group is 36443e9570294a1f883b5d2c5abfe6b5: config/mapmaker-live.json
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
@@ -365,7 +365,7 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 const viewEls = new Map();
 function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.35): the config's, or closer when that would leave the world narrower than the map.
+// The zoom the app opens at (5.0.0-beta.36): the config's, or closer when that would leave the world narrower than the map.
 // The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
 // white bands either side. A config's own closer zoom (example-es: 7) is kept.
 function startZoom() {
@@ -1518,6 +1518,10 @@ const TOPOBATHY_URL = "https://elevation3d.arcgis.com/arcgis/rest/services/World
 //    part adds a point. Drag a handle to move it (the line follows the pointer; the heights are asked for again when it
 //    is let go); double-click a point to take it out (a line keeps at least two). A line chosen on the map (a sketch, a
 //    feature) is changed where it belongs, with Sketch.
+//  - Touch (3.4): a finger has no pointer that hovers, so the line so far is drawn through the places tapped (with a dot
+//    at each) rather than on to the pointer, and Finish line and Undo point buttons appear while drawing (also for a
+//    mouse: double-click and Enter still finish). Moving a finger over the map (panning) no longer asks the map what is
+//    under it each time, which was slow in 3D on an iPad. Handles are easier to hit with a finger. Messages say "tap".
 //  - Vertical exaggeration (3.2): the chart stretches heights to fill its box, by an amount that depends on the line and
 //    the screen (64 times for an Atlantic crossing, 132 for 65 km of the Hungarian plain). The figure is shown under the
 //    chart and told to screen readers, as a printed profile states its vertical exaggeration.
@@ -1526,7 +1530,12 @@ const TOPOBATHY_URL = "https://elevation3d.arcgis.com/arcgis/rest/services/World
 //  - Moving along the chart (pointer, or the arrow keys) shows a dot at that place on the line on the map.
 const PROF_POINTS = 512, PROF_CLIMB_MAX = 50000;   // points along every line; the longest line (m) given total climb and descent
 let topoBathy = null, prof = null, profDraft = null, profHover = null, profBusy = 0, profAt = -1;
-const profGraphics = { line: null, dot: null, draft: null };
+const profGraphics = { line: null, dot: null, draft: null, draftDots: null };
+const PROF_KEYS = ["line", "dot", "draft", "draftDots"];
+// A finger (or a device with no hovering pointer) gets the touch wording; the last pointer used on the map decides.
+let profTouch = (() => { try { return matchMedia("(hover: none)").matches; } catch (e) { return false; } })();
+const isTouch = (e) => { const n = e && e.native; return !!n && n.pointerType === "touch"; };
+const profHint = () => (profTouch ? S.profileHintTouch : S.profileHint);
 const PROF_LINE = { type: "simple-line", color: [255, 127, 0, 1], width: 3 };
 const PROF_DOT = { type: "simple-marker", style: "circle", color: [255, 255, 255, 1], size: 13, outline: { color: [200, 60, 0, 1], width: 3 } };
 const PROF_VERTEX = { type: "simple-marker", style: "circle", color: [255, 127, 0, 1], size: 13, outline: { color: [255, 255, 255, 1], width: 2 } };
@@ -1547,16 +1556,16 @@ function ensureProfile() {
     }).catch(() => {});
   }
   fillProfileLines();
-  if (prof) { profShow("line", new Graphic({ geometry: prof.line, symbol: PROF_LINE })); showProfHandles(prof.via); renderProfile(); } else profMessage(S.profileHint);
+  if (prof) { profShow("line", new Graphic({ geometry: prof.line, symbol: PROF_LINE })); showProfHandles(prof.via); renderProfile(); } else profMessage(profHint());
   setViewCursor("crosshair");
 }
 function stopProfile() {
-  profDraft = null; profHover = null; profBusy++; profEdit = null;
-  for (const k of ["line", "dot", "draft"]) profShow(k, null);
+  profDraft = null; profHover = null; profBusy++; profEdit = null; syncDraftButtons();
+  for (const k of PROF_KEYS) profShow(k, null);
   showProfHandles(null);
   setViewCursor("");
 }
-function clearProfile() { prof = null; profAt = -1; profDraft = null; profEdit = null; showProfHandles(null); for (const k of ["line", "dot", "draft"]) profShow(k, null); $("profLines").value = ""; profMessage(S.profileHint); $("profStats").replaceChildren(); $("profNew").hidden = true; }
+function clearProfile() { prof = null; profAt = -1; profDraft = null; profEdit = null; showProfHandles(null); syncDraftButtons(); for (const k of PROF_KEYS) profShow(k, null); $("profLines").value = ""; profMessage(profHint()); $("profStats").replaceChildren(); $("profNew").hidden = true; }
 function profMessage(text) { $("profChart").replaceChildren(); const p = document.createElement("p"); p.className = "prof-msg"; p.textContent = text; $("profChart").appendChild(p); $("profStatus").textContent = text; }
 // the lines that can be chosen without the pointer: the sketched lines, by name
 function sketchLines() { return sketchLayers.flatMap((l) => l.graphics.filter((g) => g.geometry && g.geometry.type === "polyline").toArray()); }
@@ -1604,7 +1613,7 @@ function showProfHandles(via) {
   view.graphics.addMany(profHandles);
 }
 // The handle at a place on the screen (a point first, then a halfway point), or null.
-function profHandleAt(sx, sy) {
+function profHandleAt(sx, sy, touch) {
   if (!prof || !prof.via || !profHandles.length) return null;
   let best = null, bd = Infinity;
   for (const kind of ["vertex", "mid"]) {
@@ -1613,7 +1622,7 @@ function profHandleAt(sx, sy) {
       const q = view.toScreen(h.geometry); if (!q) continue;
       const d = Math.hypot(q.x - sx, q.y - sy); if (d < bd) { bd = d; best = h; }
     }
-    if (best && bd <= (kind === "vertex" ? 12 : 10)) return best;
+    if (best && bd <= (kind === "vertex" ? 12 : 10) * (touch ? 2 : 1)) return best;   // a fingertip is wider than a pointer
     best = null; bd = Infinity;
   }
   return null;
@@ -1785,11 +1794,10 @@ const lineUnder = async (e) => {
 let hoverTimer = 0, hoverSeq = 0;
 onViews("pointer-move", (e) => {
   if (!profActive()) return;
+  if (isTouch(e)) return;   // a finger moving is panning the map: no line to the finger, and no asking what is under it
   if (profDraft) {   // the line so far, and on to the pointer
     const p = view.toMap({ x: e.x, y: e.y }); if (!p) return;
-    const g = isMerc(p.spatialReference) ? geodesicLine([...profDraft, p], 48).geometry   // as it will be: the shortest way round
-      : { type: "polyline", paths: [[...profDraft.map((c) => [c.x, c.y]), [p.x, p.y]]], spatialReference: p.spatialReference };
-    if (profGraphics.draft && view.graphics.includes(profGraphics.draft)) profGraphics.draft.geometry = g; else profShow("draft", new Graphic({ geometry: g, symbol: { ...PROF_LINE, style: "short-dash" } }));
+    drawDraft(p);
     return;
   }
   if (profEdit) return;
@@ -1802,7 +1810,8 @@ onViews("pointer-move", (e) => {
 onViews("click", (e) => { if (profActive()) e.stopPropagation(); });   // no pop-ups while the tool is open
 onViews("immediate-click", async (e) => {
   if (!profActive() || e.button === 2) return;
-  if (!profDraft && (profEdit || profHandleAt(e.x, e.y))) return;   // a handle pressed and let go without moving: nothing changes
+  profTouch = isTouch(e);
+  if (!profDraft && (profEdit || profHandleAt(e.x, e.y, profTouch))) return;   // a handle pressed and let go without moving: nothing changes
   if (!profDraft) {
     const g = profHover || await lineUnder(e);
     if (g) { profHover = null; setViewCursor("crosshair"); $("profLines").value = ""; profileOf(g.geometry.clone()); return; }   // a line on the map was chosen
@@ -1812,26 +1821,49 @@ onViews("immediate-click", async (e) => {
   if (!e.mapPoint) return;
   const last = profDraft[profDraft.length - 1];   // the second click of a double-click is the same place: once only
   if (!last || Math.hypot(last.sx - e.x, last.sy - e.y) > 4) { const q = e.mapPoint; profDraft.push({ x: q.x, y: q.y, spatialReference: q.spatialReference, sx: e.x, sy: e.y }); }
-  if (profDraft.length === 1) profMessage(S.profileDrawing);
+  if (profDraft.length === 1) profMessage(profTouch ? S.profileDrawingTouch : S.profileDrawing);
+  drawDraft();
 });
+// The line being drawn: through the places clicked or tapped, and on to the pointer when there is one (`to`).
+function drawDraft(to) {
+  if (!profDraft || !profDraft.length) { profShow("draft", null); profShow("draftDots", null); syncDraftButtons(); return; }
+  const pts = to ? [...profDraft, to] : profDraft;
+  if (pts.length >= 2) {
+    const g = isMerc(pts[0].spatialReference) ? geodesicLine(pts, 48).geometry   // as it will be: the shortest way round
+      : { type: "polyline", paths: [pts.map((c) => [c.x, c.y])], spatialReference: pts[0].spatialReference };
+    if (profGraphics.draft && view.graphics.includes(profGraphics.draft)) profGraphics.draft.geometry = g; else profShow("draft", new Graphic({ geometry: g, symbol: { ...PROF_LINE, style: "short-dash" } }));
+  } else profShow("draft", null);
+  const dots = { type: "multipoint", points: profDraft.map((c) => [c.x, c.y]), spatialReference: profDraft[0].spatialReference };
+  if (profGraphics.draftDots && view.graphics.includes(profGraphics.draftDots)) profGraphics.draftDots.geometry = dots; else profShow("draftDots", new Graphic({ geometry: dots, symbol: { ...PROF_VERTEX, size: 11 } }));
+  syncDraftButtons();
+}
+function syncDraftButtons() {
+  const n = profDraft ? profDraft.length : 0;
+  $("profFinish").hidden = n < 2; $("profUndo").hidden = n < 1;
+}
+function cancelDraft() { profDraft = null; drawDraft(); profMessage(profHint()); }
 function finishProfileDraft() {
   if (!profDraft) return;
-  const pts = profDraft; profDraft = null; profShow("draft", null);
-  if (pts.length < 2) { profMessage(S.profileHint); return; }
+  const pts = profDraft; profDraft = null; drawDraft();
+  if (pts.length < 2) { profMessage(profHint()); return; }
   if (!isMerc(pts[0].spatialReference)) { profileOf({ type: "polyline", paths: [pts.map((c) => [c.x, c.y])], spatialReference: pts[0].spatialReference }); return; }   // a map in another coordinate system: as drawn
   const g = geodesicLine(pts, 96); profileOf(g.geometry, g.ll);
 }
 onViews("double-click", (e) => {
   if (!profActive()) return; e.stopPropagation();
   if (profDraft) { finishProfileDraft(); return; }
-  const h = profHandleAt(e.x, e.y);   // a point of the line double-clicked: taken out, while the line keeps two
+  const h = profHandleAt(e.x, e.y, isTouch(e));   // a point of the line double-clicked: taken out, while the line keeps two
   if (h && h.attributes.kind === "vertex" && prof.via.length > 2) { const via = prof.via.filter((c, i) => i !== h.attributes.i); profileOf(geodesicPath(via, 96), via); }
 });
 // Dragging a handle moves that point of the line (a halfway handle becomes a new point); the map does not pan meanwhile.
+// The handle is the one where the pointer went down: the drag's own start is reported a few pixels later, by when a
+// finger that landed on the edge of a handle has left it.
+let profDown = null;
+onViews("pointer-down", (e) => { if (profActive()) profDown = { x: e.x, y: e.y }; });
 onViews("drag", (e) => {
   if (!profActive() || profDraft || !prof || !prof.via) return;
   if (e.action === "start") {
-    const o = e.origin || e, h = profHandleAt(o.x, o.y); if (!h) return;
+    const o = profDown || e.origin || e, h = profHandleAt(o.x, o.y, isTouch(e)); if (!h) return;
     e.stopPropagation();
     let i = h.attributes.i;
     if (h.attributes.kind === "mid") { prof.via.splice(i + 1, 0, geoBetween(prof.via[i], prof.via[i + 1], 0.5)); i += 1; }
@@ -1849,7 +1881,9 @@ onViews("drag", (e) => {
   }
   if (e.action === "end") { const via = prof.via.map((c) => [c[0], c[1]]); profEdit = null; setViewCursor("grab"); profileOf(geodesicPath(via, 96), via); }
 });
-onViews("key-down", (e) => { if (!profActive() || !profDraft) return; if (e.key === "Enter") { e.stopPropagation(); finishProfileDraft(); } else if (e.key === "Escape") { e.stopPropagation(); profDraft = null; profShow("draft", null); profMessage(S.profileHint); } });
+onViews("key-down", (e) => { if (!profActive() || !profDraft) return; if (e.key === "Enter") { e.stopPropagation(); finishProfileDraft(); } else if (e.key === "Escape") { e.stopPropagation(); cancelDraft(); } });
+$("profFinish").addEventListener("click", () => finishProfileDraft());
+$("profUndo").addEventListener("click", () => { if (!profDraft) return; profDraft.pop(); if (!profDraft.length) cancelDraft(); else drawDraft(); });
 
 // The Measure tool opens a small menu above it: Measure, Elevation profile (as in MapMaker).
 const menuItems = () => [...$("measureMenu").querySelectorAll('[role="menuitem"]')].filter((b) => !b.hidden);
@@ -1993,7 +2027,7 @@ async function setMode(m, opts) {
   sketchReady.then(() => { sketch.view = view; });
   if (timeBar) { const te = timeBar.timeExtent; timeBar.view = view; if (te) view.timeExtent = te; }   // the time control follows into 2D / 3D
   if (gallery.items) renderGallery();   // 3D lists the group's 3D basemaps too
-  if (profActive()) { for (const k of ["line", "dot", "draft"]) profShow(k, null); profDraft = null; ensureProfile(); }   // the profile's line follows to the other view
+  if (profActive()) { for (const k of PROF_KEYS) profShow(k, null); profDraft = null; syncDraftButtons(); ensureProfile(); }   // the profile's line follows to the other view
   if (coordWidget) coordWidget.view = view;
   if (legend) legend.view = view;
   if (m === "3d") endSwipe();   // Swipe is for 2D maps
@@ -2674,7 +2708,7 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
-// Charts 1.1 (5.0.0-beta.35): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// Charts 1.1 (5.0.0-beta.36): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
 // The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).
