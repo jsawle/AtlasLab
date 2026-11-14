@@ -105,6 +105,7 @@ jobs:
           - live-touch.py
           - live-touch.py --3d
           - live-pinch.py
+          - live-lock.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

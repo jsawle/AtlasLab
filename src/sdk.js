@@ -1,8 +1,8 @@
 // ============================================================ ArcGIS SDK
 // The map library comes from js.arcgis.com. A school network can block it or be slow to deliver it; without it nothing
 // on the page works, so the page says so (with a Reload button) and doesn't leave a toolbar that does nothing.
-import { late } from "./state.js?v=5.0.0-beta.42";
-import { $, cfg, S, PORTAL } from "./config.js?v=5.0.0-beta.42";
+import { late } from "./state.js?v=5.0.0-beta.43";
+import { $, cfg, S, PORTAL } from "./config.js?v=5.0.0-beta.43";
 
 const SDK_SLOW_MS = 20000;
 function loadNote(text, failed) {

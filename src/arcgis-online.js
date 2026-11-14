@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.42";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.42";
-import { state, late } from "./state.js?v=5.0.0-beta.42";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.42";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.42";
-import { activeMap } from "./views.js?v=5.0.0-beta.42";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.42";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.42";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.42";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.42";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.42";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.42";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.42";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.42";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.42";
+import "./print.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.43";
+import { state, late } from "./state.js?v=5.0.0-beta.43";
+import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.43";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.43";
+import { activeMap } from "./views.js?v=5.0.0-beta.43";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.43";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.43";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.43";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.43";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.43";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.43";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.43";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.43";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.43";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -40,7 +40,7 @@ async function onSignedIn() {
 function applySaveMode() {
   const local = F.localSave !== false, signed = !!state.portalUser;
   for (const id of ["saveTile", "saveAsTile"]) $(id).hidden = !(local || signed);
-  $("lockTile").hidden = !local || signed;   // a locked copy is a file; signed in, maps save to ArcGIS Online
+  $("lockTile").hidden = !local || signed || !F.lockedCopy;   // a locked copy is a file; signed in, maps save to ArcGIS Online. Off unless a config turns it on (features.lockedCopy)
   refreshTileTips();
 }
 function renderUser() {
@@ -138,7 +138,7 @@ $("tileTip").addEventListener("mouseenter", () => clearTimeout(tipHide));
 $("tileTip").addEventListener("mouseleave", () => hideTileTip(false));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && tipFor) { e.stopPropagation(); e.preventDefault(); hideTileTip(true); } }, true);
 window.addEventListener("scroll", () => hideTileTip(true), true);
-refreshTileTips();
+applySaveMode();   // which Save tiles are offered, and their tips (5.0.0-beta.43: at start-up too, not only after signing in or out)
 
 $("signInGo").addEventListener("click", doSignIn);
 export function closeUserMenu(focusBtn) { $("userMenu").hidden = true; $("userBtn").setAttribute("aria-expanded", "false"); if (focusBtn) $("userBtn").focus(); }

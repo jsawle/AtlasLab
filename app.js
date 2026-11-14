@@ -7,7 +7,7 @@
 // map), so they are loaded one after another, each finished before the next begins: Safari before version 27 goes
 // wrong when two files wait on a third that is still loading. The last line loads everything else; those files run in
 // the order they are listed in src/startup.js's chain of imports, which is the order they were written in.
-const V = "?v=5.0.0-beta.42";
+const V = "?v=5.0.0-beta.43";
 // Every file of the app, asked for now so they all download together while the map library loads. This only fills the
 // browser's cache: the imports below then find each file already there. (Plain requests, not modulepreload, so that
 // nothing but the lines below decides the order the files run in.) tests/structure.test.mjs checks the list is complete.
@@ -20,8 +20,8 @@ const FILES = [
 ];
 for (const f of FILES) fetch("./" + f + V).catch(() => {});
 // Each ?v= is the app version, so a new release never runs beside a cached older file (tests/structure.test.mjs checks they match).
-await import("./src/config.js?v=5.0.0-beta.42");    // which config and language: reads them
-await import("./src/branding.js?v=5.0.0-beta.42");  // the name, colours and wording, onto the page
-await import("./src/sdk.js?v=5.0.0-beta.42");       // the ArcGIS map library
-await import("./src/views.js?v=5.0.0-beta.42");     // the map and its 2D view
-await import("./src/startup.js?v=5.0.0-beta.42");   // every tool and panel, then start-up
+await import("./src/config.js?v=5.0.0-beta.43");    // which config and language: reads them
+await import("./src/branding.js?v=5.0.0-beta.43");  // the name, colours and wording, onto the page
+await import("./src/sdk.js?v=5.0.0-beta.43");       // the ArcGIS map library
+await import("./src/views.js?v=5.0.0-beta.43");     // the map and its 2D view
+await import("./src/startup.js?v=5.0.0-beta.43");   // every tool and panel, then start-up
