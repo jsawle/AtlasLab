@@ -1,18 +1,18 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.41";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.41";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.41";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.41";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.41";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.41";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.41";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.41";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.41";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.41";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.41";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.41";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.41";
+import "./arcgis-online.js?v=5.0.0-beta.42";   // first: keeps the files running in the order they were written in (see app.js)
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.42";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.42";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.42";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.42";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.42";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.42";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.42";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.42";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.42";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.42";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.42";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.42";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.42";
 
 export function renderVersions() {
   const rows = [

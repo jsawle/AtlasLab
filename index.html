@@ -161,7 +161,7 @@
     .seg button{ flex:1 1 50%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; background:#fff; color:#323232; font-size:16px; cursor:pointer; padding:0 6px; }
     .seg button:hover{ background:#f3f3f3; }
     .seg button[aria-pressed="true"]{ background:var(--tool-active); color:var(--tool-active-ink); }
-    .seg button[aria-disabled="true"]{ color:#6a6a6a; cursor:not-allowed; background:#f3f3f3; }
+    .seg button[aria-disabled="true"]{ color:#6a6a6a; cursor:default; background:#f3f3f3; }   /* no "no entry" pointer: its tooltip says why it is unavailable */
     /* a 3D scene's card: marked on the corner of its picture */
     .cat-thumb{ position:relative; }
     .cat-3d{ position:absolute; left:6px; top:6px; display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:700; line-height:1; padding:4px 7px; border-radius:4px; background:#1d3b5c; color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.85); }
@@ -1068,6 +1068,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.41"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.42"></script>
 </body>
 </html>

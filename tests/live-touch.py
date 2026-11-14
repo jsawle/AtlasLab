@@ -64,7 +64,7 @@ def main():
         page.touchscreen.tap(*pt(0.35, 0.45)); page.wait_for_timeout(900)
         d1 = page.evaluate(DRAFT); msg = page.inner_text("#profChart")
         check(d1["dots"] == 1 and d1["line"] == 0 and d1["undo"] and not d1["finish"], "the first tap shows a dot, and Undo point: " + str(d1))
-        check(msg.startswith("Tap for each point") and "Finish line" in msg, "the message says tap, then Finish line: " + msg)
+        check(msg.startswith("Tap for each point") and "Double-tap" in msg and "Finish line button below" in msg, "the message says tap, then double-tap or the Finish line button: " + msg)
         page.touchscreen.tap(*pt(0.5, 0.55)); page.wait_for_timeout(900)
         d2 = page.evaluate(DRAFT)
         check(d2["dots"] == 2 and d2["line"] > 2 and d2["finish"], "the second tap draws the line so far, and Finish line appears: " + str(d2))

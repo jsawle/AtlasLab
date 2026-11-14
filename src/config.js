@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.41";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.41";
+import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.42";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.42";
 
-export const APP_VERSION = "5.0.0-beta.41";
+export const APP_VERSION = "5.0.0-beta.42";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
