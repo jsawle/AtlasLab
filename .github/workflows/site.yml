@@ -119,6 +119,7 @@ jobs:
       - name: ${{ matrix.test }} (Chromium, built copy)
         env:
           ATLAS_SERVE: dist
+          CONSOLE_LOG: /dev/stderr
         run: python tests/${{ matrix.test }} || (echo "::warning::${{ matrix.test }} failed once; running it again" && python tests/${{ matrix.test }})
 
   other-browsers:

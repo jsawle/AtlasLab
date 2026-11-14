@@ -22,6 +22,11 @@ def _watch(page):
         if "Content Security Policy" in t: blocked.append(t.replace("\n", " ")[:500])
         if os.environ.get("CONSOLE_LOG") and m.type in ("error", "warning"): open(os.environ["CONSOLE_LOG"], "a").write(m.type + " | " + t.replace("\n", " ")[:500] + "\n")
     page.on("console", on)
+    if os.environ.get("CI"): page.set_default_timeout(120000)      # CI machines have no graphics card: a heavy 3D scene can hold the page up for a long while
+    if os.environ.get("CONSOLE_LOG"):
+        log = lambda t: open(os.environ["CONSOLE_LOG"], "a").write(t[:400] + "\n")
+        page.on("requestfailed", lambda r: log("request failed | " + str(r.failure) + " | " + r.url))
+        page.on("response", lambda r: log("response %d | %s" % (r.status, r.url)) if r.status >= 400 else None)
     if os.environ.get("CONSOLE_LOG"): page.on("pageerror", lambda e: open(os.environ["CONSOLE_LOG"], "a").write("pageerror | " + str(getattr(e, "stack", "") or e)[:1500].replace("\n", " <- ") + "\n"))
     return page
 for _cls in (Browser, BrowserContext):

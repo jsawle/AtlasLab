@@ -43,6 +43,9 @@ def main():
         browser = csp_shim.launch(p, launch)
         ctx = browser.new_context(viewport={"width": 1366, "height": 768}, permissions=["clipboard-read", "clipboard-write"])
         ctx.add_init_script("delete window.showSaveFilePicker; delete window.showOpenFilePicker;")   # saves become downloads the test can read
+        # Keeps the last message shown, so a check can read it even when a busy 3D scene made the test too slow to catch it on screen
+        ctx.add_init_script("""addEventListener('DOMContentLoaded', () => { const t = document.getElementById('toast'); if (!t) return;
+          new MutationObserver(() => { const s = t.innerText.trim(); if (s) window.__lastToast = s; }).observe(t, { childList: true, subtree: true, characterData: true }); });""")
         page = ctx.new_page(); errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.on("dialog", lambda d: d.accept())
@@ -53,7 +56,8 @@ def main():
         MODE = "({ p2: document.querySelector('#tg2d').getAttribute('aria-pressed'), p3: document.querySelector('#tg3d').getAttribute('aria-pressed'), d2: document.querySelector('#tg2d').getAttribute('aria-disabled'), d3: document.querySelector('#tg3d').getAttribute('aria-disabled'), sceneShown: !document.querySelector('#sceneDiv').hidden, mapShown: !document.querySelector('#viewDiv').hidden })"
         SCENE_READY = "(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready && s.view.map && s.view.map.declaredClass === 'esri.WebScene' && s.view.map.loaded); })()"
         CAM = "(() => { const c = document.querySelector('arcgis-scene').view.camera; return { x: c.position.longitude, y: c.position.latitude, z: c.position.z, heading: c.heading, tilt: c.tilt }; })()"
-        def toast(): return page.inner_text("#toast")
+        def toast(): return page.evaluate("() => (document.getElementById('toast').innerText.trim() || window.__lastToast || '')")
+        def forget_toast(): page.evaluate("() => { window.__lastToast = ''; }")
         def click(sel):
             # While the test browser draws 3D in software there may be no idle frame for a pointer click; then the
             # element's own click is used.
@@ -101,7 +105,7 @@ def main():
         st = page.evaluate(MODE)
         check(st["p3"] == "true" and st["sceneShown"] and not st["mapShown"], "it opens in 3D: " + page.input_value("#docTitle"))
         check(st["d2"] == "true" and "3D map" in (page.get_attribute("#tg2d", "title") or ""), "2D is marked unavailable, with the reason: " + str(page.get_attribute("#tg2d", "title")))
-        page.click("#tg2d", force=True); page.wait_for_timeout(800); st = page.evaluate(MODE)
+        forget_toast(); page.click("#tg2d", force=True); page.wait_for_timeout(800); st = page.evaluate(MODE)
         check(st["p3"] == "true" and st["sceneShown"] and "3D map" in toast(), "choosing 2D leaves it in 3D and says why: " + toast())
         axe("#toolbar", "the toolbar with 2D unavailable")
         page.wait_for_timeout(6000); page.screenshot(path=str(shots / "scene-open.png"))
@@ -154,7 +158,7 @@ def main():
         page.wait_for_function("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         page.wait_for_timeout(1000); st = page.evaluate(MODE)
         check(st["p2"] == "true" and st["d3"] == "true" and "2D only" in (page.get_attribute("#tg3d", "title") or ""), "3D is marked unavailable (the tag is matched whatever its capitals): " + str(page.get_attribute("#tg3d", "title")))
-        page.click("#tg3d", force=True); page.wait_for_timeout(800); st = page.evaluate(MODE)
+        forget_toast(); page.click("#tg3d", force=True); page.wait_for_timeout(800); st = page.evaluate(MODE)
         check(st["p2"] == "true" and st["mapShown"] and "2D only" in toast() and page.evaluate("document.querySelectorAll('arcgis-scene').length") == 0, "choosing 3D leaves it in 2D and says why: " + toast())
         saved2 = save_map("quakes_2d")
         check(saved2.get("atlas2dOnly") is True and "viewingMode" not in saved2, "the saved copy is a web map that stays 2D only")

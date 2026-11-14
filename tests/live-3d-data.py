@@ -118,7 +118,11 @@ def main():
         open_filter()
         check(count_is("Showing all 949 features"), "in 3D the Filter panel opens on the layer: " + count())
         wv("#filterConds arcgis-slider", timeout=90000); page.wait_for_timeout(4000)
-        before = orange(); d0 = page.evaluate(DRAWN, "Earthquakes (Major)")
+        before = orange()
+        for _ in range(15):      # on a slow machine the points may not be drawn yet: wait up to 45 s for them
+            if before > 300: break
+            page.wait_for_timeout(3000); before = orange()
+        d0 = page.evaluate(DRAWN, "Earthquakes (Major)")
         select("field", "mag"); wv("#filterConds arcgis-slider arcgis-histogram", timeout=90000)
         type_number("8")
         check(count_is(" of 949") and "all" not in count(), "Magnitude is at least 8: " + count())

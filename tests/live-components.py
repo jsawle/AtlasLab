@@ -69,6 +69,9 @@ def main():
         page.click("#tool-legend"); page.wait_for_selector("#legendBody arcgis-legend", timeout=60000)
         lt = wait_text("#legendBody", r"places")
         check("places" in lt, "the Legend panel lists the spreadsheet layer: " + lt[:120])
+        for _ in range(20):      # the symbols are drawn a moment after the names: wait up to 20 s
+            if page.evaluate(COUNT, ["#legendBody", "svg, img, canvas"]) > 0: break
+            page.wait_for_timeout(1000)
         check(page.evaluate(COUNT, ["#legendBody", "svg, img, canvas"]) > 0, "with its symbol drawn")
         page.screenshot(path=str(shots / "components-legend.png")); axe("#legendPanel", "the Legend panel")
         page.evaluate("document.querySelector('#legendPanel [data-close]').click()"); page.wait_for_timeout(500)
