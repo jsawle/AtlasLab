@@ -67,7 +67,8 @@
     .map-wrap{ position:relative; flex:1 1 auto; min-height:0; }
     #viewDiv, #sceneDiv{ position:absolute; inset:0; }
     .view-el{ display:block; width:100%; height:100%; }
-    .corner{ position:absolute; right:8px; bottom:calc(var(--attr-h, 16px) + 10px); z-index:15; display:flex; align-items:center; gap:6px; pointer-events:none; }
+    .hdr .ver-btn{ flex:0 0 auto; background:transparent; color:inherit; border-color:currentColor; }   /* 5.0.0-beta.50: the version is in the header, off the map */
+    .corner{ position:absolute; right:8px; bottom:calc(var(--attr-h, 16px) + 6px); z-index:15; display:flex; align-items:center; gap:6px; pointer-events:none; }
     .corner.raised{ bottom:calc(var(--tb-h) + var(--attr-h, 16px) + 18px); }
     .map-wrap .esri-attribution__powered-by::before{ content:var(--atlas-disclaimer, ""); }
     /* compass rose and scale bar, stacked in the bottom-left corner */
@@ -154,6 +155,9 @@
     /* Lab (features.hideToolbar): the Tools button is always shown, with its word, and hides the toolbar at any time */
     #app.tools-always .tools-toggle{ display:inline-flex; }
     .tools-toggle.labelled{ width:auto; padding:0 10px 0 8px; gap:6px; font:600 13px/1 inherit; border-radius:4px; pointer-events:auto; }
+    /* 5.0.0-beta.50: beside the toolbar it is a tile of the toolbar's height, icon over words, so it fits the space to the toolbar's right */
+    #app:not(.docked):not(.tools-off) .corner:not(.raised) .tools-toggle.labelled, #app.docked.tools-shown .corner:not(.raised) .tools-toggle.labelled{ flex-direction:column; justify-content:center; gap:8px; height:var(--tb-h); width:80px; padding:6px 2px; border-radius:8px; box-shadow:0 1px 8px rgba(0,0,0,.25); white-space:nowrap; }
+    #app:not(.docked):not(.tools-off) .corner:not(.raised) .tools-toggle.labelled svg, #app.docked.tools-shown .corner:not(.raised) .tools-toggle.labelled svg{ width:24px; height:24px; }
     #app.tools-off:not(.docked) .toolbar{ display:none; }
     #app.tools-off:not(.docked) .panel{ max-height:calc(100% - var(--attr-h, 16px) - 30px); }
     #app.tools-off:not(.docked) #sketchPanel.tall{ height:calc(100% - var(--attr-h, 16px) - 30px); }
@@ -709,12 +713,13 @@
           </div>
         </div>
       </div>
+      <button class="ver-btn" id="verBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">v1</button>
     </header>
 
     <main class="map-wrap" id="mapWrap">
       <div id="viewDiv"></div>
       <div id="sceneDiv" hidden></div>
-      <div class="corner"><button class="ver-btn tips-btn" id="tipsBtn" type="button" aria-pressed="true" hidden></button><button class="ver-btn" id="verBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">v1</button></div>
+      <div class="corner"><button class="ver-btn tips-btn" id="tipsBtn" type="button" aria-pressed="true" hidden></button></div>
 
       <nav class="toolbar" id="toolbar" tabindex="-1" data-i18n-aria="tools">
         <button class="tool" type="button" id="tool-basemaps" data-panel="basemaps" aria-expanded="false" aria-controls="basemapsPanel" data-feature="basemaps" data-i18n-title="basemaps"><span class="ti" data-icon="basemap" aria-hidden="true"></span><span class="tl" data-i18n="basemaps">Basemaps</span></button>
@@ -1107,6 +1112,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.49"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.50"></script>
 </body>
 </html>

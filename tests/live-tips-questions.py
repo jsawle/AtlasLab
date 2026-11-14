@@ -7,7 +7,7 @@ Tool tips (features.toolTips): resting the pointer on a tool for about a second 
 quick click never sees it; the keyboard gets it on focus; the Tips switch turns them off and the choice is kept.
 Lesson questions (features.lessonQuestions): a map whose description has a heading "Questions" gets a Questions button
 and its questions open beside the map. The map used is real; its description is given a Questions list by this test.
-Neither feature shows in the default config.
+Both are in the main app (5.0.0-beta.49 and .50).
 """
 import argparse, functools, glob, http.server, json, os, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
@@ -42,9 +42,9 @@ def main():
         ctx = browser.new_context(viewport={"width": 1366, "height": 768}); page = ctx.new_page()
         mid = lambda sel: page.evaluate("(s) => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }", sel)
 
-        print("== the default config has tool tips, and no lesson questions")
+        print("== a map with no Questions heading")
         page.goto(f"{base}/index.html?webmap={QUAKES}"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(6000)
-        check(page.is_hidden("#questionsBtn"), "no Questions button")
+        check(page.is_hidden("#questionsBtn"), "no Questions button on a map whose description has no Questions heading")
 
         print("== tool tips")
         page.mouse.move(5, 5); page.goto(f"{base}/index.html"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(2500)
