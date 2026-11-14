@@ -1,6 +1,6 @@
 // ============================================================ Branding and text
-import { late } from "./state.js?v=5.0.0-beta.45";
-import { APP_VERSION, $, cfgName, cfg, F, S, t } from "./config.js?v=5.0.0-beta.45";
+import { late } from "./state.js?v=5.0.0-beta.46";
+import { APP_VERSION, $, cfgName, cfg, F, S, t } from "./config.js?v=5.0.0-beta.46";
 
 export function hexToRgb(hex) {
   let h = String(hex || "").replace("#", "");

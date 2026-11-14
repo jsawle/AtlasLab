@@ -53,6 +53,7 @@ The method is the one in `review/personas.md` of the `jsawle/lessons` repository
 
 - **Tooltips should say what each tool does**, without nagging experienced users. Built in the lab config in 5.0.0-beta.44: a one-line tip after about a second, with a Tips on/off switch.
 - **A lesson's questions should be available in the app.** The same gap as finding 1. Built in the lab config in 5.0.0-beta.44: questions under a heading "Questions" in a map's description show beside the map.
+- **Being able to hide the toolbar** to give the map the most space. Built in the lab config in 5.0.0-beta.46: a Tools button, with its word, which also answers finding 7 (the unlabelled button) there.
 - **Saving on a laptop cart** is not the risk finding 6 said: see above.
 
 ## Findings dropped after checking

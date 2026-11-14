@@ -1,11 +1,11 @@
 // ============================================================ Print (in the browser; nothing is sent to a print service)
-import "./saved-maps.js?v=5.0.0-beta.45";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.45";
-import { $, cfg, S } from "./config.js?v=5.0.0-beta.45";
-import { isSketch } from "./views.js?v=5.0.0-beta.45";
-import { currentTitle } from "./session.js?v=5.0.0-beta.45";
-import { toast } from "./ui.js?v=5.0.0-beta.45";
-import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.45";
+import "./saved-maps.js?v=5.0.0-beta.46";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.46";
+import { $, cfg, S } from "./config.js?v=5.0.0-beta.46";
+import { isSketch } from "./views.js?v=5.0.0-beta.46";
+import { currentTitle } from "./session.js?v=5.0.0-beta.46";
+import { toast } from "./ui.js?v=5.0.0-beta.46";
+import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.46";
 
 $("printTile").addEventListener("click", async () => {
   try {

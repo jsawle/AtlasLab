@@ -1,5 +1,5 @@
 {
-  "configVersion": 11,
+  "configVersion": 12,
   "extends": "mapmaker",
-  "features": { "columns3d": true, "pairs": true, "sketchLayers": true, "toolTips": true, "lessonQuestions": true }
+  "features": { "columns3d": true, "pairs": true, "sketchLayers": true, "toolTips": true, "lessonQuestions": true, "hideToolbar": true }
 }

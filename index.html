@@ -151,6 +151,12 @@
     #app.docked.tools-shown .toolbar{ display:flex; }
     .tools-toggle{ display:none; width:32px; height:32px; border:none; border-radius:0; background:#fff; color:#323232; cursor:pointer; align-items:center; justify-content:center; box-shadow:0 1px 2px rgba(0,0,0,.3); }
     #app.docked .tools-toggle{ display:inline-flex; }
+    /* Lab (features.hideToolbar): the Tools button is always shown, with its word, and hides the toolbar at any time */
+    #app.tools-always .tools-toggle{ display:inline-flex; }
+    .tools-toggle.labelled{ width:auto; padding:0 10px 0 8px; gap:6px; font:600 13px/1 inherit; border-radius:4px; }
+    #app.tools-off:not(.docked) .toolbar{ display:none; }
+    #app.tools-off:not(.docked) .panel{ max-height:calc(100% - var(--attr-h, 16px) - 30px); }
+    #app.tools-off:not(.docked) #sketchPanel.tall{ height:calc(100% - var(--attr-h, 16px) - 30px); }
     .tools-toggle svg{ width:18px; height:18px; }
     .tools-toggle[aria-expanded="true"]{ background:var(--tool-active); color:var(--tool-active-ink); }
     .ti{ position:relative; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
@@ -1080,6 +1086,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.45"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.46"></script>
 </body>
 </html>
