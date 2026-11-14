@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.40";
-import { state, late } from "./state.js?v=5.0.0-beta.40";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.40";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.40";
-import { activeMap } from "./views.js?v=5.0.0-beta.40";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.40";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.40";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.40";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.40";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.40";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.40";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.40";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.40";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.40";
+import "./print.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.41";
+import { state, late } from "./state.js?v=5.0.0-beta.41";
+import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.41";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.41";
+import { activeMap } from "./views.js?v=5.0.0-beta.41";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.41";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.41";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.41";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.41";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.41";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.41";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.41";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.41";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.41";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};

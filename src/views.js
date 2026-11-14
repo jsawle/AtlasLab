@@ -1,9 +1,9 @@
 // ============================================================ Map, views and widgets
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.40";
-import { state, late } from "./state.js?v=5.0.0-beta.40";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.40";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.40";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.40";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.41";
+import { state, late } from "./state.js?v=5.0.0-beta.41";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.41";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.41";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.41";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -74,7 +74,7 @@ function roundMeasurements(el) {
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 export const viewEls = new Map();
 export function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { late.portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.40): the config's, or closer when that would leave the world narrower than the map.
+// The zoom the app opens at (5.0.0-beta.41): the config's, or closer when that would leave the world narrower than the map.
 // The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
 // white bands either side. A config's own closer zoom (example-es: 7) is kept.
 export function startZoom() {

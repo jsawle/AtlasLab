@@ -1,17 +1,17 @@
 // ============================================================ Map layers panel
-import "./data-layers.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.40";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.40";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.40";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.40";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.40";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.40";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.40";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.40";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.40";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.40";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.40";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.40";
+import "./data-layers.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.41";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.41";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.41";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.41";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.41";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.41";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.41";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.41";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.41";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.41";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.41";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.41";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
 export function eachToggleableLayer(fn) {
@@ -153,7 +153,7 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // component from that set-up, in the dock under the map (where the table goes; one or the other). The component's own
 // action bar has its tools: the legend, selecting, only what is in view, zoom, and saving the picture or the numbers.
 // The chart and the map share a selection: what is selected on the chart is highlighted on the map.
-// Charts 1.1 (5.0.0-beta.40): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
+// Charts 1.1 (5.0.0-beta.41): a chart can be kept in the map or with the layer's own item (Map Viewer's "Save layer").
 // The SDK reads an item's charts when the layer loads, after the map has opened, so "This map has a chart" was missed
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).

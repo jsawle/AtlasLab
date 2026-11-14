@@ -1,9 +1,9 @@
 // ============================================================ Map and item information (ⓘ)
-import "./collection.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.40";
-import { $, S, PORTAL } from "./config.js?v=5.0.0-beta.40";
-import { currentTitle } from "./session.js?v=5.0.0-beta.40";
-import { openModal } from "./ui.js?v=5.0.0-beta.40";
+import "./collection.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.41";
+import { $, S, PORTAL } from "./config.js?v=5.0.0-beta.41";
+import { currentTitle } from "./session.js?v=5.0.0-beta.41";
+import { openModal } from "./ui.js?v=5.0.0-beta.41";
 
 export function safeFragment(html) {
   const src = new DOMParser().parseFromString(String(html || ""), "text/html").body;

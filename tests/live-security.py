@@ -27,7 +27,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); a = ap.parse_args()
-    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=str(APP)))
+    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://localhost:{srv.server_port}"
     found = sorted(glob.glob("/opt/pw-browsers/chromium-*/chrome-linux*/chrome"))
@@ -39,7 +39,7 @@ def main():
         launch = {"args": ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]}
         if found: launch["executable_path"] = found[-1]
         if a.proxy: launch["proxy"] = {"server": a.proxy, "bypass": "localhost,127.0.0.1"}
-        browser = p.chromium.launch(**launch)
+        browser = csp_shim.launch(p, launch)
         ctx = browser.new_context(viewport={"width": 1366, "height": 900}); page = ctx.new_page()
         private = {}; thumbs = []
         def search(route):          # the group's first item becomes one shared with an organisation only

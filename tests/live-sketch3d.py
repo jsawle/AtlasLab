@@ -26,7 +26,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
-    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=str(APP)))
+    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://localhost:{srv.server_port}"
     found = sorted(glob.glob("/opt/pw-browsers/chromium-*/chrome-linux*/chrome"))
@@ -39,7 +39,7 @@ def main():
         launch = {"args": ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]}
         if chrome: launch["executable_path"] = chrome
         if a.proxy: launch["proxy"] = {"server": a.proxy, "bypass": "localhost,127.0.0.1"}
-        browser = p.chromium.launch(**launch)
+        browser = csp_shim.launch(p, launch)
         ctx = browser.new_context(viewport={"width": 1000, "height": 700})
         ctx.add_init_script("delete window.showSaveFilePicker; delete window.showOpenFilePicker;")   # saves become downloads the test can read
         # The test browser draws 3D in software (see live-3d-data.py): the scene comes without its 3D buildings and
@@ -85,8 +85,11 @@ def main():
         wf("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready")
         open_sketch("2d"); tools2d = page.evaluate(TOOLS)
         jsclick("#tool-sketch"); page.wait_for_timeout(1000)
-        to_3d(); open_sketch("3d"); tools3d = page.evaluate(TOOLS)
         draw = lambda ts: sorted({w for t in ts for w in ["point", "polyline", "polygon", "rectangle", "circle", "text"] if w in t.lower()})
+        to_3d(); open_sketch("3d"); tools3d = page.evaluate(TOOLS)
+        for _ in range(30):      # the 3D toolbar fills in a tool at a time on a slow machine: give it up to 30 s to finish
+            if len(draw(tools3d)) >= len(draw(tools2d)): break
+            page.wait_for_timeout(1000); tools3d = page.evaluate(TOOLS)
         check(draw(tools3d) == draw(tools2d) == ["circle", "point", "polygon", "polyline", "rectangle", "text"], "the 3D toolbar offers the same drawing tools as 2D: " + ", ".join(draw(tools3d)))
         if a.axe:
             page.add_script_tag(path=a.axe); v = page.evaluate(AXE)

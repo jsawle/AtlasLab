@@ -1,8 +1,8 @@
 // ============================================================ Topics (the content group's categories; shared by Open map and Add layer)
-import "./bookmarks.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.40";
-import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.40";
-import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.40";
+import "./bookmarks.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.41";
+import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.41";
+import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.41";
 
 let topicTreePromise = null;
 export function getTopicTree() {
@@ -11,7 +11,7 @@ export function getTopicTree() {
   return topicTreePromise;
 }
 export const cleanQuery = (s) => String(s || "").replace(/["':()\\[\]{}^~*?]/g, " ").replace(/\s+/g, " ").trim();
-// A card's picture (5.0.0-beta.40). A public item's is loaded by its address. An item only the signed-in person can see
+// A card's picture (5.0.0-beta.41). A public item's is loaded by its address. An item only the signed-in person can see
 // needs their token: it used to go on the end of the address as a query parameter, written into the page as the card's
 // background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
 // in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.

@@ -1,7 +1,7 @@
 // What the parts of the app share and change. Each part of the app is its own file in src/; a value that more than one
 // of them sets lives here, so every part sees the same one. Read and set them as state.name. A value only one part sets
 // stays in that part (other files can import and read it, but cannot set it).
-export const STATE_VERSION = "2.0";   // 1.0 (5.0.0-beta.39): shared state. 2.0 (5.0.0-beta.40): the code split into the files of src/
+export const STATE_VERSION = "3.0";   // 1.0 (5.0.0-beta.39): shared state. 2.0 (5.0.0-beta.40): the code split into the files of src/. 3.0 (5.0.0-beta.41): built into one file for publishing
 
 export const state = {
   // --- the map on screen

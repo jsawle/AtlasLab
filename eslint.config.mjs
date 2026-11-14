@@ -33,5 +33,5 @@ export default [
   },
   { files: ["app.js", "src/**/*.js", "lib/**/*.js"], plugins: { atlas }, rules: { "atlas/top-level-await": "error" }, languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { ...globals.browser, $arcgis: "readonly" } } },
   { files: ["oauth-callback.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: { ...globals.browser } }, rules: { "no-var": "off" } },   // Esri's file, kept as it came
-  { files: ["tests/**/*.mjs", "eslint.config.mjs"], languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { ...globals.node } } },
+  { files: ["tests/**/*.mjs", "tools/**/*.mjs", "eslint.config.mjs"], languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { ...globals.node } } },
 ];

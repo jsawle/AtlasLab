@@ -1,18 +1,18 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.40";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.40";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.40";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.40";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.40";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.40";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.40";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.40";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.40";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.40";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.40";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.40";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.40";
+import "./arcgis-online.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.41";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.41";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.41";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.41";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.41";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.41";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.41";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.41";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.41";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.41";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.41";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.41";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.41";
 
 export function renderVersions() {
   const rows = [
@@ -37,7 +37,7 @@ export function renderVersions() {
     ["Paired 2D and 3D maps (lab)", PAIRS_VERSION, "Only where a config turns it on (features.pairs). A web map and a 3D map their author made as two versions of one map: the web map's item has the tag atlas-3d-<the 3D map's item ID> and the 3D map's has atlas-2d-<the web map's item ID>. The 3D button then opens the 3D map, and 2D the web map, at the same place, with your sketches, spreadsheet data and added layers. Filters and the layers switched on belong to each version. Open map shows the pair as one card marked 2D + 3D."],
     ["3D quality", "1.0", "How much work the 3D view does. Low (smaller textures, less memory, no shadows or stars) is chosen for a device with 4 GB of memory or less, 4 processor cores or fewer, or no graphics chip; otherwise medium. A config (threeDQuality) or a link (?quality=low, medium or high) can fix it."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],
-    ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place. 2.0: the code is 27 files, one for each part of the app, in place of one long file. Nothing looks or works differently."],
+    ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place. 2.0: the code is 27 files, one for each part of the app, in place of one long file. 3.0: for publishing, those files are joined and shrunk into one by a build that runs the tests first; a failed test leaves the published app as it was. Nothing looks or works differently."],
     ["Time", "1.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider, set up from the map's own settings."],
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
     ["CSV import", CSV_VERSION, "Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],

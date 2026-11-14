@@ -1,0 +1,193 @@
+# Tests the app, builds it, and publishes it (5.0.0-beta.41).
+#  - unit, lint: the checks that need no browser.
+#  - build: joins and shrinks the source into dist/ (tools/build.mjs).
+#  - browser: every live test (tests/live-*.py) against the built copy, in Chromium, with the real map library and services.
+#  - other-browsers: a short set in Firefox and WebKit. Reported, but does not yet hold up publishing.
+#  - publish: only from main, and only when unit, lint and browser all passed. If anything fails, the site stays as it was.
+# Also runs every Monday morning, with nothing changed, to notice when Esri's hosted map library or a service changes under the app.
+name: Test, build, publish
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Filter tests
+        run: node tests/filter.test.mjs
+      - name: Scene file tests
+        run: node tests/scenes.test.mjs
+      - name: Units tests
+        run: node tests/units.test.mjs
+      - name: Config and language file tests
+        run: node tests/config.test.mjs
+      - name: Columns in 3D tests
+        run: node tests/columns.test.mjs
+      - name: Paired 2D and 3D maps tests
+        run: node tests/pairs.test.mjs
+      - name: Sketch layers in the saved file
+        run: node tests/sketch-layers.test.mjs
+      - name: How the app's files fit together (versions, start-up files, the fixed order)
+        run: node tests/structure.test.mjs
+      - name: The app's code parses
+        # package.json says "type": "module", so node checks each .js file as the module it is
+        run: for f in app.js src/*.js lib/*.js; do node --check "$f" || exit 1; done
+  lint:
+    # ESLint over the app's code and the unit tests: a misspelt or missing name, a name declared twice, unused code.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          include-hidden-files: true
+          retention-days: 14
+
+  browser:
+    # Each live test is its own job, so they run side by side. A test that fails is run once more before it counts:
+    # they use real services, and a slow answer should not hold up a release.
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - live-start.py
+          - live-security.py
+          - live-openmap.py
+          - live-panels.py
+          - live-parity.py
+          - live-units.py
+          - live-components.py
+          - live-charts.py
+          - live-elevation.py
+          - live-pairs.py
+          - live-scenes.py
+          - live-sketch-layer.py
+          - live-sketch-measure.py
+          - live-sketch-styles.py
+          - live-sketch-text.py
+          - live-sketch3d.py
+          - live-slides.py
+          - live-filter.py
+          - live-3d-data.py
+          - live-columns.py
+          - live-touch.py
+          - live-touch.py --3d
+          - live-pinch.py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r tests/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+      - name: ${{ matrix.test }} (Chromium, built copy)
+        env:
+          ATLAS_SERVE: dist
+        run: python tests/${{ matrix.test }} || (echo "::warning::${{ matrix.test }} failed once; running it again" && python tests/${{ matrix.test }})
+
+  other-browsers:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+        test: [live-start.py, live-openmap.py, live-panels.py, live-units.py, live-security.py]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r tests/requirements.txt
+      - run: python -m playwright install --with-deps ${{ matrix.browser }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+      - name: ${{ matrix.test }} (${{ matrix.browser }}, built copy)
+        env:
+          ATLAS_SERVE: dist
+          ATLAS_BROWSER: ${{ matrix.browser }}
+          CONSOLE_LOG: /dev/stderr
+        # xvfb gives the browser a screen to draw on: Firefox makes no WebGL (so no map) without one
+        run: xvfb-run -a python tests/${{ matrix.test }} || (echo "::warning::${{ matrix.test }} failed once in ${{ matrix.browser }}; running it again" && xvfb-run -a python tests/${{ matrix.test }})
+      - name: live-start.py (${{ matrix.browser }}, the source as it is, not built)
+        # The source is 38 files that load each other; the built copy is one. This checks the loading itself in this browser.
+        if: matrix.test == 'live-start.py' && !cancelled()
+        env:
+          ATLAS_BROWSER: ${{ matrix.browser }}
+          CONSOLE_LOG: /dev/stderr
+        run: xvfb-run -a python tests/live-start.py || xvfb-run -a python tests/live-start.py
+
+  publish:
+    # Puts dist/ on GitHub Pages. Needs the repository's Pages setting (Settings > Pages > Source) to be "GitHub Actions";
+    # until it is, this job says so and stops, and Pages goes on serving the source from the main branch as before.
+    needs: [unit, lint, build, browser]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Is Pages set to publish from GitHub Actions?
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          type=$(gh api "repos/${{ github.repository }}/pages" --jq .build_type 2>/dev/null || echo unknown)
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+          if [ "$type" != "workflow" ]; then echo "::notice::Not published by this run: Pages is set to '$type'. Change Settings > Pages > Source to 'GitHub Actions', then run this workflow again."; fi
+      - uses: actions/download-artifact@v4
+        if: steps.mode.outputs.type == 'workflow'
+        with:
+          name: site
+          path: dist
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.mode.outputs.type == 'workflow'
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
+        if: steps.mode.outputs.type == 'workflow'
+        id: deploy

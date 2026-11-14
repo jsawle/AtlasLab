@@ -1,20 +1,20 @@
 // ============================================================ Toast, panels, modals (keyboard accessible)
-import "./session.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.40";
-import { $, cfg, F, t } from "./config.js?v=5.0.0-beta.40";
-import { need } from "./sdk.js?v=5.0.0-beta.40";
-import { syncToolsToggles } from "./views.js?v=5.0.0-beta.40";
-import { layoutBottom } from "./session.js?v=5.0.0-beta.40";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.40";
-import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.40";
-import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.40";
-import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.40";
-import { endFilter } from "./filter-panel.js?v=5.0.0-beta.40";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.40";
-import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.40";
-import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.40";
-import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.40";
-import { renderVersions } from "./versions.js?v=5.0.0-beta.40";
+import "./session.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.41";
+import { $, cfg, F, t } from "./config.js?v=5.0.0-beta.41";
+import { need } from "./sdk.js?v=5.0.0-beta.41";
+import { syncToolsToggles } from "./views.js?v=5.0.0-beta.41";
+import { layoutBottom } from "./session.js?v=5.0.0-beta.41";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.41";
+import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.41";
+import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.41";
+import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.41";
+import { endFilter } from "./filter-panel.js?v=5.0.0-beta.41";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.41";
+import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.41";
+import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.41";
+import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.41";
+import { renderVersions } from "./versions.js?v=5.0.0-beta.41";
 late.toast = toast;   // for the start-up files, which run before this one (see late in state.js)
 
 let toastTimer = 0;
