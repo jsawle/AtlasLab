@@ -51,10 +51,10 @@ The method is the one in `review/personas.md` of the `jsawle/lessons` repository
 
 ## Feedback from people shown the app (not from the personas)
 
-- **Tooltips should say what each tool does**, without nagging experienced users. Built in the lab config in 5.0.0-beta.44: a one-line tip after about a second, with a Tips on/off switch.
+- **Tooltips should say what each tool does**, without nagging experienced users. Built in the lab config in 5.0.0-beta.44: a one-line tip after about a second, with a Tips on/off switch. In the main app from 5.0.0-beta.49, without the switch for now.
 - **A lesson's questions should be available in the app.** The same gap as finding 1. Built in the lab config in 5.0.0-beta.44: questions under a heading "Questions" in a map's description show beside the map.
-- **Being able to hide the toolbar** to give the map the most space. Built in the lab config in 5.0.0-beta.46: a Tools button, with its word, which also answers finding 7 (the unlabelled button) there.
-- **Printing outline maps.** Teachers print world, continent and country outline maps for class; Print (a picture of the screen) does not serve that well. Built in the lab config in 5.0.0-beta.48: Print an outline map, with eight maps (world with continents, six continents with countries, United States with states), with or without names.
+- **Being able to hide the toolbar** to give the map the most space. Built in the lab config in 5.0.0-beta.46: a Tools button, with its word, which also answers finding 7 (the unlabelled button) there. In the main app from 5.0.0-beta.49: the button reads Hide tools or Show tools, at the bottom right.
+- **Printing outline maps.** Teachers print world, continent and country outline maps for class; Print (a picture of the screen) does not serve that well. Built in the lab config in 5.0.0-beta.48: Print an outline map, with eight maps (world with continents, six continents with countries, United States with states), with or without names. In the main app from 5.0.0-beta.49.
 - **Saving on a laptop cart** is not the risk finding 6 said: see above.
 
 ## Findings dropped after checking

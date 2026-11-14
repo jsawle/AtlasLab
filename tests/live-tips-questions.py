@@ -42,15 +42,13 @@ def main():
         ctx = browser.new_context(viewport={"width": 1366, "height": 768}); page = ctx.new_page()
         mid = lambda sel: page.evaluate("(s) => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }", sel)
 
-        print("== the default config has neither")
+        print("== the default config has tool tips, and no lesson questions")
         page.goto(f"{base}/index.html?webmap={QUAKES}"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(6000)
-        page.mouse.move(*mid("#tool-legend")); page.wait_for_timeout(1500)
-        check(page.is_hidden("#tipsBtn") and page.evaluate(TIP) == "" and page.get_attribute("#tool-legend", "title") == "Legend", "no Tips switch, and a tool's tooltip is its name")
         check(page.is_hidden("#questionsBtn"), "no Questions button")
 
-        print("== tool tips (lab)")
-        page.mouse.move(5, 5); page.goto(f"{base}/index.html?config=lab"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(2500)
-        check(page.is_visible("#tipsBtn") and page.inner_text("#tipsBtn") == "Tips: on" and page.get_attribute("#tipsBtn", "aria-pressed") == "true", "the Tips switch is beside the version button, and on")
+        print("== tool tips")
+        page.mouse.move(5, 5); page.goto(f"{base}/index.html"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(2500)
+        check(page.is_hidden("#tipsBtn"), "there is no Tips switch")
         page.mouse.move(*mid("#tool-legend")); page.wait_for_timeout(350)
         check(page.evaluate(TIP) == "", "nothing shows in the first moment on a tool")
         page.wait_for_timeout(1100); tip = page.evaluate(TIP)
@@ -68,11 +66,6 @@ def main():
         page.mouse.move(*mid(".rose-btn")); page.wait_for_timeout(1300)
         check(page.evaluate(TIP).startswith("Shows which way is north"), "the compass has one too: " + page.evaluate(TIP))
         page.mouse.move(5, 5); page.wait_for_timeout(300)
-        page.click("#tipsBtn"); page.wait_for_timeout(200); page.mouse.move(*mid("#tool-legend")); page.wait_for_timeout(1400)
-        check(page.inner_text("#tipsBtn") == "Tips: off" and page.evaluate(TIP) == "" and page.get_attribute("#tool-legend", "title") == "Legend" and page.get_attribute("#tool-layers", "aria-describedby") == "tipk-tipLayers", "Tips: off stops them, the tool's tooltip is its name again, and a screen reader still has the description")
-        page.mouse.move(5, 5); page.reload(); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(1500)
-        check(page.inner_text("#tipsBtn") == "Tips: off", "the choice is kept when the page is opened again")
-        page.click("#tipsBtn")
 
         print("== lesson questions (lab)")
         def item(route):      # the real item, with a Questions list added to its description
