@@ -3,6 +3,7 @@
 // it parses, its IDs are IDs, what it extends exists, its language has a file, and each language file
 // translates every piece of the app's wording with the same {placeholders}.
 import fs from "node:fs";
+import { appSource } from "./app-source.mjs";
 import { fileURLToPath } from "node:url";
 import { DEFAULT_STRINGS } from "../lib/strings.js";
 import { loadConfig, buildStrings, mergeConfig } from "../lib/config.js";
@@ -55,7 +56,7 @@ const fetchJson = async (path) => JSON.parse(fs.readFileSync(root + path.replace
   const { contentGroup: _a, configVersion: _b, ...restT } = test.raw, { configVersion: _c, ...restM } = mm.raw;
   ok(JSON.stringify(restT) === JSON.stringify(restM), "test is otherwise the MapMaker config");
   // 5.0.0-beta.20: while 5.0 is a pilot the built-in content group is the test group; the live MapMaker group is one named config
-  const appSrc = fs.readFileSync(root + "app.js", "utf8"), live = await loadConfig("mapmaker-live", fetchJson), def = await loadConfig("default", fetchJson);
+  const appSrc = appSource(), live = await loadConfig("mapmaker-live", fetchJson), def = await loadConfig("default", fetchJson);
   ok(/contentGroup: "c3ac404ac811494ea6fa116abc0cf39b"/.test(appSrc) && !/contentGroup: "36443e9570294a1f883b5d2c5abfe6b5"/.test(appSrc), "the app's built-in content group is the 5.0 test group");
   ok(mm.raw.contentGroup === undefined && def.raw.contentGroup === undefined && es.raw.contentGroup === undefined, "default, mapmaker and example-es name no group, so they read the built-in one");
   ok(live.raw.contentGroup === "36443e9570294a1f883b5d2c5abfe6b5" && live.chain.join(">") === "mapmaker-live>mapmaker", "only mapmaker-live reads the live MapMaker group");

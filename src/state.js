@@ -1,7 +1,7 @@
-// What the parts of the app share and change (5.0.0-beta.39). Each part of the app is (or is becoming) its own file; a
-// value that more than one of them sets lives here, so every part sees the same one. Read and set them as state.name.
-// A value only one part sets stays in that part.
-export const STATE_VERSION = "1.0";
+// What the parts of the app share and change. Each part of the app is its own file in src/; a value that more than one
+// of them sets lives here, so every part sees the same one. Read and set them as state.name. A value only one part sets
+// stays in that part (other files can import and read it, but cannot set it).
+export const STATE_VERSION = "2.0";   // 1.0 (5.0.0-beta.39): shared state. 2.0 (5.0.0-beta.40): the code split into the files of src/
 
 export const state = {
   // --- the map on screen
@@ -35,3 +35,8 @@ export const state = {
   addState: null,          // the spreadsheet being set up in the Add data panel
   pendingParse: null,      // a spreadsheet read but waiting (for a question to be answered) before it is set up
 };
+
+// Functions the start-up files (config, branding, sdk, views) call but which live in files that load after them. A
+// start-up file cannot import from a later file (that would load it too early), so the later file puts the function
+// here when it loads, and the start-up file calls late.name(). Only for those few: every other file imports what it uses.
+export const late = {};

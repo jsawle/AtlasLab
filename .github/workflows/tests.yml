@@ -29,9 +29,11 @@ jobs:
         run: node tests/pairs.test.mjs
       - name: Sketch layers in the saved file
         run: node tests/sketch-layers.test.mjs
-      - name: The app's code parses as a module
-        # "node --check app.js" passes a .js file with a syntax error in it; checked as .mjs it does not
-        run: cp app.js "$RUNNER_TEMP/app.mjs" && node --check "$RUNNER_TEMP/app.mjs"
+      - name: How the app's files fit together (versions, start-up files, the fixed order)
+        run: node tests/structure.test.mjs
+      - name: The app's code parses
+        # package.json says "type": "module", so node checks each .js file as the module it is
+        run: for f in app.js src/*.js lib/*.js; do node --check "$f" || exit 1; done
   lint:
     # ESLint over the app's code and the unit tests: a misspelt or missing name, a name declared twice, unused code.
     runs-on: ubuntu-latest

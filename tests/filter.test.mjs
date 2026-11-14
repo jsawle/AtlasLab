@@ -1,6 +1,7 @@
 // Unit tests for the filter conditions <-> SQL module, and the time settings a saved map keeps. Run: node tests/filter.test.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { appSource } from "./app-source.mjs";
 import * as F from "../lib/filter.js";
 import * as doc from "../lib/doc.js";
 
@@ -112,10 +113,10 @@ test("time settings: only what the Web Map Specification defines is kept, and a 
   assert.ok(!("widgets" in doc.docToWebMap({ graphics: [], layers: [], bookmarks: [] }, { appVersion: "t" })), "a map without time settings has no widgets");
 });
 test("release: every module address carries the app version, and the filter has its own version", () => {
-  const app = readFileSync(new URL("../app.js", import.meta.url), "utf8"), html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const app = appSource(), html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const ver = app.match(/const APP_VERSION = "([^"]+)"/)[1];
   assert.ok(html.includes('src="./app.js?v=' + ver + '"'));
-  for (const m of app.matchAll(/from "\.\/lib\/[\w-]+\.js\?v=([^"]+)"/g)) assert.equal(m[1], ver);
+  for (const m of app.matchAll(/from "\.{1,2}\/[\w/-]+\.js\?v=([^"]+)"/g)) assert.equal(m[1], ver);   // tests/structure.test.mjs checks the rest
   assert.match(F.FILTER_VERSION, /^\d+\.\d+$/);
   assert.ok(app.includes("FILTER_VERSION"));
 });
