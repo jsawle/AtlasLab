@@ -1,23 +1,23 @@
 // ============================================================ Maps and layers
-import "./view-mode.js?v=5.0.0-beta.42";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.42";
-import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.42";
-import { state } from "./state.js?v=5.0.0-beta.42";
-import { APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.42";
-import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.42";
+import "./view-mode.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.43";
+import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.43";
+import { state } from "./state.js?v=5.0.0-beta.43";
+import { APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.43";
+import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.43";
 import { graphicsLayer, defaultBasemap, sketchLayers, isSketch, sketchLayerByKey, sketchCount, localMap, takePreloaded, startCenter, setViewMap,
-  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.42";
-import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.42";
-import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.42";
+  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.43";
+import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.43";
+import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.43";
 import { addSketchGraphic, syncSketchLayerPicker, newSketchLayer, nextSketchLayerName, setActiveSketch, removeSketchLayer, updatePinned,
-  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.42";
-import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.42";
-import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.42";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.42";
-import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.42";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.42";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.42";
-import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.42";
+  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.43";
+import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.43";
+import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.43";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.43";
+import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.43";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.43";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.43";
+import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.43";
 
 export function setActiveMap(m, opts) {
   const old = state.view.map;
