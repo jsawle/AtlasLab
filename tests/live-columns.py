@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Live check: Columns in 3D (lab, config=lab). A spreadsheet sized by a number column can stand a column on each
-point in the 3D view; 2D, and the saved style, stay as they were. Without the switch (config=mapmaker) it isn't offered.
+point in the 3D view; 2D, and the saved style, stay as they were. Without the switch (config=basic) it isn't offered.
 
   python3 live-columns.py [--shots DIR] [--axe path/to/axe.min.js]
 """
@@ -57,8 +57,8 @@ def main():
         def style(sid):
             page.evaluate("(i) => document.querySelectorAll('#styleList .style-card')[i].click()", ["simple", "categorical", "graduated", "numeric_color_size", "categorical_size", "pie_chart"].index(sid)); page.wait_for_timeout(400)
 
-        print("== without the switch (config=mapmaker)")
-        start("mapmaker"); drop("litter.csv", CSV); wv("#dataPanel:not([hidden]) #dataSubmit"); page.wait_for_timeout(800); style("graduated")
+        print("== without the switch (config=basic)")
+        start("basic"); drop("litter.csv", CSV); wv("#dataPanel:not([hidden]) #dataSubmit"); page.wait_for_timeout(800); style("graduated")
         check(page.evaluate("!document.querySelector('#columns3dBox')"), "By size has no columns choice")
         style("numeric_color_size"); page.wait_for_timeout(600)
         RAMP = "(() => { const l = " + LAYER.replace("PFX", json.dumps("csvPreview")) + " || " + LAYER.replace("PFX", json.dumps("__data_csvPreview")) + "; const v = l && (l.renderer.visualVariables || []).find(x => x.type === 'color'); return v ? v.stops.map(s => s.color.toHex()) : null; })()"
@@ -177,9 +177,9 @@ def main():
         reopen("lab", json.dumps(saved))
         page.wait_for_timeout(2500); check(page.evaluate("document.querySelector('#tg2d').getAttribute('aria-pressed') === 'true'"), "the copy saved from 2D opens in 2D")
         to_3d(); r = rend("__data_"); check(bool(r) and r["prim"] == "cylinder", "its columns are kept too: switch to 3D and they are there")
-        reopen("mapmaker", text3d)
+        reopen("basic", text3d)
         wf("document.querySelector('#tg3d').getAttribute('aria-pressed') === 'true' && !!document.querySelector('arcgis-scene')", timeout=180000); page.wait_for_timeout(2500)
-        r = rend("__data_"); check(bool(r) and r["prim"] == "cylinder", "the main config opens the file in 3D with its columns too")
+        r = rend("__data_"); check(bool(r) and r["sym"] == "simple-marker", "without the switch the file still opens in 3D, with ordinary sized points")
         start("lab"); to_3d()
 
         print("== Cancel puts the 3D view back")

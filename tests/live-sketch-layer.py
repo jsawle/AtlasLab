@@ -57,7 +57,7 @@ def main():
             v = page.evaluate(AXE, sel); check(not v, what + ": no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
 
         print("== a web map with no sketches")
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={QUAKES}")
+        page.goto(f"{base}/index.html?config=basic&webmap={QUAKES}")
         page.wait_for_function("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         js("#tool-layers"); page.wait_for_selector("#layersList li", timeout=30000)
         rows = page.evaluate(ROWS); check(len(rows) == 1 and "My sketches" not in rows, "Map layers lists the map's layer and no sketch layer: " + str(rows))
@@ -91,7 +91,7 @@ def main():
         text = pathlib.Path(dl.value.path()).read_text(); saved = json.loads(text)
         ops = [o for o in saved["operationalLayers"] if str(o.get("id", "")).startswith("__sketch_")]
         check(len(ops) == 1 and abs(ops[0]["opacity"] - 0.6) < 0.001, "the file has the sketch layer at opacity 0.6")
-        page.goto(f"{base}/index.html?config=mapmaker"); page.wait_for_function("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000); page.wait_for_timeout(1500)
+        page.goto(f"{base}/index.html?config=basic"); page.wait_for_function("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000); page.wait_for_timeout(1500)
         page.evaluate("""([name, text]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: 'application/json' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", ["sk.amap", text])
         page.wait_for_function("document.querySelector('#toast').textContent.includes('sk')", timeout=120000); page.wait_for_timeout(1500)
         check(page.evaluate(LYR + ".graphics.length") == 2 and abs(page.evaluate(LYR + ".opacity") - 0.6) < 0.001, "opened again: two sketches, still 40% transparent")
@@ -118,7 +118,7 @@ def main():
         def sketch_on():
             if not page.is_visible("#sketchPanel"): js("#tool-sketch")
             page.wait_for_function(SK + ".state === 'ready' && !!" + SK + ".view", timeout=120000); page.wait_for_timeout(2000)
-        boot("mapmaker"); js("#tool-add"); page.wait_for_selector("#addModal:not([hidden])")
+        boot("basic"); js("#tool-add"); page.wait_for_selector("#addModal:not([hidden])")
         check(page.evaluate("document.querySelector('#tabSketchLayer').hidden") is True, "without the switch Add layer has no New sketch layer")
         js("#addModal [data-modal-close]"); sketch_on()
         check(page.evaluate(PICK)["hidden"] is True, "and Sketch has no layer picker")
@@ -174,7 +174,7 @@ def main():
         opids = [o["id"] for o in saved["operationalLayers"]]
         riv = [o for o in saved["operationalLayers"] if (o.get("atlasSketchLayer") or {}).get("title") == "Rivers and lakes"]
         check(len(riv) == 1 and opids.index(riv[0]["id"]) == 0 and opids[-1].endswith("_points") and "__sketch_points" in opids and opids.index("__data_" + [o for o in opids if o.startswith("__data_")][0][7:]) == 2, "the file has each sketch layer in its place: " + str([i[:22] for i in opids]))
-        boot("mapmaker")
+        boot("basic")
         page.evaluate("""([name, text]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: 'application/json' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", ["three.amap", text])
         page.wait_for_function("document.querySelector('#toast').textContent.includes('three')", timeout=120000); page.wait_for_timeout(2500)
         c = page.evaluate(COUNTS); check(c == {"My sketches": 2, "Rivers and lakes": 2, "Notes": 0}, "opened again: the same layers and sketches: " + json.dumps(c))

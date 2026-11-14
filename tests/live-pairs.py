@@ -12,7 +12,7 @@ maps the card is the scene's; the 3D button on the web map opens the scene at th
 spreadsheet layer and a bookmark made here, and the scene's own bookmarks in place of the web map's; 2D is not locked on
 the scene and goes back to the web map as it was left (its filter still on); the saved file names the pair and can
 switch after it is opened again; a link to the scene alone can go to 2D; a partner that can't be opened falls back to
-drawing the map in 3D; with the feature off (config=mapmaker) the same tags change nothing.
+drawing the map in 3D; with the feature off (config=basic) the same tags change nothing.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
@@ -218,14 +218,14 @@ def main():
         jsclick("#tg2d"); in_2d(); check(now()["kind"] == "esri.WebMap", "and 2D works as usual")
         state["scene_target"] = SCENE
 
-        print("== the feature off (config=mapmaker)")
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={WEBMAP}"); app_ready()
+        print("== the feature off (config=basic)")
+        page.goto(f"{base}/index.html?config=basic&webmap={WEBMAP}"); app_ready()
         wf("(id) => { const v = document.querySelector('arcgis-map').view; return !!(v.map && v.map.portalItem && v.map.portalItem.id === id && v.map.loaded); }", arg=WEBMAP); page.wait_for_timeout(2000)
         jsclick("#tg3d")
         wf("(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready) && document.querySelector('#tg3d').getAttribute('aria-pressed') === 'true'; })()", timeout=180000); page.wait_for_timeout(3000)
         off = now()
         check(off["kind"] == "esri.WebMap" and off["item"] == WEBMAP, "the tags are ignored: 3D draws the web map itself")
-        page.goto(f"{base}/index.html?config=mapmaker&webscene={SCENE}"); in_3d(SCENE); page.wait_for_timeout(3000); st = page.evaluate(MODE)
+        page.goto(f"{base}/index.html?config=basic&webscene={SCENE}"); in_3d(SCENE); page.wait_for_timeout(3000); st = page.evaluate(MODE)
         check(st["d2"] == "true", "and a scene is 3D only, as before")
         jsclick("#tool-open"); wf("document.querySelectorAll('#omList .cat-card').length > 0"); page.wait_for_timeout(1500)
         check(page.evaluate("document.querySelectorAll('#omList .is-pair').length") == 0, "Open map has no paired cards")
