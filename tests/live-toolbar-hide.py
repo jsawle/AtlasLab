@@ -13,7 +13,7 @@ READY = "() => { const m = document.querySelector('arcgis-map'); return !!(m && 
 STATE = """() => { const vis = (e) => !!e && e.getBoundingClientRect().width > 0; const b = [...document.querySelectorAll('.tools-toggle')].find(vis);
   const stack = [...document.querySelectorAll('.ll-stack')].find(vis), wrap = document.getElementById('mapWrap').getBoundingClientRect();
   return { button: !!b, text: b ? b.innerText.trim() : '', label: b ? b.getAttribute('aria-label') : '', expanded: b ? b.getAttribute('aria-expanded') : '', w: b ? Math.round(b.getBoundingClientRect().width) : 0, h: b ? Math.round(b.getBoundingClientRect().height) : 0,
-    toolbar: vis(document.getElementById('tool-save')), count: document.querySelectorAll('.tools-toggle').length, right: !!b && b.getBoundingClientRect().left > wrap.left + wrap.width * 0.6 && !!b.closest('.corner'), gap: stack ? Math.round(wrap.bottom - stack.getBoundingClientRect().bottom) : -1 }; }"""
+    toolbar: vis(document.getElementById('tool-save')), count: document.querySelectorAll('.tools-toggle').length, rose: [...document.querySelectorAll('.rose')].some(vis), right: !!b && b.getBoundingClientRect().left > wrap.left + wrap.width * 0.6 && !!b.closest('.corner'), gap: stack ? Math.round(wrap.bottom - stack.getBoundingClientRect().bottom) : -1 }; }"""
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -41,9 +41,10 @@ def main():
         check(s0["h"] >= 24 and s0["w"] >= 44, "it is big enough to press (%d x %d pixels)" % (s0["w"], s0["h"]))
         page.click(".tools-toggle >> visible=true"); page.wait_for_timeout(700); s1 = page.evaluate(STATE)
         check(not s1["toolbar"] and s1["button"] and s1["text"] == "Show tools" and s1["right"], "pressing it hides the toolbar; the button stays and now reads Show tools")
+        check(s0["rose"] and not s1["rose"], "the compass goes with the tools")
         page.screenshot(path=str(shots / "toolbar-hidden.png"))
         page.keyboard.press("Tab"); page.keyboard.press("Shift+Tab"); page.keyboard.press("Enter"); page.wait_for_timeout(700); s2 = page.evaluate(STATE)
-        check(s2["toolbar"] and s2["text"] == "Hide tools", "pressing it again (here by keyboard) brings the toolbar back")
+        check(s2["toolbar"] and s2["rose"] and s2["text"] == "Hide tools", "pressing it again (here by keyboard) brings the toolbar back")
         page.click(".tools-toggle >> visible=true"); page.wait_for_timeout(400)
         page.evaluate("() => document.getElementById('tool-profile').click()"); page.wait_for_timeout(1500); page.evaluate("() => { const x = document.querySelector('#profilePanel .x-btn'); if (x) x.click(); }"); page.wait_for_timeout(800)
         s3 = page.evaluate(STATE)
