@@ -1,0 +1,103 @@
+
+=== 01-first-open.png — The app as it first opens on a 1366 x 768 screen (a typical Chromebook). Nothing has been clicked.
+
+
+=== 02-version-about.png — The version button (bottom right) clicked: the About / versions panel.
+[aboutPanel] Versions | × | Version numbers for this app and each of its parts. | Part	Version	What it is | School Atlas (app)	5.0.0-beta.43	White-label build of the MapMaker app: every MapMaker tool, local save, CSV data, ArcGIS Online sign-in. Created by Jason Sawle. | Basemaps	2.0	MapMaker's basemap cards: the basemap group's maps in the group's own order, two to a row; in 3D, its 3D basemaps first. | Saved maps list (Open map, My map files)	1.0	Maps saved on this device, newest first, kept in this browser. Chrome and Edge reopen the file itself; Safari and Firefox keep a copy of each saved map. | Collection browser (Open map, Add layer)	2.1	MapMaker's category tree from the group's categories, with counts, search within a category, cards with descriptions, and pages. Where the collection has 3D maps (web scenes), a row above the maps shows all, the 2D maps or the 3D maps, with how many of each; a 3D map's card is marked 3D on its picture. | Units	1.0	Kilometres and metres, or miles and feet, in Measure, Elevation and Sketch. With units set to auto the app starts in miles on a device whose time zone is in the United States and in kilometres elsewhere; if the time zone isn't known, the browser's language decides. Nothing is sent anywhere to work this out. The km / mi switch changes the units, and the choice is kept on this device. | Docks	1.0	The chart, the table and Elevation open in a dock under the map. Drag the bar along the dock's top, or use the arrow keys on it, to make it taller or shorter; double-click the bar for the usual height. The height is kept for each kind of dock while the app is open. | Charts	1.1	A chart set up on a layer in Map Viewer, kept in the map or with the layer's own item, drawn by the SDK's chart component under the map: Map layers, then the layer's C
+
+=== 03-tool-basemaps.png — Basemaps clicked.
+[basemapsPanel] Basemaps | × | Choose the map underneath your layers. | OpenStreetMap Style | Ocean | Black and White Outline | Imagery (no labels) | Dark Gray | Human Geography | Charted Territory | Enhanced Contrast | Imagery (labels) | National Geographic Style | Environment | Topographic (with Contours and Hillshade)
+
+=== 04-tool-open.png — Open map clicked: the collection browser.
+[basemapsPanel] Basemaps | × | Choose the map underneath your layers. | OpenStreetMap Style | Ocean | Black and White Outline | Imagery (no labels) | Dark Gray | Human Geography | Charted Territory | Enhanced Contrast | Imagery (labels) | National Geographic Style | Environment | Topographic (with Contours and Hillshade)
+[openModal] Open map | Select a map to open and explore it in the map view. | × | School Atlas maps | My map files | Search | Categories | Categories | Lessons | 22 | maps | Civics and Government | 4 | maps | Earth Science | 39 | maps | Human Geography | 47 | maps | Life and Environmental Science | 11 | maps | National Geographic Explorers | 8 | maps | Physical Science | 42 | maps | Real-Time Data | 5 | maps | Sustainable Development Goals | 4 | maps | United States Geography | 7 | maps | United States History | 22 | maps | World Geography | 30 | maps | Other | 3 | maps | All | 121 | 2D maps | 118 | 3D maps | 3 | 121 maps | 1775-1776 Revolutionary Battles | Explore how the geography of North America shaped the first phase (1775-1776) of the American Revolution and why location mattered in the fight for independence. | Share | Open map | Map's description | 1777-1778 Revolutionary Battles | Explore how the geography of North America shaped the second phase (1777-1778) of the American Revolution and why location mattered in the fight for independence. | Share | Open map | Map's description | 1779-1781 Revolutionary Battles | Explore how the geography of North America shaped the third phase (1779-1781) of the American Revolution and why location mattered in the fight for independence. | Share | Open map | Map's description | ACS Race and Hispanic Origin by County | Share | Open map | Map's description | Active Hurricanes, Cyclones, and Typhoons | Use this map layer to visualize current tropical cyclones and the paths from those that occurred this year. | Share | Open map | Map's description | Air Quality | This layer contains particulate matter 2.5 (PM 2.5) air quality data globally between 1998 and 2016 based on NASA SEDAC gridded data. The data is aggregated to countries, administra
+
+=== open-card-info FAILED: Page.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("#omList .cat-card .cat-info, #omList .cat-card button[aria-label*='nformation']")
+
+cards: ["1775-1776 Revolutionary Battles", "1777-1778 Revolutionary Battles", "1779-1781 Revolutionary Battles", "ACS Race and Hispanic Origin by County", "Active Hurricanes, Cyclones, and Typhoons", "Air Quality", "American Indian Reservations", "Arctic Sea Ice Extent (Max.)", "Average Annual Precipitation", "Average Wind Speeds"]
+
+=== 05-open-search.png — In Open map, 'earthquake' typed into Search.
+[openModal] Open map | Select a map to open and explore it in the map view. | × | School Atlas maps | My map files | Search | Categories | Categories | Lessons | 22 | maps | Civics and Government | 4 | maps | Earth Science | 39 | maps | Human Geography | 47 | maps | Life and Environmental Science | 11 | maps | National Geographic Explorers | 8 | maps | Physical Science | 42 | maps | Real-Time Data | 5 | maps | Sustainable Development Goals | 4 | maps | United States Geography | 7 | maps | United States History | 22 | maps | World Geography | 30 | maps | Other | 3 | maps | All | 11 | 2D maps | 11 | 3D maps | 0 | 11 of 121 maps match | Exploring earthquakes and their causes (Guided Lesson) | What causes earthquakes, and how do they affect people? | Share | Open map | Map's description | Major Earthquakes (1950-2023) | Explore major (magnitude of 7.0 or higher) global earthquakes between 1950-2023 filtered from the United States Geological Survey (USGS) Earthquake Catalog. | Share | Open map | Map's description | Real-Time Earthquakes | Explore the earthquakes occurring in the last 30 days and the extent of their shaking with this map layer. | Share | Open map | Map's description | Real-Time Earthquakes with chart | Explore the earthquakes occurring in the last 30 days and the extent of their shaking with this map layer. | Share | Open map | Map's description | Elevation and Depth | This world elevation layer provides a colored elevation map of land and oceans for use in visualization. | Share | Open map | Map's description | Global Tectonic Plates | Earth's lithosphere is composed of plates floating on the mantle. The motion of these plates causes earthquakes, volcanoes, and events such as mountain-building or trench formation. | Share | Open map | Map's description | Investigating v
+
+=== 06-map-opened.png — The first map in the collection chosen and opened.
+
+
+=== 07-map-popup.png — A click in the middle of the map (a pop-up, if a feature is there).
+
+
+=== 08-tool-layers.png — Map layers clicked.
+[layersPanel] Map layers | × | Turn layers on and off. Bookmarks remember these settings. | Earthquakes (Last 30 Days) | Historic Major Earthquakes | Other causes of earthquakes | Tectonic Plate Boundaries | Global Active Earthquake Faults | Drag the handle, or press the up and down arrow keys on it, to change the drawing order.
+
+=== 09-layer-menu.png — The first layer's options (three dots) opened.
+[layersPanel] Map layers | × | Turn layers on and off. Bookmarks remember these settings. | Earthquakes (Last 30 Days) | Historic Major Earthquakes | Other causes of earthquakes | Tectonic Plate Boundaries | Global Active Earthquake Faults | Drag the handle, or press the up and down arrow keys on it, to change the drawing order.
+
+=== 10-layer-filter.png — The layer's Filter tool chosen.
+[filterPanel] Historic Major Earthquakes | Filter | × | Show features where | Clear all | Histogram | Add new | Showing all 949 features | Apply | Cancel
+
+=== 11-layer-table.png — Back in Map layers, the layer's table opened.
+[layersPanel] Map layers | × | Turn layers on and off. Bookmarks remember these settings. | Earthquakes (Last 30 Days) | Historic Major Earthquakes | Other causes of earthquakes | Tectonic Plate Boundaries | Global Active Earthquake Faults | Drag the handle, or press the up and down arrow keys on it, to change the drawing order.
+[tableDock] Table: Historic Major Earthquakes | ×
+
+=== 12-tool-legend.png — Legend clicked.
+[legendPanel] Legend | ×
+
+=== 13-tool-add.png — Add layer clicked.
+[addModal] Add layer | Add a layer to explore it in the map view. | × | School Atlas layers | Your own data | Search | Categories | Categories | Lessons | 5 | layers | Civics and Government | 2 | layers | Earth Science | 19 | layers | Human Geography | 25 | layers | Life and Environmental Science | 4 | layers | Physical Science | 28 | layers | Real-Time Data | 4 | layers | United States Geography | 5 | layers | United States History | 14 | layers | World Geography | 10 | layers | 67 layers | 1763 Proclamation Line | This line was a legal division between British colonial settlement and Indigenous land. In 1763, King George III of Britain declared that British colonists should not settle in lands west of the Appalachian Mountains. The proclamation was supposed to end conflicts between colonists and indigenous groups on lands claimed by the British. | Add layer | Layer's description | 1988 Yellowstone Wildfire Perimeters | In 1988, Yellowstone National Park saw 51 wildfires (9 human caused, 42 lightning triggered) occur within the park. Approximately 63 percent of the park burned and about $120 million (USD) was spent fighting the fires. | Add layer | Layer's description | American Indian Reservations | American Indian Reservations are land reserved for Native American tribes through agreements with the United States government. | Add layer | Layer's description | Annual Average Temperature | Explore Earth’s mean surface air temperature averaged from 1981 to 2010 using data from climatologies at high resolution for the Earth’s land surface areas (CHELSA). | Add layer | Layer's description | Average Annual Precipitation | Use this map layer from the Swiss Federal Institute for Forest, Snow, and Landscape Research WSL to visualize the average (1981-2010) annual precipitation (mm) arou
+
+=== 14-csv-dropped.png — A small spreadsheet (parks.csv: Place, Latitude, Longitude, Visitors; 4 rows) dragged onto the map.
+[dataPanel] Looks good. Here's how we'll map it. | × | Found 4 points · 1 number columns, 1 category columns. | Swap latitude and longitude | MAP STYLE | 📍 | Locations | 🏷️ | By type | 📏 | By size | 💠 | Colour & size | 🎨 | Type & size | 🥧 | Pie charts | Type & size — e.g. species as colour, height as size | COLUMNS | Colour points by | Place | Size points by | Visitors | Label points with | None | Place | Visitors | POINTS | Shape | ● | ■ | ◆ | ▲ | Size | 12 px | Each point coloured by Place, sized by Visitors. | Live preview: the map updates as you change options. | Cancel | Add to map
+
+=== 15-csv-added.png — The panel's main (primary) button pressed to add it.
+
+
+=== 16-tool-measure.png — Measure clicked.
+[measurePanel] Measure | × | Distance | Area | Coordinates | Clear | Units | km | mi | Choose a tool, then click on the map. Double-click to finish.
+
+=== measure-distance FAILED: Page.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for locator("#mDist")
+    - locator resolved to <button id="mDist" class="btn" type="button" aria-pressed="false" data-i18n="distance">Distance</button>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+
+=== 17-tool-profile.png — Elevation clicked.
+[profilePanel] Elevation profile | Elevation data. Sources: Vantor, Airbus DS, USGS, NGA, NASA, CGIAR, GEBCO, N Robinson, NCEAS, NLS, OS, NMA, Geodatastyrelsen and the GIS User Community | × | Click the map for each point of a line and double-click to finish, or click a line already on the map. | Place along the line. The arrow keys move along it. | km | mi | Click the map for each point of a line and double-click to finish, or click a line already on the map.
+
+=== 18-profile-drawn.png — Three points clicked on the map (the last a double-click): the profile.
+[profilePanel] Elevation profile | Elevation data. Sources: Vantor, Airbus DS, USGS, NGA, NASA, CGIAR, GEBCO, N Robinson, NCEAS, NLS, OS, NMA, Geodatastyrelsen and the GIS User Community | × | 5,000 ft | 7,500 ft | 10,000 ft | 0 mi | 20 mi | 40 mi | 60 mi | 80 mi | 100 mi | Place along the line. The arrow keys move along it. | Length | 120 mi | Highest | 10,607 ft | Lowest | 3,950 ft | Vertical exaggeration | ×6.4 | Total climb and descent | for lines up to 31 mi | km | mi | Undo point | New profile | The line is 120 mi long. Its highest point is 10,607 ft and its lowest 3,950 ft. Heights are drawn 6.4 times as tall as distances.
+
+=== 19-profile-hover.png — The pointer moved over the profile chart.
+[profilePanel] Elevation profile | Elevation data. Sources: Vantor, Airbus DS, USGS, NGA, NASA, CGIAR, GEBCO, N Robinson, NCEAS, NLS, OS, NMA, Geodatastyrelsen and the GIS User Community | × | 5,000 ft | 7,500 ft | 10,000 ft | 0 mi | 20 mi | 40 mi | 60 mi | 80 mi | 100 mi | 59 mi along: 7,985 ft | Place along the line. The arrow keys move along it. | Length | 120 mi | Highest | 10,607 ft | Lowest | 3,950 ft | Vertical exaggeration | ×6.4 | Total climb and descent | for lines up to 31 mi | km | mi | Undo point | New profile | The line is 120 mi long. Its highest point is 10,607 ft and its lowest 3,950 ft. Heights are drawn 6.4 times as tall as distances.
+
+=== 20-tool-sketch.png — Sketch clicked.
+[sketchPanel] Sketch | × | Choose a drawing tool on the right of the map, or select a sketch to change it. | Go to the drawing tools
+
+=== 21-tool-bookmarks.png — Bookmarks clicked.
+[bookmarksPanel] Bookmarks | × | Global view | ✎ | + Add bookmark
+
+=== 22-to-3d.png — 3D clicked (shown 45 seconds later; this test machine has no graphics card, so 3D is slow to draw here).
+
+
+=== 23-back-2d.png — 2D clicked.
+
+
+=== 24-tool-save.png — Save clicked.
+[savePanel] Save | × | Save map | Save your map as an .amap file, wherever you choose. No sign-in needed. After the first save, Save updates the same file. | Save as… | Save a copy with a new name, or in another place. | Screenshot | Save a picture of the map as it is now. | Print | Print the map, or save it as a PDF. | Sign in | Sign in to save maps to your ArcGIS Online account.
+
+=== 25-save-pressed.png — The Save tile pressed (this browser has no 'choose where' dialog in the test, so the app asks for a name).
+[savePanel] Save | × | Save map | Save your map as an .amap file, wherever you choose. No sign-in needed. After the first save, Save updates the same file. | Save as… | Save a copy with a new name, or in another place. | Screenshot | Save a picture of the map as it is now. | Print | Print the map, or save it as a PDF. | Sign in | Sign in to save maps to your ArcGIS Online account.
+[nameModal] Save your map | File name | .amap | This browser saves files to its Downloads folder. To choose a folder, use Chrome or Edge. | Cancel | Save
+
+=== 26-sign-in.png — Sign in (top right) clicked.
+[savePanel] Save | × | Save map | Save your map as an .amap file, wherever you choose. No sign-in needed. After the first save, Save updates the same file. | Save as… | Save a copy with a new name, or in another place. | Screenshot | Save a picture of the map as it is now. | Print | Print the map, or save it as a PDF. | Sign in | Sign in to save maps to your ArcGIS Online account.
+[signInModal] Sign in with ArcGIS | Use your ArcGIS account to sign in. Signing in lets you save maps to your ArcGIS Online account. | You don't need an account to use the app or to save maps on this device. | Cancel | Continue
+
+=== 27-open-another-unsaved.png — With unsaved changes, another map chosen in Open map.
+[savePanel] Save | × | Save map | Save your map as an .amap file, wherever you choose. No sign-in needed. After the first save, Save updates the same file. | Save as… | Save a copy with a new name, or in another place. | Screenshot | Save a picture of the map as it is now. | Print | Print the map, or save it as a PDF. | Sign in | Sign in to save maps to your ArcGIS Online account.
+[openModal] Open map | Select a map to open and explore it in the map view. | × | School Atlas maps | My map files | Search | Categories | Categories | Lessons | 22 | maps | Civics and Government | 4 | maps | Earth Science | 39 | maps | Human Geography | 47 | maps | Life and Environmental Science | 11 | maps | National Geographic Explorers | 8 | maps | Physical Science | 42 | maps | Real-Time Data | 5 | maps | Sustainable Development Goals | 4 | maps | United States Geography | 7 | maps | United States History | 22 | maps | World Geography | 30 | maps | Other | 3 | maps | All | 11 | 2D maps | 11 | 3D maps | 0 | 11 of 121 maps match | Exploring earthquakes and their causes (Guided Lesson) | What causes earthquakes, and how do they affect people? | Share | Open map | Map's description | Major Earthquakes (1950-2023) | Explore major (magnitude of 7.0 or higher) global earthquakes between 1950-2023 filtered from the United States Geological Survey (USGS) Earthquake Catalog. | Share | Open map | Map's description | Real-Time Earthquakes | Explore the earthquakes occurring in the last 30 days and the extent of their shaking with this map layer. | Share | Open map | Map's description | Real-Time Earthquakes with chart | Explore the earthquakes occurring in the last 30 days and the extent of their shaking with this map layer. | Share | Open map | Map's description | Elevation and Depth | This world elevation layer provides a colored elevation map of land and oceans for use in visualization. | Share | Open map | Map's description | Global Tectonic Plates | Earth's lithosphere is composed of plates floating on the mantle. The motion of these plates causes earthquakes, volcanoes, and events such as mountain-building or trench formation. | Share | Open map | Map's description | Investigating v
+
+HOSTS contacted: basemaps.arcgis.com, cdn.arcgis.com, elevation3d.arcgis.com, fly.maptiles.arcgis.com, js.arcgis.com, localhost, rhvpkkiftonktxq3.svcs9.arcgis.com, services.arcgis.com, services.arcgisonline.com, services9.arcgis.com, static.arcgis.com, tiles.arcgis.com, www.arcgis.com
+STORAGE: {"local": [], "session": [], "idb": [], "cookies": ""}
