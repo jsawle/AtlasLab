@@ -1,20 +1,20 @@
 // ============================================================ Toast, panels, modals (keyboard accessible)
-import "./session.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.43";
-import { $, cfg, F, t } from "./config.js?v=5.0.0-beta.43";
-import { need } from "./sdk.js?v=5.0.0-beta.43";
-import { syncToolsToggles } from "./views.js?v=5.0.0-beta.43";
-import { layoutBottom } from "./session.js?v=5.0.0-beta.43";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.43";
-import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.43";
-import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.43";
-import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.43";
-import { endFilter } from "./filter-panel.js?v=5.0.0-beta.43";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.43";
-import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.43";
-import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.43";
-import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.43";
-import { renderVersions } from "./versions.js?v=5.0.0-beta.43";
+import "./session.js?v=5.0.0-beta.44";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.44";
+import { $, cfg, F, t } from "./config.js?v=5.0.0-beta.44";
+import { need } from "./sdk.js?v=5.0.0-beta.44";
+import { syncToolsToggles } from "./views.js?v=5.0.0-beta.44";
+import { layoutBottom } from "./session.js?v=5.0.0-beta.44";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.44";
+import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.44";
+import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.44";
+import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.44";
+import { endFilter } from "./filter-panel.js?v=5.0.0-beta.44";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.44";
+import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.44";
+import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.44";
+import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.44";
+import { renderVersions } from "./versions.js?v=5.0.0-beta.44";
 late.toast = toast;   // for the start-up files, which run before this one (see late in state.js)
 
 let toastTimer = 0;
@@ -33,9 +33,9 @@ export function saveNotes(toFile) {
 }
 
 const PANELS = { data: "dataPanel", layers: "layersPanel", legend: "legendPanel", basemaps: "basemapsPanel",
-  measure: "measurePanel", profile: "profilePanel", sketch: "sketchPanel", bookmarks: "bookmarksPanel", save: "savePanel", about: "aboutPanel", filter: "filterPanel" };
+  measure: "measurePanel", profile: "profilePanel", sketch: "sketchPanel", bookmarks: "bookmarksPanel", save: "savePanel", about: "aboutPanel", filter: "filterPanel", questions: "questionsPanel" };
 const TRIGGERS = { data: "tool-add", layers: "tool-layers", legend: "tool-legend", basemaps: "tool-basemaps",
-  measure: "tool-measure", profile: "tool-measure", sketch: "tool-sketch", bookmarks: "tool-bookmarks", save: "tool-save", about: "verBtn", filter: "tool-layers" };
+  measure: "tool-measure", profile: "tool-measure", sketch: "tool-sketch", bookmarks: "tool-bookmarks", save: "tool-save", about: "verBtn", filter: "tool-layers", questions: "questionsBtn" };
 // Elevation profile is a toolbar tool of its own, beside Measure, as in MapMaker today. A version that would rather
 // keep it inside Measure's menu sets "elevationTool": "menu" in its settings.
 const ELEV_IN_TOOLBAR = cfg.elevationTool !== "menu" && F.elevationProfile !== false;

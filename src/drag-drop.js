@@ -1,10 +1,10 @@
 // ============================================================ Drag and drop
-import "./csv-import.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
-import { $, F, S } from "./config.js?v=5.0.0-beta.43";
-import { bindOpened, confirmDiscard } from "./session.js?v=5.0.0-beta.43";
-import { toast } from "./ui.js?v=5.0.0-beta.43";
-import { handleCsvText } from "./csv-import.js?v=5.0.0-beta.43";
-import { openDocText } from "./local-files.js?v=5.0.0-beta.43";
+import "./csv-import.js?v=5.0.0-beta.44";   // first: keeps the files running in the order they were written in (see app.js)
+import { $, F, S } from "./config.js?v=5.0.0-beta.44";
+import { bindOpened, confirmDiscard } from "./session.js?v=5.0.0-beta.44";
+import { toast } from "./ui.js?v=5.0.0-beta.44";
+import { handleCsvText } from "./csv-import.js?v=5.0.0-beta.44";
+import { openDocText } from "./local-files.js?v=5.0.0-beta.44";
 
 const dtHasFiles = (e) => !!(e.dataTransfer && e.dataTransfer.types && [...e.dataTransfer.types].includes("Files"));
 let dropDepth = 0;

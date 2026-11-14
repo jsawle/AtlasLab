@@ -1,8 +1,8 @@
 // ============================================================ State
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.43";
-import { state, late } from "./state.js?v=5.0.0-beta.43";
-import { $, S, t } from "./config.js?v=5.0.0-beta.43";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.43";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.44";
+import { state, late } from "./state.js?v=5.0.0-beta.44";
+import { $, S, t } from "./config.js?v=5.0.0-beta.44";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.44";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)

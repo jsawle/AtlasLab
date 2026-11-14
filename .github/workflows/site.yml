@@ -40,6 +40,8 @@ jobs:
         run: node tests/pairs.test.mjs
       - name: Sketch layers in the saved file
         run: node tests/sketch-layers.test.mjs
+      - name: Lesson questions tests
+        run: node tests/questions.test.mjs
       - name: How the app's files fit together (versions, start-up files, the fixed order)
         run: node tests/structure.test.mjs
       - name: The app's code parses
@@ -106,6 +108,7 @@ jobs:
           - live-touch.py --3d
           - live-pinch.py
           - live-lock.py
+          - live-tips-questions.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

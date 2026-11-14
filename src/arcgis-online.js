@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.43";
-import { state, late } from "./state.js?v=5.0.0-beta.43";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.43";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.43";
-import { activeMap } from "./views.js?v=5.0.0-beta.43";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.43";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.43";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.43";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.43";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.43";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.43";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.43";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.43";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.43";
+import "./print.js?v=5.0.0-beta.44";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.44";
+import { state, late } from "./state.js?v=5.0.0-beta.44";
+import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.44";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.44";
+import { activeMap } from "./views.js?v=5.0.0-beta.44";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.44";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.44";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.44";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.44";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.44";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.44";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.44";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.44";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.44";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -114,10 +114,14 @@ var TILE_TIPS = {   // var: the config step can ask for the tips before this lin
 function refreshTileTips() { if (!TILE_TIPS) return; for (const [id, f] of Object.entries(TILE_TIPS)) { const d = $("tip-" + id); if (d) d.textContent = f(); } }
 let tipFor = null, tipHide = 0;
 function showTileTip(tile) {
-  clearTimeout(tipHide);
-  const tip = $("tileTip"), f = TILE_TIPS[tile.id];
+  const f = TILE_TIPS[tile.id];
   if (!f || tile.hidden) return;
-  tip.textContent = f(); tip.hidden = false; tipFor = tile;
+  placeTip(tile, f());
+}
+function placeTip(tile, text) {
+  clearTimeout(tipHide);
+  const tip = $("tileTip");
+  tip.textContent = text; tip.hidden = false; tipFor = tile;
   const r = tile.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, gap = 8;
   const below = r.bottom + gap + h <= window.innerHeight - 4 || r.top - gap - h < 4;
   const left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2));
@@ -133,6 +137,39 @@ for (const id of Object.keys(TILE_TIPS)) {
   tile.addEventListener("focus", () => { if (tile.matches(":focus-visible")) showTileTip(tile); });
   tile.addEventListener("blur", () => hideTileTip(true));
   tile.addEventListener("click", () => hideTileTip(true));
+}
+// What each toolbar tool does, in its tooltip (lab: features.toolTips, 1.0). The tip shows when the pointer rests on a
+// tool for about a second, or when the tool is reached by keyboard: a quick click never sees it. The Tips switch beside
+// the version button turns them off (and back on), remembered in this browser. Off, a tool's tooltip is its name, as before.
+const TOOL_TIPS = { "tool-basemaps": "tipBasemaps", "tool-open": "tipOpen", "tool-layers": "tipLayers", "tool-add": "tipAdd", "tool-legend": "tipLegend", "tool-measure": "tipMeasure",
+  "tool-profile": "tipProfile", "tool-sketch": "tipSketch", tg2d: "tip2d", tg3d: "tip3d", "tool-bookmarks": "tipBookmarks", "tool-save": "tipSaveTool" };
+const TIP_WAIT = 900, TIPS_KEY = "atlas.tips";
+if (F.toolTips) {
+  let tipsOn = cfg.tipsStart !== "off", wait = 0;
+  try { const kept = localStorage.getItem(TIPS_KEY); if (kept === "on" || kept === "off") tipsOn = kept === "on"; } catch (e) { /* no storage: the config's choice stands */ }
+  const btn = $("tipsBtn"), names = new Map();
+  const hold = document.createElement("div"); hold.hidden = true; document.body.appendChild(hold);      // each tip as text, for screen readers (aria-describedby)
+  const tools = Object.keys(TOOL_TIPS).map((id) => $(id)).filter(Boolean);
+  const apply = () => {
+    btn.hidden = false; btn.textContent = tipsOn ? S.tipsOn : S.tipsOff; btn.setAttribute("aria-pressed", String(tipsOn)); btn.setAttribute("aria-label", S.tipsSwitch); btn.title = S.tipsSwitch;
+    for (const el of tools) {
+      let d = $("tip-" + el.id); if (!d) { d = document.createElement("span"); d.id = "tip-" + el.id; hold.appendChild(d); }
+      d.textContent = S[TOOL_TIPS[el.id]];
+      if (tipsOn) el.setAttribute("aria-describedby", d.id); else { el.removeAttribute("aria-describedby"); if (names.has(el) && el.getAttribute("aria-disabled") !== "true") el.title = names.get(el); }
+    }
+    if (!tipsOn) { clearTimeout(wait); hideTileTip(true); }
+  };
+  const usable = (el) => tipsOn && !el.hidden && el.getAttribute("aria-disabled") !== "true";      // a tool that is unavailable keeps its own tooltip, which says why
+  for (const el of tools) {
+    const show = () => { if (usable(el)) placeTip(el, S[TOOL_TIPS[el.id]]); };
+    el.addEventListener("mouseenter", () => { if (!usable(el)) return; if (el.title) { names.set(el, el.title); el.removeAttribute("title"); } clearTimeout(wait); wait = setTimeout(show, TIP_WAIT); });
+    el.addEventListener("mouseleave", () => { clearTimeout(wait); hideTileTip(false); });
+    el.addEventListener("focus", () => { if (el.matches(":focus-visible")) show(); });
+    el.addEventListener("blur", () => { clearTimeout(wait); hideTileTip(true); });
+    el.addEventListener("click", () => { clearTimeout(wait); hideTileTip(true); });
+  }
+  btn.addEventListener("click", () => { tipsOn = !tipsOn; try { localStorage.setItem(TIPS_KEY, tipsOn ? "on" : "off"); } catch (e) { /* not kept: it lasts until the page is closed */ } apply(); });
+  apply();
 }
 $("tileTip").addEventListener("mouseenter", () => clearTimeout(tipHide));
 $("tileTip").addEventListener("mouseleave", () => hideTileTip(false));

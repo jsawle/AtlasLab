@@ -382,6 +382,11 @@
     .tile-icon{ width:44px; height:44px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:#eef0f2; color:#5b5b5b; }
     .tile.primary .tile-icon{ background:var(--brand); color:var(--brand-ink); }
     .tile-icon svg{ width:24px; height:24px; }
+    .tips-btn{ font-family:inherit; font-weight:600; }
+    .q-btn{ flex:0 0 auto; margin-left:6px; padding:5px 12px; border:1.5px solid var(--brand, #0b5cab); border-radius:999px; background:#fff; color:var(--brand, #0b5cab); font:600 14px/1.2 inherit; cursor:pointer; }
+    .q-btn[aria-expanded="true"]{ background:var(--brand, #0b5cab); color:#fff; }
+    .q-lead{ margin:0 0 10px; font-size:17px; font-weight:600; line-height:1.35; }
+    .q-list{ margin:0 0 12px; padding-left:24px; font-size:16px; line-height:1.45; } .q-list li{ margin-bottom:8px; }
     .tile-tip{ position:fixed; z-index:1000; max-width:270px; background:#2b2b2b; color:#fff; font-size:13px; line-height:1.4; padding:8px 11px; border-radius:6px; box-shadow:0 3px 12px rgba(0,0,0,.25); }
     .tile-tip::after{ content:""; position:absolute; left:var(--arrow-x,50%); width:10px; height:10px; background:#2b2b2b; transform:translateX(-50%) rotate(45deg); }
     .tile-tip[data-side="below"]::after{ top:-5px; } .tile-tip[data-side="above"]::after{ bottom:-5px; }
@@ -673,6 +678,7 @@
         <button class="icon-btn" id="infoBtn" type="button" data-i18n-aria="aboutMap" data-i18n-title="aboutMap">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
         </button>
+        <button class="q-btn" id="questionsBtn" type="button" data-panel="questions" aria-expanded="false" aria-controls="questionsPanel" hidden data-i18n="questions">Questions</button>
       </div>
       <nav class="hdr-links" id="hdrLinks" aria-label="Help"></nav>
       <div class="hdr-partners" id="hdrPartners"></div>
@@ -693,7 +699,7 @@
     <main class="map-wrap" id="mapWrap">
       <div id="viewDiv"></div>
       <div id="sceneDiv" hidden></div>
-      <div class="corner"><button class="ver-btn" id="verBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">v1</button></div>
+      <div class="corner"><button class="ver-btn tips-btn" id="tipsBtn" type="button" aria-pressed="true" hidden></button><button class="ver-btn" id="verBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">v1</button></div>
 
       <nav class="toolbar" id="toolbar" tabindex="-1" data-i18n-aria="tools">
         <button class="tool" type="button" id="tool-basemaps" data-panel="basemaps" aria-expanded="false" aria-controls="basemapsPanel" data-feature="basemaps" data-i18n-title="basemaps"><span class="ti" data-icon="basemap" aria-hidden="true"></span><span class="tl" data-i18n="basemaps">Basemaps</span></button>
@@ -768,6 +774,12 @@
         <div class="panel-foot"><calcite-button id="filterApply" data-i18n="filterApply">Apply</calcite-button><calcite-button id="filterCancel" appearance="outline" data-i18n="cancel">Cancel</calcite-button></div>
       </section>
 
+      <section class="panel" id="questionsPanel" hidden aria-labelledby="questionsH">
+        <div class="panel-head"><h2 id="questionsH" tabindex="-1" data-i18n="questions">Questions</h2><button class="x-btn" type="button" data-close data-i18n-aria="close">&times;</button></div>
+        <div class="panel-body"><p class="q-lead" id="questionsLead"></p><ol class="q-list" id="questionsList"></ol>
+          <p class="note" data-i18n="questionsNote">From this map's description.</p>
+          <button class="btn" type="button" id="questionsMore" data-i18n="aboutMap">About this map</button></div>
+      </section>
       <section class="panel" id="legendPanel" hidden aria-labelledby="legendH">
         <div class="panel-head"><h2 id="legendH" tabindex="-1" data-i18n="legend">Legend</h2><button class="x-btn" type="button" data-close data-i18n-aria="close">&times;</button></div>
         <div class="panel-body"><div id="legendBody"></div></div>
@@ -1068,6 +1080,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.43"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.44"></script>
 </body>
 </html>
