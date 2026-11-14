@@ -1,5 +1,5 @@
 {
-  "configVersion": 15,
+  "configVersion": 16,
   "extends": "mapmaker",
-  "features": {}
+  "features": { "profileFish": true }
 }
