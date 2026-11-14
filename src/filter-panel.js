@@ -5,17 +5,17 @@
 // The filter is saved as the layer's definitionExpression (lib/filter.js), which is how Map Viewer saves one.
 // While the panel is open the map previews the conditions through the layer view (no data is fetched again as a
 // slider moves), and the layer itself shows everything, so the histogram, value lists and counts cover all the data.
-import "./layers-panel.js?v=5.0.0-beta.46";   // first: keeps the files running in the order they were written in (see app.js)
-import { MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.46";
-import { state } from "./state.js?v=5.0.0-beta.46";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.46";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.46";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.46";
-import { isSketch } from "./views.js?v=5.0.0-beta.46";
-import { markDirty } from "./session.js?v=5.0.0-beta.46";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.46";
-import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.46";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.46";
+import "./layers-panel.js?v=5.0.0-beta.47";   // first: keeps the files running in the order they were written in (see app.js)
+import { MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.47";
+import { state } from "./state.js?v=5.0.0-beta.47";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.47";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.47";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.47";
+import { isSketch } from "./views.js?v=5.0.0-beta.47";
+import { markDirty } from "./session.js?v=5.0.0-beta.47";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.47";
+import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.47";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.47";
 
 const FILTER_ON = F.filter !== false;
 let filterState = null;

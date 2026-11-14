@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.46";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.46";
+import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.47";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.47";
 
-export const APP_VERSION = "5.0.0-beta.46";
+export const APP_VERSION = "5.0.0-beta.47";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
@@ -22,7 +22,7 @@ export const reduceMotion = window.matchMedia && window.matchMedia("(prefers-red
 // ============================================================ Config
 const DEFAULT_CONFIG = {
   configVersion: 1,
-  appName: "School Atlas",
+  appName: "AtlasLab",
   locale: "en", dir: "ltr",
   logo: { url: "", compactUrl: "", alt: "", link: "", showName: false },
   showAppName: true,       // false: no name in the header (the browser tab still uses appName)
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG = {
   unitsSwitch: true,        // the km / mi switch in Measure and Elevation; the choice is remembered on the device
   scalebar: "dual",
   disclaimer: "",
-  signIn: { clientId: "", popup: true, headerButton: true, onboardingTitle: "", onboardingHtml: "" },
+  signIn: { clientId: "", popup: true, headerButton: false,   /* 5.0.0-beta.47: no Sign in button in the header unless a config asks for it; sign-in is in the Save panel */ onboardingTitle: "", onboardingHtml: "" },
   agolTags: ["school map"],
   csvMaxRows: 1000,
   features: { openMap: true, addLayer: true, csv: true, layers: true, legend: true, basemaps: true, measure: true, sketch: true,
