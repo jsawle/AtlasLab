@@ -1,4 +1,4 @@
-"""Checks the lab feature of Atlas 5.0.0-beta.46: a Tools button that hides the toolbar to give the map the whole screen.
+"""Checks Hide the toolbar (5.0.0-beta.46 in the lab; 1.1 in the main app from beta.49): a Hide tools / Show tools button that hides the toolbar to give the map the whole screen.
 
 Run:  python3 tests/live-toolbar-hide.py [--shots DIR] [--proxy URL]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
@@ -13,7 +13,7 @@ READY = "() => { const m = document.querySelector('arcgis-map'); return !!(m && 
 STATE = """() => { const vis = (e) => !!e && e.getBoundingClientRect().width > 0; const b = [...document.querySelectorAll('.tools-toggle')].find(vis);
   const stack = [...document.querySelectorAll('.ll-stack')].find(vis), wrap = document.getElementById('mapWrap').getBoundingClientRect();
   return { button: !!b, text: b ? b.innerText.trim() : '', label: b ? b.getAttribute('aria-label') : '', expanded: b ? b.getAttribute('aria-expanded') : '', w: b ? Math.round(b.getBoundingClientRect().width) : 0, h: b ? Math.round(b.getBoundingClientRect().height) : 0,
-    toolbar: vis(document.getElementById('tool-save')), gap: stack ? Math.round(wrap.bottom - stack.getBoundingClientRect().bottom) : -1 }; }"""
+    toolbar: vis(document.getElementById('tool-save')), count: document.querySelectorAll('.tools-toggle').length, right: !!b && b.getBoundingClientRect().left > wrap.left + wrap.width * 0.6 && !!b.closest('.corner'), gap: stack ? Math.round(wrap.bottom - stack.getBoundingClientRect().bottom) : -1 }; }"""
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -36,21 +36,18 @@ def main():
         browser = csp_shim.launch(p, launch)
         page = browser.new_page(viewport={"width": 1366, "height": 768})
         page.goto(f"{base}/index.html"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(2500)
-        s = page.evaluate(STATE)
-        check(not s["button"] and s["toolbar"], "the default config has no Tools button: the toolbar is always there")
-        page.goto(f"{base}/index.html?config=lab"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(2500)
         s0 = page.evaluate(STATE)
-        check(s0["button"] and s0["text"] == "Tools" and s0["expanded"] == "true" and s0["label"] == "Hide map tools" and s0["toolbar"], "lab: a Tools button, with its word, sits at the bottom left; the toolbar is showing")
+        check(s0["button"] and s0["text"] == "Hide tools" and s0["toolbar"] and s0["right"] and s0["count"] == 1, "one button reading Hide tools sits at the bottom right, beside the version; the toolbar is showing")
         check(s0["h"] >= 24 and s0["w"] >= 44, "it is big enough to press (%d x %d pixels)" % (s0["w"], s0["h"]))
         page.click(".tools-toggle >> visible=true"); page.wait_for_timeout(700); s1 = page.evaluate(STATE)
-        check(not s1["toolbar"] and s1["button"] and s1["expanded"] == "false" and s1["label"] == "Show map tools", "pressing it hides the toolbar; the button stays and now reads Show map tools to a screen reader")
+        check(not s1["toolbar"] and s1["button"] and s1["text"] == "Show tools" and s1["right"], "pressing it hides the toolbar; the button stays and now reads Show tools")
         page.screenshot(path=str(shots / "toolbar-hidden.png"))
         page.keyboard.press("Tab"); page.keyboard.press("Shift+Tab"); page.keyboard.press("Enter"); page.wait_for_timeout(700); s2 = page.evaluate(STATE)
-        check(s2["toolbar"] and s2["expanded"] == "true", "pressing it again (here by keyboard) brings the toolbar back")
+        check(s2["toolbar"] and s2["text"] == "Hide tools", "pressing it again (here by keyboard) brings the toolbar back")
         page.click(".tools-toggle >> visible=true"); page.wait_for_timeout(400)
         page.evaluate("() => document.getElementById('tool-profile').click()"); page.wait_for_timeout(1500); page.evaluate("() => { const x = document.querySelector('#profilePanel .x-btn'); if (x) x.click(); }"); page.wait_for_timeout(800)
         s3 = page.evaluate(STATE)
-        check(not s3["toolbar"] and s3["expanded"] == "false", "hidden stays hidden after the elevation chart has been opened and closed")
+        check(not s3["toolbar"] and s3["text"] == "Show tools", "hidden stays hidden after the elevation chart has been opened and closed")
         page.click(".tools-toggle >> visible=true"); page.wait_for_timeout(500)
         check(page.evaluate(STATE)["toolbar"], "and the button still brings it back")
         browser.close()

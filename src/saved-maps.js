@@ -2,13 +2,13 @@
 // Every save adds the map to a list kept in this browser (lib/recent.js), newest first. In Chrome and Edge the list keeps
 // a handle to the file, so Open reads the file itself and Save goes on writing to it; browsers that can only download
 // (Safari, Firefox) keep a copy of the saved map instead, as they can't open a file again by themselves.
-import "./local-files.js?v=5.0.0-beta.48";   // first: keeps the files running in the order they were written in (see app.js)
-import { makeEntry, openRecentStore } from "../lib/recent.js?v=5.0.0-beta.48";
-import { state } from "./state.js?v=5.0.0-beta.48";
-import { APP_VERSION, $, cfgName, cfg, S, t } from "./config.js?v=5.0.0-beta.48";
-import { bindOpened, confirmDiscard, currentTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.48";
-import { toast } from "./ui.js?v=5.0.0-beta.48";
-import { openDocText } from "./local-files.js?v=5.0.0-beta.48";
+import "./local-files.js?v=5.0.0-beta.49";   // first: keeps the files running in the order they were written in (see app.js)
+import { makeEntry, openRecentStore } from "../lib/recent.js?v=5.0.0-beta.49";
+import { state } from "./state.js?v=5.0.0-beta.49";
+import { APP_VERSION, $, cfgName, cfg, S, t } from "./config.js?v=5.0.0-beta.49";
+import { bindOpened, confirmDiscard, currentTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.49";
+import { toast } from "./ui.js?v=5.0.0-beta.49";
+import { openDocText } from "./local-files.js?v=5.0.0-beta.49";
 
 let recentStore = null, recentFailed = false, savedSeq = 0;
 async function recentDb() {

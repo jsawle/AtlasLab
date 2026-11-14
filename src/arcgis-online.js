@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.48";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.48";
-import { state, late } from "./state.js?v=5.0.0-beta.48";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.48";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.48";
-import { activeMap } from "./views.js?v=5.0.0-beta.48";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.48";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.48";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.48";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.48";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.48";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.48";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.48";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.48";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.48";
+import "./print.js?v=5.0.0-beta.49";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.49";
+import { state, late } from "./state.js?v=5.0.0-beta.49";
+import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.49";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.49";
+import { activeMap } from "./views.js?v=5.0.0-beta.49";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.49";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.49";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.49";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.49";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.49";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.49";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.49";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.49";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.49";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -153,7 +153,8 @@ const TOOL_TIP_CLASSES = { ".tools-toggle": F.hideToolbar ? "tipShowToolsFull" :
 const TIP_WAIT = 900, TIPS_KEY = "atlas.tips";
 if (F.toolTips) {
   let tipsOn = cfg.tipsStart !== "off", wait = 0, over = null;
-  try { const kept = localStorage.getItem(TIPS_KEY); if (kept === "on" || kept === "off") tipsOn = kept === "on"; } catch (e) { /* no storage: the config's choice stands */ }
+  // 5.0.0-beta.49 (Tool tips 1.2): the Tips switch is only where a config asks for it (features.tipsSwitch); without it the tips are on.
+  if (F.tipsSwitch) try { const kept = localStorage.getItem(TIPS_KEY); if (kept === "on" || kept === "off") tipsOn = kept === "on"; } catch (e) { /* no storage: the config's choice stands */ }
   const btn = $("tipsBtn");
   const hold = document.createElement("div"); hold.hidden = true; document.body.appendChild(hold);      // each tip as text, for screen readers (aria-describedby)
   for (const k of Object.keys(S)) if (/^tip[A-Z0-9]/.test(k) && typeof S[k] === "string") { const d = document.createElement("span"); d.id = "tipk-" + k; d.textContent = S[k]; hold.appendChild(d); }
@@ -177,7 +178,7 @@ if (F.toolTips) {
   document.addEventListener("focusout", (e) => { if (e.target.closest && e.target.closest("[data-tip-key]")) stop(true); });
   document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("[data-tip-key]")) stop(true); }, true);
   const apply = () => {
-    btn.hidden = false; btn.textContent = tipsOn ? S.tipsOn : S.tipsOff; btn.setAttribute("aria-pressed", String(tipsOn)); btn.setAttribute("aria-label", S.tipsSwitch); btn.title = S.tipsSwitch;
+    btn.hidden = !F.tipsSwitch; btn.textContent = tipsOn ? S.tipsOn : S.tipsOff; btn.setAttribute("aria-pressed", String(tipsOn)); btn.setAttribute("aria-label", S.tipsSwitch); btn.title = S.tipsSwitch;
     if (!tipsOn) { stop(true); document.querySelectorAll("[data-tip-name]").forEach((el) => { if (!el.title && el.getAttribute("aria-disabled") !== "true") el.title = el.dataset.tipName; delete el.dataset.tipName; }); }
   };
   btn.addEventListener("click", () => { tipsOn = !tipsOn; try { localStorage.setItem(TIPS_KEY, tipsOn ? "on" : "off"); } catch (e) { /* not kept: it lasts until the page is closed */ } apply(); });
