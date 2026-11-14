@@ -1,18 +1,19 @@
 // ============================================================ Legend, basemaps, measure
-import "./sketch.js?v=5.0.0-beta.50";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.50";
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.50";
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.50";
-import { state, late } from "./state.js?v=5.0.0-beta.50";
-import { $, params, cfg, S, t, PORTAL } from "./config.js?v=5.0.0-beta.50";
-import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.50";
-import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.50";
-import { markDirty } from "./session.js?v=5.0.0-beta.50";
-import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.50";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.50";
-import { sketch } from "./sketch.js?v=5.0.0-beta.50";
-import { shownMap } from "./maps.js?v=5.0.0-beta.50";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.50";
+import "./sketch.js?v=5.0.0-beta.51";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.51";
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.51";
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.51";
+import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.51";
+import { state, late } from "./state.js?v=5.0.0-beta.51";
+import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.51";
+import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.51";
+import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.51";
+import { markDirty } from "./session.js?v=5.0.0-beta.51";
+import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.51";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.51";
+import { sketch } from "./sketch.js?v=5.0.0-beta.51";
+import { shownMap } from "./maps.js?v=5.0.0-beta.51";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.51";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let legend = null, legendMaking = null, coordWidget = null;
@@ -137,6 +138,7 @@ function setUnits(u, save) {
   if (prof && profActive()) renderProfile();
 }
 document.querySelectorAll(".units-seg button[data-units]").forEach((b) => b.addEventListener("click", () => setUnits(b.dataset.units, true)));
+$("profFish").addEventListener("click", () => { fishOn = !fishOn; renderProfile(); });
 syncUnitsSwitches();
 // Measure: one SDK component for each kind of measurement and each kind of view. It is made when a tool is chosen and
 // taken away when measuring stops. Its own units menu is hidden: the km / mi switch above it sets the units.
@@ -395,6 +397,38 @@ function profStretchText(ve) {
 const SVGNS = "http://www.w3.org/2000/svg";
 function svgEl(tag, attrs, text) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs || {}) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; }
 let profScale = null;
+// Lab (features.profileFish, Fish in the profile 1.0): a few small fish wander at random in the upper water of the chart.
+// Decoration only: hidden from screen readers, never in the way of the pointer, still while a place on the line is being
+// read, and off to begin with where the device asks for less motion. The Fish button turns them on and off.
+const FISH_COLOURS = ["#f08a24", "#f4c430", "#e6edf2", "#ef6f5e", "#f08a24", "#e6edf2"];
+let fishOn = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches), fishRaf = 0;
+function stopFish() { if (fishRaf) cancelAnimationFrame(fishRaf); fishRaf = 0; }
+function startFish(svg, land, under) {
+  stopFish();
+  const btn = $("profFish"); btn.hidden = !(F.profileFish && under); btn.setAttribute("aria-pressed", String(fishOn));
+  if (!F.profileFish || !under || !fishOn) return;
+  const { X, Y, m, w, h } = profScale, x0 = m.l + 8, x1 = m.l + w - 8;
+  const column = waterColumn(prof.pts.map((p) => X(p.d)), prof.pts.map((p) => Y(p.z)), Y(0), m.t + h, { pad: 7, band: Math.max(24, (m.t + h - Y(0)) * 0.45), room: 5 });
+  const fish = spawnFish(Math.max(3, Math.min(6, Math.round(w / 180))), column, x0, x1);
+  if (!fish.length) return;
+  const g = svgEl("g", { class: "prof-fish", "aria-hidden": "true" });
+  for (const f of fish) {
+    f.el = svgEl("g"); const c = FISH_COLOURS[f.kind % FISH_COLOURS.length];
+    f.el.append(svgEl("path", { d: "M-5 0L-10 -3.5V3.5Z", fill: c, stroke: "#1d3c56", "stroke-width": 0.6 }), svgEl("path", { d: "M-6 0Q-1 -4.5 6 0Q-1 4.5 -6 0Z", fill: c, stroke: "#1d3c56", "stroke-width": 0.6 }), svgEl("circle", { cx: 3, cy: -0.8, r: 0.9, fill: "#1d3c56" }));
+    g.appendChild(f.el);
+  }
+  svg.insertBefore(g, land);      // behind the land, so a fish never shows over the sea bed
+  const place = () => { for (const f of fish) f.el.setAttribute("transform", `translate(${f.x.toFixed(1)} ${f.y.toFixed(1)}) scale(${f.vx < 0 ? -1.3 : 1.3} 1.3)`); };
+  place();
+  let last = 0;
+  const tick = (now) => {
+    if (!g.isConnected || !profActive()) { fishRaf = 0; return; }
+    const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
+    if (dt && profAt < 0 && !document.hidden) { for (const f of fish) stepFish(f, dt, column, x0, x1); place(); }
+    fishRaf = requestAnimationFrame(tick);
+  };
+  fishRaf = requestAnimationFrame(tick);
+}
 function renderProfile() {
   if (!prof || !profActive()) return;
   const host = $("profChart"), W = Math.max(320, host.clientWidth), H = Math.max(120, host.clientHeight);
@@ -422,7 +456,8 @@ function renderProfile() {
   }
   if (under) svg.appendChild(svgEl("rect", { x: m.l, y: Y(0), width: w, height: m.t + h - Y(0), fill: "url(#profWater)", class: "prof-water" }));
   const top = prof.pts.map((p, i) => (i ? "L" : "M") + X(p.d).toFixed(1) + " " + Y(p.z).toFixed(1)).join("");
-  svg.appendChild(svgEl("path", { d: top + `L${(m.l + w).toFixed(1)} ${m.t + h}L${m.l} ${m.t + h}Z`, fill: "url(#profEarth)", class: "prof-land" }));
+  const land = svgEl("path", { d: top + `L${(m.l + w).toFixed(1)} ${m.t + h}L${m.l} ${m.t + h}Z`, fill: "url(#profEarth)", class: "prof-land" });
+  svg.appendChild(land);
   svg.appendChild(svgEl("path", { d: top, fill: "none", stroke: "#3a2412", "stroke-width": 1, "stroke-linejoin": "round", class: "prof-top" }));
   if (under) {   // sea level, where the line goes below it
     svg.appendChild(svgEl("line", { x1: m.l, x2: m.l + w, y1: Y(0), y2: Y(0), stroke: "#0b4f8a", "stroke-width": 2, "stroke-dasharray": "7 5", class: "prof-sea" }));
@@ -441,6 +476,7 @@ function renderProfile() {
   g.append(svgEl("line", { id: "profGuide", y1: m.t, y2: m.t + h, stroke: "#1f1f1f", "stroke-width": 1.5 }), svgEl("circle", { id: "profPoint", r: 6, fill: "#fff", stroke: "#c83c00", "stroke-width": 3 }));
   svg.appendChild(g);
   host.replaceChildren(svg);
+  startFish(svg, land, under);
   const tip = document.createElement("div"); tip.className = "prof-tip"; tip.id = "profTip"; tip.hidden = true; host.appendChild(tip);
   // what the chart says, in words, and the figures along the bottom
   const ve = profStretch(prof.total, w, lo, hi, h), veText = profStretchText(ve), trueShape = ve >= 0.67 && ve < 1.5;

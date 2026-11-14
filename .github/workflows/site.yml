@@ -40,6 +40,8 @@ jobs:
         run: node tests/pairs.test.mjs
       - name: Sketch layers in the saved file
         run: node tests/sketch-layers.test.mjs
+      - name: Fish tests
+        run: node tests/fish.test.mjs
       - name: Outline map tests
         run: node tests/outline.test.mjs
       - name: Lesson questions tests
@@ -113,6 +115,7 @@ jobs:
           - live-tips-questions.py
           - live-toolbar-hide.py
           - live-outline.py
+          - live-fish.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

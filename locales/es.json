@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.11",
+  "version": "1.12",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -572,7 +572,7 @@
     "profilePickLine": "Usar una línea dibujada",
     "profileLineN": "Línea {n}",
     "profileChartLabel": "Lugar a lo largo de la línea. Las teclas de flecha se mueven por ella.",
-    "profileSeaLevel": "Nivel del mar",
+    "profileSeaLevel": "Nivel del mar", "profileFish": "Peces", "profileFishTitle": "Peces que nadan en el mar del gráfico, por diversión. No están a escala.",
     "profileLength": "Longitud",
     "profileHighest": "Punto más alto",
     "profileLowest": "Punto más bajo",
