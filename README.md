@@ -19,6 +19,9 @@ Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, an
 
 Lesson questions (`features.lessonQuestions`), paired 2D and 3D maps (`features.pairs`), columns in 3D (`features.columns3d`) and sketch layers (`features.sketchLayers`) are on by default in every config. The lab config now turns on nothing extra; it stays as the place for the next experiment. A config can still turn any of them off.
 
+- **The version button is in the header**, at the right, so it is off the map.
+- **Hide tools sits at the bottom right, level with the toolbar** and beside it; where the screen is too narrow for both, it moves above the toolbar as before.
+
 ## Tool tips, Hide tools and outline maps move to the main app (5.0.0-beta.49)
 
 - **In the main app now** (on by default in every config): tool tips (`features.toolTips`), hiding the toolbar (`features.hideToolbar`) and Print an outline map (`features.outlinePrint`). Still lab only: lesson questions, paired 2D and 3D maps, columns in 3D, sketch layers.
