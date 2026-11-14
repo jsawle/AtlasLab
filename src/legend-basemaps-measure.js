@@ -1,18 +1,18 @@
 // ============================================================ Legend, basemaps, measure
-import "./sketch.js?v=5.0.0-beta.46";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.46";
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.46";
-import { resolveUnits } from "../lib/units.js?v=5.0.0-beta.46";
-import { state, late } from "./state.js?v=5.0.0-beta.46";
-import { $, params, cfg, S, t, PORTAL } from "./config.js?v=5.0.0-beta.46";
-import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.46";
-import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.46";
-import { markDirty } from "./session.js?v=5.0.0-beta.46";
-import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.46";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.46";
-import { sketch } from "./sketch.js?v=5.0.0-beta.46";
-import { shownMap } from "./maps.js?v=5.0.0-beta.46";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.46";
+import "./sketch.js?v=5.0.0-beta.47";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.47";
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.47";
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.47";
+import { state, late } from "./state.js?v=5.0.0-beta.47";
+import { $, params, cfg, S, t, PORTAL } from "./config.js?v=5.0.0-beta.47";
+import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.47";
+import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.47";
+import { markDirty } from "./session.js?v=5.0.0-beta.47";
+import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.47";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.47";
+import { sketch } from "./sketch.js?v=5.0.0-beta.47";
+import { shownMap } from "./maps.js?v=5.0.0-beta.47";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.47";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let legend = null, legendMaking = null, coordWidget = null;
@@ -150,8 +150,21 @@ async function startMeasure(kind) {
   clearMeasure(); const seq = measureSeq;
   let el; try { el = await toolEl(MEASURE_TAGS[state.mode][kind], $("measureBody"), { view: state.view, unit: units, hideUnitSelect: true }); } catch (e) { if (seq === measureSeq) stopMeasuring(); return; }
   if (seq !== measureSeq) { dropEl(el); return; }   // another tool was chosen, or measuring stopped, meanwhile
-  measureEl = el;
+  measureEl = el; wholeNumbers(el);
   try { await el.start(); } catch (e) { /* stopped before the first click */ }
+}
+// Whole numbers in the Measure panel (5.0.0-beta.47, lib/units.js). Esri's component shows two decimal places and has no
+// setting for it, so its figures are rounded as it writes them. The figure it draws on the map itself is part of the
+// map picture, out of the app's reach: that one keeps its decimals.
+function wholeNumbers(el) {
+  const roots = [], seen = new WeakSet();
+  const scan = (root) => {
+    root.querySelectorAll("output").forEach((o) => o.childNodes.forEach((c) => { if (c.nodeType === 3) { const r = wholeNumberText(c.nodeValue); if (r !== c.nodeValue) c.nodeValue = r; } }));
+    root.querySelectorAll("*").forEach((n) => { if (n.shadowRoot && !seen.has(n.shadowRoot)) watch(n.shadowRoot); });
+  };
+  const obs = new MutationObserver(() => roots.forEach(scan));
+  const watch = (root) => { seen.add(root); roots.push(root); obs.observe(root, { subtree: true, childList: true, characterData: true }); scan(root); };
+  if (el.shadowRoot) watch(el.shadowRoot);
 }
 function measurePressed(id) { ["mDist", "mArea", "mCoord"].forEach((b) => $(b).setAttribute("aria-pressed", String(b === id))); }
 export function stopMeasuring() {
