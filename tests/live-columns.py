@@ -179,7 +179,7 @@ def main():
         to_3d(); r = rend("__data_"); check(bool(r) and r["prim"] == "cylinder", "its columns are kept too: switch to 3D and they are there")
         reopen("mapmaker", text3d)
         wf("document.querySelector('#tg3d').getAttribute('aria-pressed') === 'true' && !!document.querySelector('arcgis-scene')", timeout=180000); page.wait_for_timeout(2500)
-        r = rend("__data_"); check(bool(r) and r["sym"] == "simple-marker", "without the lab switch the file still opens in 3D, with ordinary sized points")
+        r = rend("__data_"); check(bool(r) and r["prim"] == "cylinder", "the main config opens the file in 3D with its columns too")
         start("lab"); to_3d()
 
         print("== Cancel puts the 3D view back")
