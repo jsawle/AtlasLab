@@ -132,7 +132,7 @@ def main():
         check(bool(txt) and re.search(r"\d", txt) is not None and not page.is_disabled("#coordCopy"), "the place clicked is captured and Copy is on: " + str(txt) + " / " + ct[:60])
         page.screenshot(path=str(shots / "components-coordinates.png")); axe("#measurePanel", "the Measure panel with coordinates")
 
-        src = (APP / "app.js").read_text()
+        src = "\n".join(f.read_text() for f in [APP / "app.js", *sorted((APP / "src").glob("*.js"))])
         check(not re.search(r"core/widgets/[A-Za-z]+\.js", src) and "new Legend(" not in src and "new Measurement(" not in src, "the app's code asks for none of the SDK's widget classes")
         wrapped = sorted(set(re.search(r"esri/widgets/([A-Za-z0-9]+)\.js", u).group(1) for u in urls if re.search(r"esri/widgets/(Legend|Measurement|DistanceMeasurement2D|AreaMeasurement2D|CoordinateConversion|Swipe|FeatureTable)\.js", u)))
         print("  note the SDK's own components still download these widget classes inside themselves: " + (", ".join(wrapped) or "none"))

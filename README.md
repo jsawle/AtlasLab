@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.39**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.40**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -14,6 +14,52 @@
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Restructure, part 2: `app.js` split into 27 files (5.0.0-beta.40)
+
+**No visible change.** `app.js` was one file of 4,790 lines. It is now a short file that starts the app, and the code is in `src/`, one file for each of the sections the old file was labelled with. The code inside each file is unchanged apart from `import` and `export` lines; a script did the split from the code's own scopes, and the linter confirms that no name is missing or imported without being used.
+
+| File | What it holds | Lines |
+|---|---|---|
+| `src/state.js` | What the files share and set (Code structure 2.0) | 42 |
+| `src/config.js` | Config (a start-up file) | 74 |
+| `src/branding.js` | Branding and text (a start-up file) | 134 |
+| `src/sdk.js` | ArcGIS SDK (a start-up file) | 82 |
+| `src/views.js` | Map, views and widgets (a start-up file) | 174 |
+| `src/session.js` | The open map: changed or saved, its title, its lists of layers | 89 |
+| `src/ui.js` | Toast, panels, modals | 137 |
+| `src/popups.js` | Pop-ups | 15 |
+| `src/sketch.js` | Sketch | 660 |
+| `src/legend-basemaps-measure.js` | Legend, basemaps, measure | 611 |
+| `src/view-mode.js` | 2D / 3D | 206 |
+| `src/maps.js` | Maps and layers | 404 |
+| `src/data-layers.js` | Data layers | 85 |
+| `src/layers-panel.js` | Map layers panel | 466 |
+| `src/filter-panel.js` | Filter | 301 |
+| `src/bookmarks.js` | Bookmarks | 75 |
+| `src/topics.js` | Topics | 33 |
+| `src/collection.js` | Collection browser | 369 |
+| `src/item-info.js` | Map and item information | 46 |
+| `src/csv-import.js` | CSV import | 350 |
+| `src/drag-drop.js` | Drag and drop | 39 |
+| `src/local-files.js` | Local save and open | 213 |
+| `src/saved-maps.js` | Saved maps on this device | 116 |
+| `src/print.js` | Print | 28 |
+| `src/arcgis-online.js` | ArcGIS Online: sign in, save, update | 277 |
+| `src/versions.js` | Versions | 56 |
+| `src/startup.js` | Start-up | 30 |
+
+How the files are loaded, and why:
+
+- **The four start-up files** each wait for something (the config, the map library, the map). `app.js` loads them one after another, each finished before the next begins. Safari before version 27 goes wrong when two files wait on a third that is still loading ([WebKit bug 242740](https://bugs.webkit.org/show_bug.cgi?id=242740)); loading them in turn avoids that. Not tested in Safari itself.
+- **The other 22 files** import from each other freely, and still run in the order they were written in: each one's first import is the file before it. That keeps start-up exactly as it was.
+- **Five functions** that a start-up file calls but that live in a later file are reached through `late` in `src/state.js`.
+- **`app.js` asks for all 37 files at once** (`src/` and `lib/`) as it starts, so they download together while the map library loads. These are plain requests that fill the browser's cache, not `modulepreload`: I could not check how Safari's older module loader treats preloaded modules, and plain requests cannot affect the order the files run in.
+- New checks: `tests/structure.test.mjs` (10: one version on every address, the start-up rule, the fixed order, the list of files), and a linter rule that only the start-up files may wait at their top level.
+
+Loading, measured here on a local server (no network delay, so this shows only that nothing got slower to run): ready in a median 4.4 s against 4.3 s before, which is no real difference; 38 files of the app's own JavaScript against 12; 540 KB against 516 KB before compression. On a slow school connection more files could cost more; that is what the build step (next) is for, and it has not been measured.
+
+- Tests: the full live set passes (23 runs, 619 checks) with nothing blocked by the security policy; unit tests and linter pass.
 
 ## Restructure, part 1: a linter and shared state (5.0.0-beta.39)
 
