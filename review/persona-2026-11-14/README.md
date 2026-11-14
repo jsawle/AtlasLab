@@ -34,7 +34,7 @@ The method is the one in `review/personas.md` of the `jsawle/lessons` repository
 ### Slows a lesson down
 
 5. **Nothing shows that the map is still loading.** (T2, T3, T6.) Checked: on the test machine (no graphics card) 3D took about 100 seconds to finish drawing and showed bare ground with no message meanwhile; the Legend panel was empty for a few seconds before filling. A teacher cannot tell slow from broken. Real devices will be faster, but school connections are slow. *Suggested: a small "Loading…" indicator while the view is updating.*
-6. **Saved work stays on one device, and the Save panel does not say so.** (T3, T13.) Checked: a map saves as a file on that device; "My map files" is per browser profile. On a shared cart a student may not get the same Chromebook. *Suggested: one line on the Save panel, such as "Save it where you keep your school work (for example your Drive) so you can open it on any device." Whether a managed Chromebook offers Drive in the save dialog needs checking on a real one.*
+6. *Withdrawn.* "Saved work stays on one device" (T3, T13). Students sign in to a cart laptop with their school identity, so a saved file goes to their own workspace and follows them (Jason Sawle, 14 November). Left to confirm on a real managed device: whether the "My map files" list, which the browser keeps per device, starts empty on a different laptop.
 7. **The toolbar disappears when the table or elevation chart is open.** (T1, T2, S4.) Checked: by design, to give the map room; a 32 px button with nine dots brings it back. It has a name for screen readers ("Show map tools") but no visible label. *Suggested: give the button a visible word ("Tools").*
 8. **Layer tools are small unlabelled icons, with Remove beside the others.** (T1, T2, S1, S4, S7.) Each layer has up to eight icons about 16 to 18 px; the bin sits beside information. They have tooltips, which do not help on a tablet. *Suggested: larger targets, and move Remove apart or into a "more" menu.*
 9. **Wide screens show white bands beside a world map.** (T6 noticed the cut-off.) Checked: the earthquake lesson map opens at world zoom on a 1366 px screen with white bands left and right, because the map is narrower than the screen at that zoom. The app's own start-up view was fixed for this in beta.35, but a map opened from the collection is not. *Suggested: apply the same minimum zoom when a map opens zoomed out.*
@@ -48,6 +48,12 @@ The method is the one in `review/personas.md` of the `jsawle/lessons` repository
 14. **Elevation profile.** (T6.) The vertical exaggeration is stated, which she liked. The height axis does not start at sea level, and the source line is a list of names.
 15. **The threat model was out of date.** (T13.) It said `.mmap` for the file type and was headed beta.38. The file type is corrected in this change; the rest is due a refresh.
 16. **Who provides it is unclear.** (T13.) "School Atlas", MapMaker, Esri and National Geographic all appear, at a personal github.io address, in a test version with test content. Expected at this stage; it matters before wider use.
+
+## Feedback from people shown the app (not from the personas)
+
+- **Tooltips should say what each tool does**, without nagging experienced users. Built in the lab config in 5.0.0-beta.44: a one-line tip after about a second, with a Tips on/off switch.
+- **A lesson's questions should be available in the app.** The same gap as finding 1. Built in the lab config in 5.0.0-beta.44: questions under a heading "Questions" in a map's description show beside the map.
+- **Saving on a laptop cart** is not the risk finding 6 said: see above.
 
 ## Findings dropped after checking
 

@@ -3,21 +3,21 @@
 // freehand and curved segments, area, rectangle, circle, text, undo/redo, duplicate, delete, snapping). It shows on
 // the map while the Sketch panel is open. The panel keeps what the SDK has no component for: each sketch's pop-up
 // (title, description, picture), colour and size, and rotation for text.
-import "./popups.js?v=5.0.0-beta.43";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.43";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.43";
-import { state } from "./state.js?v=5.0.0-beta.43";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.43";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.43";
+import "./popups.js?v=5.0.0-beta.44";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.44";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.44";
+import { state } from "./state.js?v=5.0.0-beta.44";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.44";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.44";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.43";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.43";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.43";
-import { toast } from "./ui.js?v=5.0.0-beta.43";
-import { sketchUnits } from "./legend-basemaps-measure.js?v=5.0.0-beta.43";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.43";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.43";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.43";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.44";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.44";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.44";
+import { toast } from "./ui.js?v=5.0.0-beta.44";
+import { sketchUnits } from "./legend-basemaps-measure.js?v=5.0.0-beta.44";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.44";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.44";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.44";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
