@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.47";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.47";
+import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.48";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.48";
 
-export const APP_VERSION = "5.0.0-beta.47";
+export const APP_VERSION = "5.0.0-beta.48";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
@@ -46,7 +46,7 @@ const DEFAULT_CONFIG = {
   features: { openMap: true, addLayer: true, csv: true, layers: true, legend: true, basemaps: true, measure: true, sketch: true,
     bookmarks: true, threeD: true, save: true, localSave: true, screenshot: true, print: true, search: true, signIn: true, compass: true, elevationProfile: true, filter: true,
     lockedCopy: false,
-    toolTips: false, lessonQuestions: false, hideToolbar: false },   // lab features (5.0.0-beta.44): what each tool does, in its tooltip, with a Tips switch; a lesson's questions beside the map   // Save a locked copy: off since 5.0.0-beta.43 (it confused people shown the app). A config can turn it back on. Locked files already made are still respected.
+    toolTips: false, lessonQuestions: false, hideToolbar: false, outlinePrint: false },   // lab features (5.0.0-beta.44): what each tool does, in its tooltip, with a Tips switch; a lesson's questions beside the map   // Save a locked copy: off since 5.0.0-beta.43 (it confused people shown the app). A config can turn it back on. Locked files already made are still respected.
   strings: {}
 };
 function readAuthStash() {

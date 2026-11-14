@@ -40,6 +40,8 @@ jobs:
         run: node tests/pairs.test.mjs
       - name: Sketch layers in the saved file
         run: node tests/sketch-layers.test.mjs
+      - name: Outline map tests
+        run: node tests/outline.test.mjs
       - name: Lesson questions tests
         run: node tests/questions.test.mjs
       - name: How the app's files fit together (versions, start-up files, the fixed order)
@@ -110,6 +112,7 @@ jobs:
           - live-lock.py
           - live-tips-questions.py
           - live-toolbar-hide.py
+          - live-outline.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

@@ -598,6 +598,11 @@
 
     /* print */
     #printSheet{ display:none; }
+    .outline-opts{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:4px 0 12px; }
+    .outline-opts select{ font:inherit; padding:7px 10px; border:1px solid var(--line2); border-radius:4px; min-width:240px; background:#fff; }
+    .outline-check{ display:inline-flex; align-items:center; gap:6px; }
+    .outline-preview{ border:1px solid var(--line2); background:#fff; min-height:180px; display:flex; align-items:center; justify-content:center; padding:8px; }
+    .outline-preview svg{ width:100%; height:auto; max-height:52vh; display:block; }
     @media print{
       @page{ margin:12mm; }
       html,body{ height:auto; overflow:visible; }
@@ -606,6 +611,10 @@
       #printSheet h1{ font-size:20pt; margin:0 0 6pt; }
       #printSheet img{ width:100%; height:auto; border:1px solid #999; }
       #printSheet .meta{ font-size:9.5pt; margin-top:8pt; line-height:1.45; }
+      #printSheet.outline .name-line{ font-size:11pt; margin:0 0 5mm; white-space:pre; }
+      #printSheet.outline svg{ display:block; width:100%; height:auto; max-height:158mm; }
+      #printSheet.outline.tall svg{ max-height:235mm; }
+      #printSheet.outline .meta{ font-size:8pt; margin-top:3mm; color:#333; }
     }
 
     /* ---------- Responsive ---------- */
@@ -907,6 +916,7 @@
             <button class="tile" type="button" id="lockTile" data-feature="localSave" aria-describedby="tip-lockTile"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><span data-i18n="saveLocked">Save a locked copy</span><span class="sr-only" id="tip-lockTile"></span></button>
             <button class="tile" type="button" id="shotTile" data-feature="screenshot" aria-describedby="tip-shotTile"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm8 3.2A3.3 3.3 0 1 0 12 16.8 3.3 3.3 0 0 0 12 10.2z"/></svg></span><span data-i18n="screenshot">Screenshot</span><span class="sr-only" id="tip-shotTile"></span></button>
             <button class="tile" type="button" id="printTile" data-feature="print" aria-describedby="tip-printTile"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 3h10v4H7zM5 8h14a2 2 0 0 1 2 2v6h-4v4H7v-4H3v-6a2 2 0 0 1 2-2zm4 7v3h6v-3H9z"/></svg></span><span data-i18n="print">Print</span><span class="sr-only" id="tip-printTile"></span></button>
+            <button class="tile" type="button" id="outlineTile" data-feature="outlinePrint" aria-describedby="tip-outlineTile"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span><span data-i18n="outlineTile">Print an outline map</span><span class="sr-only" id="tip-outlineTile"></span></button>
             <button class="tile" type="button" id="signInTile" aria-describedby="tip-signInTile" hidden><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></span><span data-i18n="signIn">Sign in</span><span class="sr-only" id="tip-signInTile"></span></button>
           </div>
           <p class="note" id="lockedNote" role="status" hidden data-i18n="lockedOpenNote">This map is locked. Save makes your own copy.</p>
@@ -1039,6 +1049,17 @@
     </div>
   </div>
 
+  <div class="modal" id="outlineModal" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="outlineH" style="max-width:760px">
+      <h2 id="outlineH" tabindex="-1" data-i18n="outlineTitle">Print an outline map</h2>
+      <div class="outline-opts"><label for="outlineMap" data-i18n="outlineWhich">Map</label><select id="outlineMap"></select>
+        <label class="outline-check"><input type="checkbox" id="outlineNames" /> <span data-i18n="outlineNames">Show names</span></label></div>
+      <div class="outline-preview" id="outlinePreview"></div>
+      <p class="note" id="outlineStatus" role="status"></p>
+      <div class="actions"><button class="btn" type="button" data-modal-close data-i18n="cancel">Cancel</button><button class="btn primary" type="button" id="outlinePrintBtn" disabled data-i18n="outlinePrint">Print</button></div>
+    </div>
+  </div>
+
   <div class="modal" id="infoModal" hidden>
     <div class="card" role="dialog" aria-modal="true" aria-labelledby="infoH" style="max-width:620px">
       <h2 id="infoH" tabindex="-1"></h2>
@@ -1086,6 +1107,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.47"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.48"></script>
 </body>
 </html>
