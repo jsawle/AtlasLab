@@ -1,9 +1,9 @@
 // ============================================================ Map, views and widgets
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.45";
-import { state, late } from "./state.js?v=5.0.0-beta.45";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.45";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.45";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.45";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.46";
+import { state, late } from "./state.js?v=5.0.0-beta.46";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.46";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.46";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.46";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -110,7 +110,10 @@ export function addViewUI(v, is3d) {
   // While Elevation profile is docked under the map the toolbar is tucked away; this button brings it back.
   const tt = document.createElement("button"); tt.type = "button"; tt.className = "tools-toggle"; tt.setAttribute("aria-controls", "toolbar");
   tt.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>';
-  tt.addEventListener("click", () => { $("app").classList.toggle("tools-shown"); syncToolsToggles(); late.layoutBottom(); });
+  // Lab (features.hideToolbar, 5.0.0-beta.46): the button is always there, with the word "Tools", so the row of tools can be
+  // hidden at any time to give the map the whole screen. Hidden, the toolbar stays hidden until the button is used again.
+  if (F.hideToolbar) { $("app").classList.add("tools-always"); tt.classList.add("labelled"); const w = document.createElement("span"); w.textContent = S.toolsWord; tt.appendChild(w); }
+  tt.addEventListener("click", () => { const app = $("app"); if (F.hideToolbar && !app.classList.contains("docked")) app.classList.toggle("tools-off"); else app.classList.toggle("tools-shown"); syncToolsToggles(); late.layoutBottom(); });
   stack.appendChild(tt);
   stack.slot = "bottom-left"; el.appendChild(stack);
   // Map layers greys a layer outside its scale range: check again whenever this view stops moving
@@ -118,7 +121,7 @@ export function addViewUI(v, is3d) {
   syncToolsToggles();
 }
 export function syncToolsToggles() {
-  const shown = $("app").classList.contains("tools-shown");
+  const app = $("app"), shown = app.classList.contains("docked") || !app.classList.contains("tools-always") ? app.classList.contains("tools-shown") : !app.classList.contains("tools-off");
   document.querySelectorAll(".tools-toggle").forEach((b) => { b.setAttribute("aria-expanded", String(shown)); const l = shown ? S.hideTools : S.showTools; b.setAttribute("aria-label", l); b.title = l; });
 }
 // MapMaker's large compass rose: turns with the map; select it to face north again.

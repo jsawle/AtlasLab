@@ -109,6 +109,7 @@ jobs:
           - live-pinch.py
           - live-lock.py
           - live-tips-questions.py
+          - live-toolbar-hide.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

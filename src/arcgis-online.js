@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.45";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.45";
-import { state, late } from "./state.js?v=5.0.0-beta.45";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.45";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.45";
-import { activeMap } from "./views.js?v=5.0.0-beta.45";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.45";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.45";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.45";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.45";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.45";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.45";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.45";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.45";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.45";
+import "./print.js?v=5.0.0-beta.46";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.46";
+import { state, late } from "./state.js?v=5.0.0-beta.46";
+import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.46";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.46";
+import { activeMap } from "./views.js?v=5.0.0-beta.46";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.46";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.46";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.46";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.46";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.46";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.46";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.46";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.46";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.46";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -149,7 +149,7 @@ const TOOL_TIPS = { "tool-basemaps": "tipBasemaps", "tool-open": "tipOpen", "too
   "tool-profile": "tipProfile", "tool-sketch": "tipSketch", tg2d: "tip2d", tg3d: "tip3d", "tool-bookmarks": "tipBookmarks", "tool-save": "tipSaveTool",
   mDist: "tipDistance", mArea: "tipArea", mCoord: "tipCoords", mClear: "tipMeasureClear", infoBtn: "tipAboutMap", questionsBtn: "tipQuestions", verBtn: "tipVersions",
   layersRemoveAll: "tipLyrRemoveAll", bmAddBtn: "tipAddBookmark" };
-const TOOL_TIP_CLASSES = { ".tools-toggle": "tipShowTools", ".rose-btn": "tipCompass" };
+const TOOL_TIP_CLASSES = { ".tools-toggle": F.hideToolbar ? "tipShowToolsFull" : "tipShowTools", ".rose-btn": "tipCompass" };
 const TIP_WAIT = 900, TIPS_KEY = "atlas.tips";
 if (F.toolTips) {
   let tipsOn = cfg.tipsStart !== "off", wait = 0, over = null;
