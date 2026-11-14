@@ -28,7 +28,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
-    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=str(APP)))
+    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://localhost:{srv.server_port}"
     found = sorted(glob.glob("/opt/pw-browsers/chromium-*/chrome-linux*/chrome"))
@@ -41,11 +41,12 @@ def main():
         launch = {"args": ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]}
         if chrome: launch["executable_path"] = chrome
         if a.proxy: launch["proxy"] = {"server": a.proxy, "bypass": "localhost,127.0.0.1"}
-        browser = p.chromium.launch(**launch)
+        browser = csp_shim.launch(p, launch)
         hosts = set()
         def session(tz, locale):
             ctx = browser.new_context(viewport={"width": 1366, "height": 768}, timezone_id=tz, locale=locale); page = ctx.new_page(); errors = []
-            page.on("pageerror", lambda e: errors.append(str(e)[:300])); page.on("request", lambda r: hosts.add(r.url.split("/")[2] if "//" in r.url else r.url[:20]))
+            page.on("pageerror", lambda e: errors.append(str(e)[:300]) if "ResizeObserver loop" not in str(e) else None);   # WebKit reports that notice as an error; it means a size change was put off to the next frame, and nothing is lost
+            page.on("request", lambda r: hosts.add(r.url.split("/")[2] if "//" in r.url else r.url[:20]))
             return ctx, page, errors
         def load(page, query="config=mapmaker"):
             page.goto(f"{base}/index.html?{query}"); page.wait_for_function("(() => { try { return !!(" + V + ".ready); } catch (e) { return false; } })()", timeout=120000); page.wait_for_timeout(1500)

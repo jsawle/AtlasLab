@@ -18,7 +18,7 @@ MAP = "69874ffe9be341afbe2e93a51dbfc5c3"
 SIZES = [(1148, 643, "iPad landscape (Safari)"), (820, 1010, "iPad portrait"), (1366, 650, "laptop"), (390, 660, "phone")]
 class Q(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
-srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Q, directory=str(APP))); threading.Thread(target=srv.serve_forever, daemon=True).start()
+srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Q, directory=csp_shim.served(APP))); threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://localhost:{srv.server_port}"; found = sorted(glob.glob("/opt/pw-browsers/chromium-*/chrome-linux*/chrome"))
 ap = argparse.ArgumentParser(); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); a = ap.parse_args()
 failures, checks = [], [0]
@@ -37,7 +37,7 @@ with sync_playwright() as p:
     launch = {}
     if found: launch["executable_path"] = found[-1]
     if a.proxy: launch["proxy"] = {"server": a.proxy, "bypass": "localhost,127.0.0.1"}
-    b = p.chromium.launch(**launch)
+    b = csp_shim.launch(p, launch)
     for (W, H, name) in SIZES:
         page = b.new_context(viewport={"width": W, "height": H}, has_touch=W < 1200).new_page()
         page.goto(f"{base}/index.html?config=lab&webmap={MAP}")

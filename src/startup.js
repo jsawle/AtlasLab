@@ -1,16 +1,16 @@
 // ============================================================ Start-up
 // The Map layers count follows the map on screen: layers added or removed, another map opened.
-import "./versions.js?v=5.0.0-beta.40";   // first: keeps the files running in the order they were written in (see app.js)
-import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.40";
-import { state } from "./state.js?v=5.0.0-beta.40";
-import { APP_VERSION, authStash, cfgName, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.40";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.40";
-import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.40";
-import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.40";
-import { toast } from "./ui.js?v=5.0.0-beta.40";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.40";
-import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.40";
-import { loadDocument } from "./local-files.js?v=5.0.0-beta.40";
+import "./versions.js?v=5.0.0-beta.41";   // first: keeps the files running in the order they were written in (see app.js)
+import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.41";
+import { state } from "./state.js?v=5.0.0-beta.41";
+import { APP_VERSION, authStash, cfgName, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.41";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.41";
+import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.41";
+import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.41";
+import { toast } from "./ui.js?v=5.0.0-beta.41";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.41";
+import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.41";
+import { loadDocument } from "./local-files.js?v=5.0.0-beta.41";
 
 reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
 state.view.when(() => {

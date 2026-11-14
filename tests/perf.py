@@ -33,7 +33,7 @@ def measure(app, query, proxy, throttle=True, settle=6000):
         launch = {"args": ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]}
         if chrome: launch["executable_path"] = chrome
         if proxy: launch["proxy"] = {"server": proxy, "bypass": "localhost,127.0.0.1"}
-        browser = p.chromium.launch(**launch)
+        browser = csp_shim.launch(p, launch)
         page = browser.new_context(viewport={"width": 1366, "height": 768}).new_page()
         cdp = page.context.new_cdp_session(page)
         cdp.send("Network.enable")

@@ -5,11 +5,14 @@
   "description": "Atlas 5.0. The app itself needs no install: these are tools for checking the code.",
   "scripts": {
     "lint": "eslint .",
-    "test": "for f in tests/*.test.mjs; do node \"$f\" || exit 1; done"
+    "test": "for f in tests/*.test.mjs; do node \"$f\" || exit 1; done",
+    "build": "node tools/build.mjs",
+    "bump": "node tools/bump.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
-    "globals": "^15.0.0"
+    "globals": "^15.0.0",
+    "esbuild": "^0.25.0"
   }
 }

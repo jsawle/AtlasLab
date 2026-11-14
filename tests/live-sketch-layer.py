@@ -25,7 +25,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
-    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=str(APP)))
+    srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://localhost:{srv.server_port}"
     found = sorted(glob.glob("/opt/pw-browsers/chromium-*/chrome-linux*/chrome"))
@@ -38,7 +38,7 @@ def main():
         launch = {"args": ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]}
         if chrome: launch["executable_path"] = chrome
         if a.proxy: launch["proxy"] = {"server": a.proxy, "bypass": "localhost,127.0.0.1"}
-        browser = p.chromium.launch(**launch)
+        browser = csp_shim.launch(p, launch)
         ctx = browser.new_context(viewport={"width": 1366, "height": 768})
         ctx.add_init_script("delete window.showSaveFilePicker; delete window.showOpenFilePicker;")
         page = ctx.new_page(); errors = []; dialogs = []
