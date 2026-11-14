@@ -1,0 +1,13 @@
+FACTS ABOUT THE APP (checked; not opinions)
+- Address: https://jsawle.github.io/AtlasLab/  It opens with no account and no sign-in. Nothing is installed.
+- It is version 5.0.0-beta.43, a test version, not yet an official product. The version and a list of what each part does are in the app (the version button, bottom right).
+- Sign in is optional: it is only for saving maps to a person's own ArcGIS Online account. Without it, a map saves as a file (.amap) on the device.
+- In Chrome and Edge, Save asks where to put the file and later saves go back to the same file. In Safari and Firefox the file goes to the downloads folder each time.
+- Open map > My map files lists map files saved or opened before on this device and browser profile.
+- What it stores in the browser: after a map is saved or opened from a file, a short list of those files for "My map files" (in the browser's own storage, for that browser profile). No cookies. In the run recorded here, before any real save, nothing was stored.
+- Web addresses it contacts: the page itself (github.io) and Esri's services (js.arcgis.com, www.arcgis.com, services*.arcgis.com, tiles.arcgis.com, basemaps.arcgis.com, cdn.arcgis.com, static.arcgis.com, elevation3d.arcgis.com, services.arcgisonline.com, and map tile servers named by a map). It sends nothing to any server of its own: it has none.
+- Published documents in its code repository: release notes (README), a threat model (SECURITY.md), a developer guide. There is no privacy statement, no accessibility statement, no teacher how-to guide and no help link inside the app.
+- It cannot be opened with a class roster and has no link to Google Classroom or another learning platform; a map can be shared as a link (Share on a map's card) or as a file.
+- The maps in "Open map" come from a test content group; they are public maps from ArcGIS Online.
+- Languages: English, with a Spanish test version.
+- Screenshots in this packet were made in Chrome at 1366 x 768 (a common Chromebook size) on a test machine with no graphics card, so the 3D view was slow to draw there.

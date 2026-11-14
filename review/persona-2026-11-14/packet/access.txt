@@ -1,0 +1,77 @@
+KEYBOARD ONLY, from first open. Each line is one press of Tab and where the focus went.
+ 1  a "Skip to map tools"
+ 2  a#logoLink "School Atlas"
+ 3  button#signInBtn "Sign in"
+ 4  arcgis-map>div "" [NO VISIBLE FOCUS RING]
+ 5  arcgis-map>a "Esri" [small: 20x21]
+ 6  arcgis-expand>calcite-action>button#calcite-action-29333655-18d4-eda7-52ac-0481c76db9bb-button "Search Search"
+ 7  arcgis-home>calcite-button>button "Home"
+ 8  arcgis-zoom>calcite-button>button "Zoom in"
+ 9  arcgis-zoom>calcite-button>button "Zoom out"
+10  button "Compass: the map faces north"
+11  button#verBtn "Versions v5.0.0-beta.43" [small: 107x21]
+12  button#tool-basemaps "Basemaps"
+13  button#tool-open "Open map"
+14  button#tool-layers "Map layers"
+15  button#tool-add "Add layer"
+16  button#tool-legend "Legend"
+17  button#tool-measure "Measure"
+18  button#tool-profile "Elevation profile"
+19  button#tool-sketch "Sketch"
+20  button#tg2d "2D"
+21  button#tg3d "3D"
+22  button#tool-bookmarks "Bookmarks"
+23  button#tool-save "Save"
+24  BODY (nothing focused)
+25  a "Skip to map tools"
+26  a#logoLink "School Atlas"
+27  button#signInBtn "Sign in"
+28  arcgis-map>div "" [NO VISIBLE FOCUS RING]
+29  arcgis-map>a "Esri" [small: 20x21]
+30  arcgis-expand>calcite-action>button#calcite-action-29333655-18d4-eda7-52ac-0481c76db9bb-button "Search Search"
+31  arcgis-home>calcite-button>button "Home"
+32  arcgis-zoom>calcite-button>button "Zoom in"
+33  arcgis-zoom>calcite-button>button "Zoom out"
+34  button "Compass: the map faces north"
+
+Enter on the Open map tool. Focus is now: h2#openH "Open map" [NO VISIBLE FOCUS RING]
+Then Tab inside the window:
+ 1  button "Close"
+ 2  button#tabGroup "School Atlas maps"
+ 3  input#omSearch ""
+ 4  button#omCatsBtn "Categories"
+ 5  button#omReset "Show all categories"
+ 6  button "Sub-categories of Lessons"
+ 7  button "Lessons 22 maps"
+ 8  button "Civics and Government 4 maps"
+ 9  button "Earth Science 39 maps"
+10  button "Sub-categories of Human Geography"
+11  button "Human Geography 47 maps"
+12  button "Sub-categories of Life and Environmental Science"
+13  button "Life and Environmental Science 11 maps"
+14  button "National Geographic Explorers 8 maps"
+15  button "Sub-categories of Physical Science"
+16  button "Physical Science 42 maps"
+17  button "Real-Time Data 5 maps"
+18  button "Sustainable Development Goals 4 maps"
+19  button "United States Geography 7 maps"
+20  button "United States History 22 maps"
+21  button "World Geography 30 maps"
+22  button "Other 3 maps"
+Focus stayed inside the window for all of those: True
+Enter on a card's Open map button: window closed = True; focus now: button#tool-open "Open map"
+Enter on Save: panel open = True; focus: h2#saveH "Save" [NO VISIBLE FOCUS RING]
+Escape: panel closed = True; focus back on: button#tool-save "Save"
+Map focused: '+' changed zoom 6 -> 7; right arrow moved the centre: True
+Elevation by keyboard: message = Click the map for each point of a line and double-click to finish, or click a line already on the map. | 'Use a sketched line' list shown = False
+Measure > Distance by keyboard: panel text = Measure | × | Distance | Area | Coordinates | Clear | Units | km | mi |  | Choose a tool, then click on the map. Double-click to finish.
+
+MAGNIFIED 300% on a 1366 x 768 Chromebook (the page is 455 x 256 CSS pixels)
+first open: sideways scrolling needed = False; controls: tool-basemaps:on screen, tool-open:on screen, tool-layers:on screen, tool-add:on screen, tool-legend:on screen, tool-measure:on screen, tool-profile:on screen, tool-sketch:on screen, tg2d:off screen, tg3d:off screen, tool-bookmarks:off screen, tool-save:off screen, signInBtn:on screen, verBtn:on screen
+Open map: the first card's Open map button on screen without scrolling = False; the window scrolls = True
+Save panel: tiles on screen = saveTile:yes, saveAsTile:yes
+
+MAGNIFIED 400% on a 1366 x 768 Chromebook (the page is 342 x 192 CSS pixels)
+first open: sideways scrolling needed = False; controls: tool-basemaps:on screen, tool-open:on screen, tool-layers:on screen, tool-add:on screen, tool-legend:on screen, tool-measure:on screen, tool-profile:off screen, tool-sketch:off screen, tg2d:off screen, tg3d:off screen, tool-bookmarks:off screen, tool-save:off screen, signInBtn:on screen, verBtn:on screen
+Open map: the first card's Open map button on screen without scrolling = False; the window scrolls = True
+Save panel: tiles on screen = saveTile:yes, saveAsTile:yes

@@ -1,0 +1,15 @@
+You are one reviewer in a persona review of a classroom map app called School Atlas (Atlas 5.0). You are reviewing AS the persona in the file named below. Stay strictly in that person's shoes: what they know, what they would notice, what would stop them. You have NOT seen the app's code and must not look for it: judge only from the packet. Do not use the web.
+
+The packet (in /home/claude/review):
+- personas/<ID>.md : who you are and what you check. Read this first.
+- notes.txt : a walk through the app, step by step. Each step names a screenshot and gives the words that were on screen in any open panel or window.
+- shots/NN-*.png : the screenshots for those steps, in order (01 to 27). LOOK at them with the Read tool: they are what the person would see.
+- facts.txt : checked facts about the app.
+- Extra material for some personas is named in your task.
+
+What to produce: write your review to /home/claude/review/out/<ID>.md with:
+1. Up to 12 findings, most serious first. For each: the place (screenshot file and what part of the screen), what happened or what is there, why it matters to THIS person, how serious (stops the lesson / slows it down / minor), and a suggested change. Quote on-screen words exactly when a finding is about wording.
+2. If a finding depends on something you cannot tell from the packet, say so in the finding ("needs checking in the live app") instead of guessing.
+3. Up to 4 things that work well for this person, in one line each.
+4. One sentence: would this person use it, or recommend it, as it stands, and what is the single change that would matter most.
+Report only what the packet supports. Do not invent features, screens or problems. Do not comment on things outside your persona's concerns. Plain language, no jargon. When done, reply with only a five-line summary of your top findings.

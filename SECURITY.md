@@ -11,13 +11,13 @@ A page of static files (HTML, CSS, JavaScript, JSON configs) served by GitHub Pa
 | Thing | Where it lives | Why it matters |
 |---|---|---|
 | **ArcGIS sign-in token** (only if someone signs in) | In the page's memory, held by the map library. Not written to storage by the app | Whoever has it can act as that person in ArcGIS Online until it expires: read their private items, change or delete their content |
-| **A student's work**: sketches, added spreadsheets, bookmarks, the current map | In memory; in `.mmap` files the student saves; recent maps in the browser's IndexedDB | Loss or tampering; a spreadsheet may hold personal data |
+| **A student's work**: sketches, added spreadsheets, bookmarks, the current map | In memory; in `.amap` files the student saves; recent maps in the browser's IndexedDB | Loss or tampering; a spreadsheet may hold personal data |
 | **The published files** (`app.js`, configs) | The GitHub repository and Pages | Whoever can change them controls every user's page |
 | **What students see** | Content groups in ArcGIS Online named in the config | Wrong or unsuitable content shown in class |
 
 ## Who we are defending against
 
-1. **Someone who writes content the app shows**: an item description, a layer's pop-up, a spreadsheet, a `.mmap` or web map handed to a student, a `?config=` link. They want their script to run in the page (to take a token or alter what is shown).
+1. **Someone who writes content the app shows**: an item description, a layer's pop-up, a spreadsheet, a `.amap` or web map handed to a student, a `?config=` link. They want their script to run in the page (to take a token or alter what is shown).
 2. **Someone who can read addresses**: server and proxy logs, browser history, a shared screen, a copied link.
 3. **Another page on the same site**. Every project page under `jsawle.github.io` is one origin to the browser.
 4. **Someone who gets into a supplier**: Esri's CDN, GitHub, or the content groups' owner account.
@@ -33,7 +33,7 @@ A person with the device in their hands, or a hostile browser extension, is out 
 | Token read from an address | **Private thumbnails** (beta.38) send the token in a request header and show the picture from a `blob:` address. Before, `?token=…` was written into the page for every private item listed | `tests/live-security.py` |
 | Token left behind | Sign out destroys the credentials and the cached private pictures. The app stores no token. During a full-page sign-in, `sessionStorage` briefly holds the map in progress and where to return to, and is cleared on return | `tests/live-security.py` |
 | Sign-in result intercepted | The callback page allows one script and nothing else (`default-src 'none'`), sends no referrer, and can only hand the result to a window of this same site. The sign-in flow itself is the map library's | `tests/live-security.py` |
-| A file that is not what it claims | `.mmap` and web map JSON are parsed as data and passed through `sanitizeDoc`; images inside must be `data:image/…` | unit tests (`lib/doc.js`) |
+| A file that is not what it claims | `.amap` and web map JSON are parsed as data and passed through `sanitizeDoc`; images inside must be `data:image/…` | unit tests (`lib/doc.js`) |
 | Sign-in the school did not expect | Sign-in is off unless a config sets a client ID. A map saved to ArcGIS Online is created private (ArcGIS Online's default); the app has no sharing step | Code review |
 
 ## The policy, and its limits
