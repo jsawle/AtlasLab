@@ -1,17 +1,17 @@
 // ============================================================ Map layers panel
-import "./data-layers.js?v=5.0.0-beta.44";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.44";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.44";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.44";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.44";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.44";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.44";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.44";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.44";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.44";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.44";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.44";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.44";
+import "./data-layers.js?v=5.0.0-beta.45";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.45";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.45";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.45";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.45";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.45";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.45";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.45";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.45";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.45";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.45";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.45";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.45";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
 export function eachToggleableLayer(fn) {
@@ -224,8 +224,16 @@ async function fillLayerInfo(l, box) {
   if (!frag) { frag = document.createElement("p"); frag.textContent = dataLayers.includes(l) ? t("dataLayerInfo", { n: ((l._srcDef && l._srcDef.features) || []).length }) : S.noLayerDescription; }
   body.appendChild(frag);
 }
+// What a layer tool does, for its tooltip (features.toolTips; the tips themselves are run from arcgis-online.js).
+const LAYER_TIPS = { zoom: "tipLyrZoom", legend: "tipLyrLegend", transp: "tipLyrTransp", swipe: "tipLyrSwipe", rename: "tipLyrRename", remove: "tipLyrRemove", table: "tipLyrTable",
+  chart: "tipLyrChart", filter: "tipLyrFilter", info: "tipLyrInfo", move: "tipLyrMove", tools: "tipLyrTools" };
+function tipKey(b) {
+  const k = LAYER_TIPS[String(b.dataset.key).split(":").pop()]; if (!k) return;
+  b.dataset.tipKey = k;
+  if (!b.hasAttribute("aria-describedby") && document.getElementById("tipk-" + k)) b.setAttribute("aria-describedby", "tipk-" + k);
+}
 function toolButton(key, icon, label, title, onClick, pressed) {
-  const b = document.createElement("button"); b.type = "button"; b.className = "lt"; b.dataset.key = key;
+  const b = document.createElement("button"); b.type = "button"; b.className = "lt"; b.dataset.key = key; tipKey(b);
   b.innerHTML = icon; b.title = label; b.setAttribute("aria-label", label + ": " + title);
   if (pressed !== undefined) b.setAttribute("aria-pressed", String(!!pressed));
   b.addEventListener("click", onClick);
@@ -240,7 +248,7 @@ function layerRow(l, owner, depth, pos, count) {
   if (count > 1) {
     const h = document.createElement("button"); h.type = "button"; h.className = "lyr-drag"; h.dataset.key = k + ":move";
     h.innerHTML = calIcon("drag"); h.setAttribute("aria-label", t("moveLayer", { title })); h.setAttribute("aria-describedby", "layersMoveHint");
-    h.title = S.moveLayerTip;
+    h.title = S.moveLayerTip; tipKey(h);
     h.addEventListener("keydown", (e) => {
       if (e.key === "ArrowUp" && pos > 0) { e.preventDefault(); moveLayer(l, owner, pos - 1); }
       else if (e.key === "ArrowDown" && pos < count - 1) { e.preventDefault(); moveLayer(l, owner, pos + 1); }
@@ -270,7 +278,7 @@ function layerRow(l, owner, depth, pos, count) {
   const toolsId = "lyrtools-" + k;
   const tg = document.createElement("button"); tg.type = "button"; tg.className = "lyr-toggle"; tg.dataset.key = k + ":tools";
   tg.innerHTML = calIcon(u.collapsed ? "chevron-down" : "chevron-up"); tg.setAttribute("aria-expanded", String(!u.collapsed)); tg.setAttribute("aria-controls", toolsId);
-  tg.setAttribute("aria-label", t("layerTools", { title })); tg.title = S.layerToolsTip;
+  tg.setAttribute("aria-label", t("layerTools", { title })); tg.title = S.layerToolsTip; tipKey(tg);
   tg.addEventListener("click", () => { u.collapsed = !u.collapsed; renderLayers({ focusKey: k + ":tools" }); });
   head.appendChild(tg);
   head.appendChild(cb);
