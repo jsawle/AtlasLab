@@ -1,21 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.53";   // first: keeps the files running in the order they were written in (see app.js)
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.53";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.53";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.53";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.53";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.53";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.53";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.53";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.53";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.53";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.53";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.53";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.53";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.53";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.53";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.53";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.53";
+import "./arcgis-online.js?v=5.0.0-beta.54";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.54";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.54";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.54";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.54";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.54";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.54";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.54";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.54";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.54";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.54";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.54";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.54";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.54";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.54";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.54";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.54";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.54";
 
 export function renderVersions() {
   const rows = [
@@ -42,6 +43,7 @@ export function renderVersions() {
     ["Tool tips", "1.2", "1.2: in the main app; the Tips on/off switch is taken away for now (a config can bring it back, features.tipsSwitch). Resting the pointer on a tool for about a second, or reaching it by keyboard, says in one line what the tool does. 1.1: every tool of the app's own, not only the toolbar: a layer's tools, Measure, About this map, Questions, the compass, the versions button. The map library's own controls (Search, Home, Zoom, the Sketch toolbar) keep its tooltips. A Tips switch beside the version button turns the tips off and on, and the choice is kept in this browser."],
     ["Lesson questions", QUESTIONS_VERSION, "In the main app since 5.0.0-beta.50 (features.lessonQuestions). A map whose description has a heading Questions gets a Questions button beside its title, and its questions open beside the map. A summary that is itself a question is shown above them."],
     ["Hide the toolbar", "1.4", "1.4: the compass is hidden only while a table or the elevation chart is open and has taken the tools away; Hide tools on the full map leaves it. 1.2: the button is at the bottom right, level with the toolbar; the version button moved to the header. 1.1: in the main app; the button reads Hide tools or Show tools. 1.0: A Tools button at the bottom left of the map hid the row of tools at any time, to give the map the whole screen, and brings it back. Without it, the toolbar is only tucked away while a table or the elevation chart is open."],
+    ["2D to 3D", THREED_VERSION, "What happens to a map when 3D is pressed. The camera tilts by how far out the map is (none looking at a continent, the config's angle at town scale); the scale is corrected for latitude so a place stays the same size; a web map seen from far out is drawn without haze; map notes, which the 3D view cannot show as a layer, are drawn on the view; and a note says when layers will look different, with the reason in Map layers."],
     ["Fish in the profile (lab)", FISH_VERSION, "Only where a config turns it on (features.profileFish). A few small fish wander at random in the upper water of an elevation profile that goes below sea level. For fun: they are not to scale and are not data. A Fish button turns them on and off; they start off where the device asks for less motion, and keep still while a place on the line is being read."],
     ["Outline maps", OUTLINE_VERSION, "In the main app since 5.0.0-beta.49. Print an outline map, in the Save panel, prints a blank map for a class to label and colour: the world with its continents, a continent with its countries, or the United States with its states, with or without names. Black lines on white, drawn from Esri's public boundary layers, not from the map on screen. Equal-area projections throughout."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],

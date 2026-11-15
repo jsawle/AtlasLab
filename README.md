@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.53**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.54**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -14,6 +14,27 @@
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Pressing 3D on a web map: camera, scale, haze, map notes, and a note of what differs (5.0.0-beta.54)
+
+From a review of the 2D to 3D switch: all 118 web maps of the test group were surveyed and 11 put through the switch, 2D against 3D. The 3D button hands the same web map to the SDK's 3D view. At least 56 of the 118 open with a layer the 3D view draws differently (a floor: layers styled by their service were not counted). 2D to 3D 1.0, `lib/threed.js`.
+
+Fixed here:
+
+- **The camera tilts by how far out the map is.** It used to tilt 60° always; looking at a region that put the map's subject on the skyline. Now it looks straight down at 1:5,000,000 and beyond, and the tilt grows as the map zooms in, to `threeDTilt` (now 45°, was 60°) at 1:250,000 and closer.
+- **A place stays the same size.** The 2D map's scale is measured on the Web Mercator grid and the 3D view's on the ground, so the 3D view showed a place smaller (1.6 times at London's latitude, measured). The scale is corrected for latitude in both directions, and for paired maps.
+- **No haze from far out.** At 1:1,000,000 and beyond a web map is drawn without the 3D view's haze, which washed out its colours. A scene keeps its own sky.
+- **Map notes show.** The SDK has no 3D form of a map notes layer (Map Viewer's sketches and labels): it did not draw at all. Its drawings are now copied onto the 3D view, shown and hidden with the layer's switch and scale range, and removed on leaving 3D. Nothing is added to the map, the layer list or a saved file.
+- **A note of what differs.** Once for each map: "3 layers look different in 3D. Map layers says how." Map layers then says, under each such layer: colours and patterns drawn more simply (polygon and line symbols made in ArcGIS Pro), effects not drawn, no blending with the map beneath, points not grouped.
+
+Not fixed, known:
+
+- Polygon and line symbols made in ArcGIS Pro (CIM) fall back to dark outlines in 3D (at least 13 maps with polygons, 6 with lines). Effects are not drawn (31 maps); multiply blending is ignored on feature layers (17); clusters are not drawn (3). A map whose look depends on these can be tagged `atlas-2d-only`, or paired with a scene.
+- A tiled layer with few zoom levels (John Snow's cholera map) is not drawn when the 3D view is tilted at a scale where 2D shows it; looking straight down it is. Believed, not confirmed, to be the tilted view asking for coarser tiles than the layer has.
+- Labels along lines become repeated point labels.
+- Seen only on the test machine, which draws 3D without a graphics chip: white grid lines across the globe on imagery layers. Not confirmed on a real device.
+
+Tests: `tests/threed.test.mjs` (17) and `tests/live-3d-switch.py` (13). Wording 1.13 in `locales/es.json`.
 
 ## The compass hides only while a chart or table is open (5.0.0-beta.53)
 

@@ -1,22 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.53";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.53";
-import { state } from "./state.js?v=5.0.0-beta.53";
-import { $, reduceMotion, params, cfg, F, S } from "./config.js?v=5.0.0-beta.53";
-import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.53";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.53";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.53";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.53";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.53";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.53";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.54";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.54";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.54";
+import { state } from "./state.js?v=5.0.0-beta.54";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.54";
+import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.54";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.54";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.54";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.54";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.54";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.54";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.53";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.53";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.53";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.53";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.53";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.53";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.53";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.54";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.54";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.54";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.54";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.54";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.54";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.54";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -42,10 +43,49 @@ function pick3dQuality() {
 let quality3d = null;
 function tune3d(v) {
   if (quality3d.quality !== "low") return;
-  const calm = () => { try { const env = v.environment; if (env) { env.starsEnabled = false; env.atmosphereEnabled = true; if (env.lighting) { env.lighting.directShadowsEnabled = false; env.lighting.ambientOcclusionEnabled = false; } if (env.atmosphere) env.atmosphere.quality = "low"; } } catch (e) { /* keep the SDK's own */ } };
+  const calm = () => { try { const env = v.environment; if (env) { env.starsEnabled = false; env.atmosphereEnabled = isScene(v.map) || hazeOn(v.scale); if (env.lighting) { env.lighting.directShadowsEnabled = false; env.lighting.ambientOcclusionEnabled = false; } if (env.atmosphere) env.atmosphere.quality = "low"; } } catch (e) { /* keep the SDK's own */ } };
   calm(); reactiveUtils.watch(() => v.map, () => v.when().then(calm).catch(() => {}));   // a scene brings its own lighting
 }
 const TILT_3D = Math.max(0, Math.min(80, Number(cfg.threeDTilt) || 0));
+// ---- From the 2D map to the 3D view (5.0.0-beta.54; lib/threed.js, 2D to 3D 1.0)
+// The scale handed across is corrected for latitude, so a place is the same size on screen in both views.
+function crossScale(vp, from, to) {
+  if (!vp || !(vp.scale > 0) || from === to || !(mapView.spatialReference && mapView.spatialReference.isWebMercator)) return;
+  const tg = vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : null, lat = c && c.latitude;
+  if (typeof lat === "number") vp.scale = to === "3d" ? scaleTo3d(vp.scale, lat) : scaleTo2d(vp.scale, lat);
+}
+// Haze: a web map seen from far out is drawn without the 3D view's haze, which washes out its colours. A scene keeps its own sky.
+function haze(v) { try { if (!isScene(v.map) && v.environment) v.environment.atmosphereEnabled = hazeOn(v.scale); } catch (e) { /* keep the SDK's own */ } }
+// Map notes (Map Viewer's sketches and labels) have no 3D form in the SDK: the 3D view cannot show the layer at all. Here
+// their drawings are copied onto the 3D view itself, shown and hidden with their layer, and taken away again on leaving 3D.
+// They are the view's, not the map's: nothing is added to the map, the layer list or a saved file.
+let notes3d = [], noteHandles = [];
+const shownHere = (l, v) => { const s = v.scale; for (let x = l; x && x.type; x = x.parent) { if (x.visible === false) return false; const min = x.minScale || 0, max = x.maxScale || 0; if ((min > 0 && s > min) || (max > 0 && s < max)) return false; } return true; };
+function syncNotes3d() {
+  const v = state.sceneView;
+  noteHandles.forEach((h) => h.remove()); noteHandles = [];
+  if (v && notes3d.length) v.graphics.removeMany(notes3d);
+  notes3d = [];
+  if (!v || state.mode !== "3d" || !v.map) return;
+  v.map.allLayers.forEach((l) => {
+    if (l.type !== "map-notes") return;
+    const mine = [];
+    for (const k of ["polygonLayer", "polylineLayer", "multipointLayer", "pointLayer", "textLayer"]) { const sub = l[k]; if (sub && sub.graphics) sub.graphics.forEach((g) => { const c = g.clone(); c.visible = false; mine.push(c); }); }
+    if (!mine.length) return;
+    notes3d.push(...mine);
+    noteHandles.push(reactiveUtils.watch(() => shownHere(l, v), (on) => { for (const g of mine) g.visible = on; }, { initial: true }));
+  });
+  if (notes3d.length) v.graphics.addMany(notes3d);
+}
+// A short note, once for each map, when layers that are switched on will look different in 3D; Map layers says how for each.
+const told3d = new WeakSet();
+function tellDiffers3d(map) {
+  if (!map || isScene(map) || told3d.has(map)) return;
+  let n = 0;
+  map.allLayers.forEach((l) => { if (shownHere(l, state.sceneView) && layerDiffers3d(l).length) n++; });      // those switched on and in view at this scale
+  if (!n) return;
+  told3d.add(map); toast(n === 1 ? S.looks3dOne : t("looks3dMany", { n }), 7000);
+}
 // Which views a map allows (5.0.0-beta.9):
 //  - a web scene is 3D only (sceneOnly): it can hold layers and a camera that have no 2D form
 //  - a web map tagged "atlas-2d-only" on its ArcGIS Online item is 2D only (twoDOnly): its author switched 3D off
@@ -89,26 +129,32 @@ export async function setMode(m, opts) {
       if (state.sceneView && wantMode && state.sceneView.viewingMode !== wantMode) { const oldEl = viewEls.get(state.sceneView); viewEls.delete(state.sceneView); try { oldEl.destroy(); } catch (e) { /* gone */ } oldEl.remove(); state.sceneView = null; }
       if (!quality3d) { quality3d = pick3dQuality(); console.info("3D quality", quality3d.quality, "(" + quality3d.why + ")"); document.documentElement.dataset.quality3d = quality3d.quality; }
       if (!state.sceneView) { state.sceneView = await componentView("arcgis-scene", "sceneDiv", { map: curMap, qualityProfile: quality3d.quality }); tune3d(state.sceneView); addViewUI(state.sceneView, true);
+        { const sv = state.sceneView; reactiveUtils.watch(() => [hazeOn(sv.scale), sv.map], () => haze(sv)); reactiveUtils.watch(() => sv.map, () => { if (state.mode === "3d") syncNotes3d(); }); }
         // the layer count and the basemap gallery now follow the 3D view's map too (see shownMap)
         reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
         reactiveUtils.watch(() => { const m = shownMap(), b = m && m.basemap; return b ? ((b.portalItem && b.portalItem.id) || "") + "|" + (b.title || "") : ""; }, syncGallerySelection); viewHandlers.forEach((h) => state.sceneView.on(h[0], h[1])); }
       else if (state.sceneView.map !== curMap) setViewMap(state.sceneView, curMap);
       await state.sceneView.when();
+      crossScale(vp, from === mapView ? "2d" : "3d", "3d");
       if (vp) state.sceneView.viewpoint = vp;
+      haze(state.sceneView);
       $("viewDiv").hidden = true; state.view = state.sceneView;
       // Same place, then tilt the camera towards the horizon so it's obvious the view is now 3D.
       // (At a whole-world scale the SDK allows little tilt, but the globe itself shows the change.)
       // The place is named in the move: asked for a tilt alone, the SDK tilts about somewhere else and the view ends up
       // off to one side (at street scale, a few kilometres from where the 2D map was looking).
-      if (TILT_3D && !opts.keepCamera) {
+      // How far it tilts depends on how far out the map is: looking at a continent it stays looking straight down (lib/threed.js).
+      const scale3d = (vp && vp.scale) || state.sceneView.scale, tilt = tiltForScale(scale3d, TILT_3D);
+      if (tilt && !opts.keepCamera) {
         const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : state.sceneView.center;
-        const to = c ? { target: c, scale: (vp && vp.scale) || state.sceneView.scale, tilt: TILT_3D } : { tilt: TILT_3D };
+        const to = c ? { target: c, scale: scale3d, tilt } : { tilt };
         state.viewSettled = state.sceneView.goTo(to, { animate: !reduceMotion, duration: 1400 }).catch(() => {});
       }
     } else {
       $("viewDiv").hidden = false;
       if (mapView.map !== curMap) setViewMap(mapView, curMap);
       await mapView.when();
+      crossScale(vp, from === mapView ? "2d" : "3d", "2d");
       if (vp) mapView.viewpoint = vp;
       $("sceneDiv").hidden = true; state.view = mapView;
     }
@@ -131,6 +177,8 @@ export async function setMode(m, opts) {
   updatePopupEnabled();
   watchBottom(0);
   if (m === "3d" && dataLayers.some((l) => l.renderer && l.renderer.type === "pie-chart")) toast(S.pieIn3d);
+  else if (m === "3d") tellDiffers3d(state.sceneView.map);
+  syncNotes3d();
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
   if (state.addState && !$("dataPanel").hidden) { renderStyleList(); renderFieldRows(); }   // what the styles offer depends on the view
 }
@@ -189,7 +237,8 @@ async function switchToPartner(m) {
   // The same place: what the other version was looking at, at the same scale (tilted, in 3D, as any map is).
   const tg = vp && vp.targetGeometry, c = tg ? (tg.type === "point" ? tg : (tg.extent && tg.extent.center)) : null;
   if (c && vp.scale) {
-    if (m === "3d") state.viewSettled = state.sceneView.goTo({ target: c, scale: vp.scale, ...(TILT_3D ? { tilt: TILT_3D } : {}) }, { animate: false }).catch(() => {});
+    crossScale(vp, here, m);
+    if (m === "3d") state.viewSettled = state.sceneView.goTo({ target: c, scale: vp.scale, tilt: tiltForScale(vp.scale, TILT_3D) }, { animate: false }).catch(() => {});
     else goToSafe({ target: c, scale: vp.scale }, { animate: false });
   }
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);

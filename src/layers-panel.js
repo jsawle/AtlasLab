@@ -1,17 +1,18 @@
 // ============================================================ Map layers panel
-import "./data-layers.js?v=5.0.0-beta.53";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.53";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.53";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.53";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.53";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.53";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.53";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.53";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.53";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.53";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.53";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.53";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.53";
+import "./data-layers.js?v=5.0.0-beta.54";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.54";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.54";
+import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.54";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.54";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.54";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.54";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.54";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.54";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.54";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.54";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.54";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.54";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.54";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
 export function eachToggleableLayer(fn) {
@@ -290,6 +291,8 @@ function layerRow(l, owner, depth, pos, count) {
   cb.addEventListener("change", () => { l.visible = cb.checked; setState(); markDirty(); });
   setState(); rowRefs.push(setState);
   li.append(head, note);
+  // in 3D, what the 3D view cannot draw as the 2D map does (lib/threed.js)
+  if (state.mode === "3d" && !sk) { const why = layerDiffers3d(l); if (why.length) { const p3 = document.createElement("p"); p3.className = "lyr-note lyr-3d"; p3.textContent = why.map((w) => S["diff3d_" + w]).join(" "); li.appendChild(p3); } }
 
   const tools = document.createElement("div"); tools.className = "lyr-tools"; tools.id = toolsId; tools.hidden = u.collapsed;
   tools.setAttribute("role", "group"); tools.setAttribute("aria-label", t("layerTools", { title }));

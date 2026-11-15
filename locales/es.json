@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.12",
+  "version": "1.13",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -154,6 +154,7 @@
     "csvNoCoords": "Ninguna fila tenía coordenadas válidas. Usa columnas de latitud y longitud en grados decimales (8,98 y -79,52) o con N, S, E u O (8,98N y 79,52O), o una columna de coordenadas copiadas de la herramienta Coordenadas.",
     "dropHere": "Suelta tu archivo para agregarlo al mapa",
     "dropWhat": "Suelta un archivo .csv para agregar datos o un archivo .amap para abrir un mapa guardado.",
+    "looks3dOne": "1 capa se ve distinta en 3D. Capas del mapa explica cómo.", "looks3dMany": "{n} capas se ven distintas en 3D. Capas del mapa explica cómo.", "diff3d_symbols": "En 3D sus colores y tramas se dibujan de forma más sencilla.", "diff3d_effect": "En 3D no se dibujan sus efectos, como el brillo o la sombra.", "diff3d_blend": "En 3D no se mezcla con el mapa de debajo.", "diff3d_cluster": "En 3D sus puntos no se agrupan.",
     "pieIn3d": "Las capas de gráficos circulares solo se dibujan en 2D. Vuelve a 2D para verlas.",
     "pieOnly2d": "Los gráficos circulares solo se dibujan en 2D. Cambia a 2D para usarlos.",
     "no3d": "La vista 3D no pudo iniciarse en este dispositivo.",
