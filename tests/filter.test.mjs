@@ -160,4 +160,17 @@ test("a map author's list filter, and a condition added to it, open as two condi
   assert.equal(both.base, ""); assert.equal(both.match, "all"); assert.deepEqual(both.conditions.map((x) => x.op), ["isOneOf", "is"]); assert.equal(both.conditions[1].value, "Crown Point");
   assert.deepEqual(F.parseWhere("iglesia_ca NOT IN ('Mision','Mision cabecera','Mision capital')", [{ name: "iglesia_ca", type: "string" }]).conditions[0].op, "isNotOneOf");
 });
+test("the plain panel: a short list of conditions first, and the filter said as a sentence (1.3)", () => {
+  for (const k of ["number", "text"]) { assert.ok(F.SIMPLE_OPERATORS[k].length <= 4); for (const op of F.SIMPLE_OPERATORS[k]) assert.ok(F.OPERATORS[k].includes(op)); assert.ok(F.SIMPLE_OPERATORS[k].includes(F.DEFAULT_OPERATOR[k])); }
+  const fields = [{ name: "mag", type: "double" }, { name: "place", type: "string" }];
+  const words = { op: { atLeast: "is at least", between: "is between", contains: "contains", isOneOf: "is one of", blank: "has no value" }, and: "and", or: "or" };
+  const alias = (n) => ({ mag: "Magnitude", place: "Place" })[n];
+  const d = (c, m) => F.describeFilter(c, m, fields, words, alias);
+  assert.equal(d([{ field: "mag", op: "atLeast", value: "7" }], "all"), "Magnitude is at least 7");
+  assert.equal(d([{ field: "mag", op: "between", value: "6", value2: "7" }, { field: "place", op: "contains", value: "Japan" }], "all"), "Magnitude is between 6 and 7 and Place contains \u201cJapan\u201d");
+  assert.equal(d([{ field: "mag", op: "atLeast", value: "7" }, { field: "place", op: "isOneOf", values: ["Chile", "Peru"] }], "any"), "Magnitude is at least 7 or Place is one of \u201cChile\u201d, \u201cPeru\u201d");
+  assert.equal(d([{ field: "place", op: "blank" }], "all"), "Place has no value");
+  assert.equal(d([{ field: "mag", op: "atLeast", value: "" }], "all"), "", "a condition that is not finished is left out");
+  assert.equal(d([], "all"), "");
+});
 console.log("All " + n + " filter tests passed.");

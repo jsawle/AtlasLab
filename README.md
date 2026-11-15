@@ -102,6 +102,18 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Lab: the Filter panel in plain words (5.0.0-beta.60)
+
+Lab config only (`?config=lab`, `features.plainFilter`, Filter 1.3). The main app keeps the panel it had. For students:
+
+- the heading names the layer ("Show Earthquakes (Major) where"); "Add another condition"; "has a value" / "has no value";
+- a label that can be seen above each box (Look at, Keep where it, Number / Words / Any of these, From, To), and each box's own name starts with those words (WCAG 2.5.3);
+- the conditions offered first are the few most used (number: at least, at most, between, is; text: is, is one of, includes), with More… for the rest (`SIMPLE_OPERATORS`);
+- "Histogram" is "Chart of values", with a caption that says what the bars are, the average marked on the chart, the value shown over the slider's handle, and the word histogram given at the end;
+- the filter is said back as a sentence with its count ("Showing Earthquakes (Major) where Magnitude is at least 8: 60 of 949."), `describeFilter` in `lib/filter.js`.
+
+Test: `tests/live-filter-plain.py`.
+
 ## Lab: fish in the sea of an elevation profile (5.0.0-beta.51)
 
 Lab config only (`?config=lab`, `features.profileFish`, `lib/fish.js`, Fish in the profile 1.0). A light-hearted extra, expected to be taken out again.

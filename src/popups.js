@@ -1,10 +1,10 @@
 // ============================================================ Pop-ups
-import "./ui.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.59";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.59";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.59";
-import { $, S } from "./config.js?v=5.0.0-beta.59";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.59";
+import "./ui.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.60";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.60";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.60";
+import { $, S } from "./config.js?v=5.0.0-beta.60";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.60";
 
 export function updatePopupEnabled() {
   const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";

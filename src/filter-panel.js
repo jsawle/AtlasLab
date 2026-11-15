@@ -5,17 +5,17 @@
 // The filter is saved as the layer's definitionExpression (lib/filter.js), which is how Map Viewer saves one.
 // While the panel is open the map previews the conditions through the layer view (no data is fetched again as a
 // slider moves), and the layer itself shows everything, so the histogram, value lists and counts cover all the data.
-import "./layers-panel.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
-import { MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.59";
-import { state } from "./state.js?v=5.0.0-beta.59";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.59";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.59";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.59";
-import { isSketch } from "./views.js?v=5.0.0-beta.59";
-import { markDirty } from "./session.js?v=5.0.0-beta.59";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.59";
-import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.59";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.59";
+import "./layers-panel.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
+import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.60";
+import { state } from "./state.js?v=5.0.0-beta.60";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.60";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.60";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.60";
+import { isSketch } from "./views.js?v=5.0.0-beta.60";
+import { markDirty } from "./session.js?v=5.0.0-beta.60";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.60";
+import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.60";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.60";
 
 const FILTER_ON = F.filter !== false;
 let filterState = null;
@@ -84,8 +84,22 @@ async function updateFilterCount() {
     const filtered = !!full && full !== st.base;
     const n = filtered ? await l.queryFeatureCount({ where: full }) : st.total;
     if (filterState !== st || token !== st.countSeq) return;
-    $("filterCount").textContent = filtered ? t("filterCount", { n: fmtNum(n), total: fmtNum(st.total) }) : t("filterCountAll", { total: fmtNum(st.total) });
+    // the plain panel says the filter back as a sentence, with its count
+    const said = PLAIN && filtered ? describeFilter(st.conditions, st.match, st.all, { op: Object.fromEntries(OPERATORS.number.concat(OPERATORS.text).map((op) => [op, opWord(op)])), and: S.filterAnd, or: S.filterOr }, (name) => { const f = filterField(name); return (f && f.alias) || name; }) : "";
+    $("filterCount").textContent = said ? t("filterSaid", { layer: l.title || "", said, n: fmtNum(n), total: fmtNum(st.total) })
+      : filtered ? t("filterCount", { n: fmtNum(n), total: fmtNum(st.total) }) : PLAIN ? t("filterSaidAll", { total: fmtNum(st.total) }) : t("filterCountAll", { total: fmtNum(st.total) });
   } catch (e) { if (filterState === st) $("filterCount").textContent = ""; }
+}
+// ---- The plain panel (lab, features.plainFilter; Filter 1.3). Written for students: the layer is named ("Show Earthquakes
+// where"), each box has a label that can be seen, the conditions offered first are the few most used (More shows the
+// rest), the chart says what its bars are, and the filter is said back as a sentence with its count.
+const PLAIN = !!F.plainFilter;
+const opWord = (op) => (PLAIN && S["filterPlainOp_" + op]) || S["filterOp_" + op];
+// A label a sighted reader can see, above a box. The box's own name (for a screen reader) starts with the same words.
+function labelled(text, el, n) {
+  if (!PLAIN) return el;
+  const w = document.createElement("div"); w.className = "flt-field"; const s = document.createElement("span"); s.className = "flt-lab"; s.setAttribute("aria-hidden", "true"); s.textContent = text;
+  el.setAttribute("label", t("filterLabN", { label: text, n })); w.append(s, el); return w;
 }
 function calSelect(label, options, value, onChange) {
   const s = document.createElement("calcite-select"); s.setAttribute("label", label); s.setAttribute("scale", "m");
@@ -136,7 +150,7 @@ async function fillHistogram(c, body, inputs) {
     if (!h) {
       const s = await summaryStatistics({ layer: l, field: c.field });
       if (!(s && Number.isFinite(s.min) && Number.isFinite(s.max) && s.max > s.min)) h = { none: true };
-      else { const r = await histogram({ layer: l, field: c.field, numBins: 30, minValue: s.min, maxValue: s.max }); h = { min: s.min, max: s.max, bins: r.bins }; }
+      else { const r = await histogram({ layer: l, field: c.field, numBins: 30, minValue: s.min, maxValue: s.max }); h = { min: s.min, max: s.max, bins: r.bins, avg: Number.isFinite(s.avg) ? s.avg : null }; }
       st.stats.set(c.field, h);
     }
     if (filterState !== st || !body.isConnected) return;
@@ -158,6 +172,14 @@ async function fillHistogram(c, body, inputs) {
     sl.setAttribute("label", t("filterSliderLabel", { field: f.alias || f.name })); sl.setAttribute("aria-label", t("filterSliderLabel", { field: f.alias || f.name }));
     sl.appendChild(hg);
     const host = document.createElement("div"); host.className = "flt-hist-host"; host.appendChild(sl); body.replaceChildren(host);
+    if (PLAIN) {      // the chart says what it is: the value over the handle, the average marked, and a caption in words
+      sl.valueLabelsDisplay = "always";
+      const name = f.alias || f.name, fmtV = (v) => fmtNum(Number(Number(v).toFixed(precision)));
+      if (h.avg != null) { hg.average = h.avg; hg.labelFormatter = (v, type, d) => (type === "average" ? S.filterAvgWord + " " + fmtV(v) : d(v)); }
+      const cap = document.createElement("p"); cap.className = "flt-cap";
+      cap.textContent = t("filterChartCaption", { field: name }) + (h.avg != null ? " " + t("filterChartAverage", { avg: fmtV(h.avg) }) : "") + " " + S.filterChartName;
+      body.appendChild(cap);
+    }
     st.sliders.push({ destroy: () => host.remove() });
     const fromSlider = () => {
       const vals = (sl.values || []).map(Number);
@@ -188,13 +210,18 @@ function conditionCard(c, i) {
   rm.addEventListener("click", () => { st.conditions.splice(i, 1); if (!st.conditions.length) st.conditions.push(newCondition()); renderFilter({ focus: Math.min(i, st.conditions.length - 1) }); applyFilterPreview(); });
   card.appendChild(head);
   const redraw = (part) => { const fresh = conditionCard(c, i); card.replaceWith(fresh); const el = fresh.querySelector('[data-part="' + part + '"]'); if (el && el.setFocus) el.setFocus(); applyFilterPreview(); };
+  if (PLAIN) card.classList.add("plain");
   const fs = calSelect(t("filterFieldLabel", { n }), st.fields.map((x) => [x.name, x.alias || x.name]), c.field, (v) => {
     const k2 = fieldKind(filterField(v));
     c.field = v; c.value = ""; c.value2 = ""; c.values = []; if (!OPERATORS[k2].includes(c.op) || k2 !== kind) c.op = DEFAULT_OPERATOR[k2];
     redraw("field");
   });
-  fs.dataset.part = "field"; head.append(fs, rm);
-  const os = calSelect(t("filterOpLabel", { n }), OPERATORS[kind].map((op) => [op, S["filterOp_" + op]]), c.op, (v) => {
+  fs.dataset.part = "field"; head.append(labelled(S.filterLabField, fs, n), rm);
+  // the plain panel offers a few conditions first; More shows them all (and stays shown once chosen, or when a condition already uses another)
+  const short = PLAIN && !st.allOps && SIMPLE_OPERATORS[kind].includes(c.op);
+  const ops = (short ? SIMPLE_OPERATORS[kind] : OPERATORS[kind]).map((op) => [op, opWord(op)]).concat(short ? [["__more", S.filterMoreOps]] : []);
+  const os = calSelect(t("filterOpLabel", { n }), ops, c.op, (v) => {
+    if (v === "__more") { st.allOps = true; redraw("op"); return; }
     const was = c.op; c.op = v;
     // between "is" and "is one of" what was chosen is kept: one value becomes a list of one, a list gives its first value
     if (isListOp(v) && !isListOp(was)) { c.values = (was === "is" || was === "isNot") && c.value !== "" && c.value != null ? [String(c.value)] : []; c.value = ""; c.value2 = ""; }
@@ -203,7 +230,7 @@ function conditionCard(c, i) {
     if (v !== "between") c.value2 = "";
     redraw("op");
   });
-  os.dataset.part = "op"; card.appendChild(os);
+  os.dataset.part = "op"; card.appendChild(labelled(S.filterLabOp, os, n));
   if (!needsValue(c.op)) return card;
   if (isListOp(c.op)) {
     // a list: every value chosen is a chip; more can be chosen from the field's values, or typed
@@ -211,7 +238,7 @@ function conditionCard(c, i) {
     cb.setAttribute("selection-display", "fit"); cb.setAttribute("placeholder", S.filterChooseManyPh); cb.setAttribute("overlay-positioning", "fixed"); cb.dataset.part = "value";
     for (const v of c.values || []) { const it = document.createElement("calcite-combobox-item"); it.value = v; it.setAttribute("heading", v); it.setAttribute("text-label", v); it.selected = true; cb.appendChild(it); }
     cb.addEventListener("calciteComboboxChange", () => { const v = cb.value; c.values = (Array.isArray(v) ? v : v ? [v] : []).map(String).filter(Boolean); note.textContent = fmt(S.filterListCount, { n: c.values.length }); scheduleFilterPreview(); });
-    card.appendChild(cb);
+    card.appendChild(labelled(S.filterLabValues, cb, n));
     const note = document.createElement("p"); note.className = "flt-list-note"; note.textContent = fmt(S.filterListCount, { n: (c.values || []).length }); card.appendChild(note);
     fillTextValues(c, cb);
   } else if (kind === "number") {
@@ -221,11 +248,11 @@ function conditionCard(c, i) {
     if (c.op === "between") {
       const row = document.createElement("div"); row.className = "flt-between";
       const and = document.createElement("span"); and.textContent = S.filterAnd;
-      row.append(box("value", t("filterValueFromLabel", { n })), and, box("value2", t("filterValueToLabel", { n })));
+      row.append(labelled(S.filterLabFrom, box("value", t("filterValueFromLabel", { n })), n), and, labelled(S.filterLabTo, box("value2", t("filterValueToLabel", { n })), n));
       card.appendChild(row);
-    } else card.appendChild(box("value", t("filterValueLabel", { n })));
+    } else card.appendChild(labelled(S.filterLabNumber, box("value", t("filterValueLabel", { n })), n));
     const det = document.createElement("details"); det.className = "flt-hist"; det.open = st.histOpen !== false;
-    const sum = document.createElement("summary"); sum.textContent = S.filterHistogram; det.appendChild(sum);
+    const sum = document.createElement("summary"); sum.textContent = PLAIN ? S.filterChart : S.filterHistogram; det.appendChild(sum);
     det.addEventListener("toggle", () => { st.histOpen = det.open; });
     body = document.createElement("div"); body.className = "flt-hist-body"; body.textContent = S.filterLoading; det.appendChild(body);
     card.appendChild(det);
@@ -235,12 +262,12 @@ function conditionCard(c, i) {
     cb.setAttribute("placeholder", S.filterChoosePh); cb.setAttribute("overlay-positioning", "fixed"); cb.setAttribute("clear-disabled", ""); cb.dataset.part = "value";
     if (c.value) { const it = document.createElement("calcite-combobox-item"); it.value = c.value; it.setAttribute("heading", c.value); it.setAttribute("text-label", c.value); it.selected = true; cb.appendChild(it); }
     cb.addEventListener("calciteComboboxChange", () => { const v = cb.value; c.value = Array.isArray(v) ? (v[0] || "") : (v || ""); scheduleFilterPreview(); });
-    card.appendChild(cb);
+    card.appendChild(labelled(S.filterLabText, cb, n));
     fillTextValues(c, cb);
   } else {
     const tx = document.createElement("calcite-input-text"); tx.setAttribute("label", t("filterValueLabel", { n })); tx.setAttribute("placeholder", S.filterTextPh); tx.value = c.value || ""; tx.dataset.part = "value";
     tx.addEventListener("calciteInputTextInput", () => { c.value = tx.value; scheduleFilterPreview(); });
-    card.appendChild(tx);
+    card.appendChild(labelled(S.filterLabText, tx, n));
   }
   return card;
 }
@@ -251,7 +278,8 @@ function renderFilter(opts) {
   $("filterBase").hidden = !st.base;   // a filter the panel can't read stays on, and is said in a line (no SQL is shown)
   const many = st.conditions.length > 1;
   $("filterMatchRow").hidden = !many;
-  if (many) $("filterMatchRow").replaceChildren(calSelect(S.filterMatch, [["all", S.filterMatchAll], ["any", S.filterMatchAny]], st.match, (v) => { st.match = v; applyFilterPreview(); }));
+  if (many) $("filterMatchRow").replaceChildren(calSelect(S.filterMatch, [["all", PLAIN ? S.filterPlainAll : S.filterMatchAll], ["any", PLAIN ? S.filterPlainAny : S.filterMatchAny]], st.match, (v) => { st.match = v; applyFilterPreview(); }));
+  if (PLAIN) { $("filterShowH").textContent = t("filterShowLayerWhere", { layer: st.layer.title || "" }); $("filterAdd").textContent = S.filterAddAnother; }
   $("filterConds").replaceChildren(...st.conditions.map(conditionCard));
   $("filterAdd").disabled = st.conditions.length >= MAX_CONDITIONS;
   if (opts && opts.focus != null) { const card = $("filterConds").children[opts.focus], el = card && card.querySelector('[data-part="field"]'); if (el && el.setFocus) setTimeout(() => el.setFocus(), 0); }

@@ -108,6 +108,7 @@ jobs:
           - live-sketch3d.py
           - live-slides.py
           - live-filter.py
+          - live-filter-plain.py
           - live-3d-data.py
           - live-columns.py
           - live-touch.py

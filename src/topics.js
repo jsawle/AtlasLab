@@ -1,8 +1,8 @@
 // ============================================================ Topics (the content group's categories; shared by Open map and Add layer)
-import "./bookmarks.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
-import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.59";
-import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.59";
-import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.59";
+import "./bookmarks.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
+import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.60";
+import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.60";
+import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.60";
 
 let topicTreePromise = null;
 export function getTopicTree() {

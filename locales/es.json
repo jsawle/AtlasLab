@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.15",
+  "version": "1.16",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -236,6 +236,7 @@
     "filterValuePh": "Escribe un número",
     "filterTextPh": "Escribe un texto",
     "filterChoosePh": "Elige o escribe un valor",
+    "filterShowLayerWhere": "Mostrar {layer} donde", "filterAddAnother": "Añadir otra condición", "filterChart": "Gráfico de valores", "filterMoreOps": "Más…", "filterOr": "o", "filterLabField": "Mirar", "filterLabOp": "Mantener donde", "filterLabNumber": "Número", "filterLabText": "Palabras", "filterLabValues": "Cualquiera de estos", "filterLabFrom": "Desde", "filterLabTo": "Hasta", "filterLabN": "{label}, condición {n}", "filterPlainOp_blank": "no tiene valor", "filterPlainOp_notBlank": "tiene valor", "filterPlainAll": "Mostrar lo que cumple todas las condiciones", "filterPlainAny": "Mostrar lo que cumple alguna condición", "filterSaid": "Mostrando {layer} donde {said}: {n} de {total}.", "filterSaidAll": "Mostrando los {total}. Elige abajo para mostrar menos.", "filterChartCaption": "Cada barra muestra cuántos tienen más o menos ese valor de {field}. Las barras azules son las que se mantienen.", "filterChartAverage": "La línea marca la media, {avg}.", "filterAvgWord": "media", "filterChartName": "Este tipo de gráfico se llama histograma.",
     "filterHistogram": "Histograma",
     "filterSliderLabel": "{field}: mueve para fijar el valor",
     "filterNoHistogram": "No hay histograma para este campo.",
