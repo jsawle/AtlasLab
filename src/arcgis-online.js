@@ -1,19 +1,19 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.57";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.57";
-import { state, late } from "./state.js?v=5.0.0-beta.57";
-import { AUTH_STASH, $, cfgName, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.57";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.57";
-import { activeMap } from "./views.js?v=5.0.0-beta.57";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.57";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.57";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.57";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.57";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.57";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.57";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.57";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.57";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.57";
+import "./print.js?v=5.0.0-beta.58";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.58";
+import { state, late } from "./state.js?v=5.0.0-beta.58";
+import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.58";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.58";
+import { activeMap } from "./views.js?v=5.0.0-beta.58";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.58";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.58";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.58";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.58";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.58";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.58";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.58";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.58";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.58";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -82,7 +82,7 @@ function startSignIn() {
   } else doSignIn();
 }
 function stashBeforeRedirect() {
-  const rec = { config: cfgName, t: Date.now() };
+  const rec = cfgItem ? { appid: cfgItem.id, t: Date.now() } : { config: cfgName, t: Date.now() };
   if (state.dirty) { try { rec.doc = buildDocument(); } catch (e) { /* skip */ } }
   try { sessionStorage.setItem(AUTH_STASH, JSON.stringify(rec)); }
   catch (e) { try { delete rec.doc; sessionStorage.setItem(AUTH_STASH, JSON.stringify(rec)); } catch (e2) { /* no storage */ } }

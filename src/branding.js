@@ -1,6 +1,6 @@
 // ============================================================ Branding and text
-import { late } from "./state.js?v=5.0.0-beta.57";
-import { APP_VERSION, $, cfgName, cfg, F, S, t } from "./config.js?v=5.0.0-beta.57";
+import { late } from "./state.js?v=5.0.0-beta.58";
+import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.58";
 
 export function hexToRgb(hex) {
   let h = String(hex || "").replace("#", "");
@@ -13,7 +13,9 @@ function contrast(a, b) { const la = luminance(a), lb = luminance(b); return (Ma
 const bestInk = (bg) => (contrast(bg, "#ffffff") >= contrast(bg, "#000000") ? "#ffffff" : "#000000");
 function mix(hex, withHex, w) { const a = hexToRgb(hex), b = hexToRgb(withHex); return "#" + a.map((v, i) => Math.round(v * (1 - w) + b[i] * w).toString(16).padStart(2, "0")).join(""); }
 const cssString = (v) => '"' + String(v).replace(/[\\"]/g, "\\$&").replace(/[\n\r\f]/g, " ") + '"';
-const safeUrl = (u) => (typeof u === "string" && /^(https:\/\/|\.\/|\/|[\w-]+\.(png|svg|jpe?g|webp))/i.test(u) ? u : "");
+// 5.0.0-beta.58: a logo can also be a picture inside the config itself (data:image/…), which is how the manager app keeps a
+// partner's logo in their ArcGIS Online item. Only these picture types; an <img> never runs anything inside an SVG.
+const safeUrl = (u) => (typeof u === "string" && /^(https:\/\/|\.\/|\/|[\w-]+\.(png|svg|jpe?g|webp)|data:image\/(png|jpeg|webp|svg\+xml);base64,)/i.test(u) ? u : "");
 
 function applyTheme() {
   const th = cfg.theme, r = document.documentElement.style;
@@ -42,7 +44,8 @@ function applyHeader() {
   document.title = cfg.appName;
   const logo = cfg.logo || {};
   const link = $("logoLink");
-  link.href = safeUrl(logo.link) || ("./" + (cfgName !== "default" ? "?config=" + encodeURIComponent(cfgName) : ""));
+  const home = keepConfig(new URLSearchParams()).toString();
+  link.href = (typeof logo.link === "string" && /^(https:\/\/|\.\/|\/)/i.test(logo.link) ? logo.link : "") || ("./" + (home ? "?" + home : ""));
   if (logo.link) { link.target = "_blank"; link.rel = "noopener"; }
   const wide = safeUrl(logo.url), compact = safeUrl(logo.compactUrl) || wide;
   if (wide) {

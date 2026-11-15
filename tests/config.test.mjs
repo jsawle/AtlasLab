@@ -6,7 +6,7 @@ import fs from "node:fs";
 import { appSource } from "./app-source.mjs";
 import { fileURLToPath } from "node:url";
 import { DEFAULT_STRINGS } from "../lib/strings.js";
-import { loadConfig, buildStrings, mergeConfig } from "../lib/config.js";
+import { loadConfig, loadItemConfig, loadPreviewConfig, buildStrings, mergeConfig, PARTNER_KEYWORD } from "../lib/config.js";
 const root = fileURLToPath(new URL("..", import.meta.url));
 let n = 0, bad = 0;
 const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("FAIL " + msg); } };
@@ -67,6 +67,41 @@ const fetchJson = async (path) => JSON.parse(fs.readFileSync(root + path.replace
   const rtl = await loadConfig("ar", async (p) => { if (p.endsWith("/config/ar.json")) return { locale: "ar-OM" }; if (p.endsWith("/locales/ar.json")) return { locale: "ar", dir: "rtl", strings: { signIn: "x" } }; throw new Error("404"); });
   ok(rtl.localeFile.name === "ar" && rtl.raw.dir === "rtl", "ar-OM falls back to ar.json and takes its right-to-left direction");
   ok(mergeConfig({ a: { b: 1, c: 2 }, l: [1, 2] }, { a: { c: 3 }, l: [9] }).a.b === 1, "merge keeps what a config doesn't mention");
+}
+// 5.0.0-beta.58: a partner's config from an ArcGIS Online item (?appid=), and the manager's preview
+{
+  const ID = "0123456789abcdef0123456789abcdef", ORG = "iFGeGXTAJXnjq0YN", PORTAL = "https://www.arcgis.com";
+  const item = { id: ID, title: "Mapas Escolares (Panamá)", orgId: ORG, typeKeywords: ["Web Map", PARTNER_KEYWORD], modified: 1 };
+  const data = { configVersion: 3, appName: "Mapas", locale: "es", extends: "mapmaker", portalUrl: "https://evil.example.com", contentGroup: "c3ac404ac811494ea6fa116abc0cf39b" };
+  const asked = [];
+  const fake = (it, d) => async (p) => {
+    asked.push(p);
+    if (p === `${PORTAL}/sharing/rest/content/items/${ID}?f=json`) return it;
+    if (p === `${PORTAL}/sharing/rest/content/items/${ID}/data?f=json`) return d;
+    return fetchJson(p);   // config/ and locales/ from the disk
+  };
+  const r = await loadItemConfig(ID.toUpperCase(), { portal: PORTAL + "/", orgs: [ORG], fetchJson: fake(item, data) });
+  ok(!r.refused && r.item && r.item.id === ID && r.name === "item-" + ID, "an item config from an allowed organization is used");
+  ok(r.chain.join(">") === "item " + ID + ">mapmaker" && r.raw.appName === "Mapas" && r.raw.headerLinks && r.raw.headerLinks.length === 2, "an item config can extend a config in config/");
+  ok(!("portalUrl" in r.raw), "an item config can't point the app at another portal");
+  ok(r.localeFile && r.localeFile.name === "es" && r.raw.dir === "ltr", "an item config gets its language file");
+  ok(asked.filter((p) => p.startsWith(PORTAL)).length === 2, "two requests to ArcGIS Online: the item and its data");
+  const other = await loadItemConfig(ID, { portal: PORTAL, orgs: ["someOtherOrg"], fetchJson: fake(item, data) });
+  ok(other.refused === "not from the education team's organization", "an item from any other organization is refused");
+  const unmarked = await loadItemConfig(ID, { portal: PORTAL, orgs: [ORG], fetchJson: fake({ ...item, typeKeywords: ["Web Map"] }, data) });
+  ok(unmarked.refused === "not marked as an AtlasLab config", "an item without the AtlasLab keyword is refused");
+  const gone = await loadItemConfig(ID, { portal: PORTAL, orgs: [ORG], fetchJson: fake({ error: { code: 400 } }, { error: { code: 400 } }) });
+  ok(gone.refused === "no such public item", "a private or deleted item is refused");
+  const empty = await loadItemConfig(ID, { portal: PORTAL, orgs: [ORG], fetchJson: fake(item, [1, 2]) });
+  ok(empty.refused === "no config in the item", "an item whose data isn't a config is refused");
+  const down = await loadItemConfig(ID, { portal: PORTAL, orgs: [ORG], fetchJson: async () => { throw new Error("offline"); } });
+  ok(down.refused === "couldn't be reached", "no connection: refused, not thrown");
+  ok((await loadItemConfig("../config/lab", { portal: PORTAL, orgs: [ORG], fetchJson: fake(item, data) })).refused === "not an item ID", "only a 32-character ID is looked up");
+  const pv = await loadPreviewConfig({ appName: "Draft", portalUrl: "https://evil.example.com", locale: "es-PA" }, fetchJson);
+  ok(pv.name === "preview" && pv.raw.appName === "Draft" && !("portalUrl" in pv.raw) && pv.localeFile.name === "es", "a preview config is read like an item's");
+  const src = fs.readFileSync(root + "src/config.js", "utf8");
+  ok(/PARTNER_ORGS = \["iFGeGXTAJXnjq0YN", "HNLEA4GfnbCFQZGa"\]/.test(src), "item configs are accepted from the MapMaker and GIS 4 Schools organizations only");
+  ok(/e\.source !== window\.parent \|\| !PREVIEW_ORIGINS\.includes\(e\.origin\)/.test(src), "a preview config is taken only from the parent page, on our own sites");
 }
 console.log(`${n - bad}/${n} config and language checks passed (${configs.length} configs, ${locales.length} language file(s))`);
 process.exit(bad ? 1 : 0);
