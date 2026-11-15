@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.53";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.53";
+import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.54";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.54";
 
-export const APP_VERSION = "5.0.0-beta.53";
+export const APP_VERSION = "5.0.0-beta.54";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
@@ -34,7 +34,7 @@ const DEFAULT_CONFIG = {
   basemapGroup: "406646c98d0f4c608a9438d40ce2df9e",
   defaultBasemap: "a82ff7ce1c3a493f9d82aa89f5a1ddcf",
   startView: { center: [0, 20], zoom: 2 },
-  threeDTilt: 60,          // degrees the camera tilts when switching to 3D, so the change is obvious (0 = stay looking straight down)
+  threeDTilt: 45,          // degrees the camera tilts when switching to 3D at town scale and closer; less further out, none looking at a continent (0 = always straight down). 60 until 5.0.0-beta.54
   threeDQuality: "auto",   // how much work the 3D view does: "auto" (low on a weak device, else medium), "low", "medium" or "high"
   units: "auto",            // "auto": miles and feet on a device set to a US time zone, kilometres and metres elsewhere (lib/units.js); or "metric" / "imperial"
   unitsSwitch: true,        // the km / mi switch in Measure and Elevation; the choice is remembered on the device

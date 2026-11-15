@@ -83,7 +83,7 @@ def main():
         js("#tg3d"); wf("(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready) && document.querySelector('#tg3d').getAttribute('aria-pressed') === 'true'; })()", timeout=180000); page.wait_for_timeout(1500)
         check(page.evaluate("!!document.querySelector('#columns3dBox')"), "switching to 3D with the panel open shows it")
         # the switch keeps the place: every point of the spreadsheet is still on screen, seen at an angle
-        try: wf("document.querySelector('arcgis-scene').view.camera.tilt > 50 && !document.querySelector('arcgis-scene').view.interacting && !document.querySelector('arcgis-scene').view.animation", timeout=60000)
+        try: wf("document.querySelector('arcgis-scene').view.camera.tilt > 40 && !document.querySelector('arcgis-scene').view.interacting && !document.querySelector('arcgis-scene').view.animation", timeout=60000)
         except Exception: pass
         # wait until the camera has stopped (the same for 3 seconds)
         last = None
@@ -94,7 +94,7 @@ def main():
         on = page.evaluate("""async (pts) => { const Point = await $arcgis.import("@arcgis/core/geometry/Point.js"); const v = document.querySelector('arcgis-scene').view; return { tilt: v.camera.tilt, lat: v.center.latitude, lon: v.center.longitude,
           on: pts.filter(([lon, lat]) => { const s = v.toScreen(new Point({ longitude: lon, latitude: lat })); return s && s.x > 0 && s.x < v.width && s.y > 0 && s.y < v.height; }).length }; }""",
           [[-117.1601, 32.7115], [-117.1585, 32.7098], [-117.1612, 32.7076], [-117.1590, 32.7066], [-117.1570, 32.7127], [-117.1640, 32.7060]])
-        check(on["on"] == 6 and on["tilt"] > 50 and abs(on["lat"] - 32.7094) < 0.006 and abs(on["lon"] + 117.1605) < 0.006, "the switch to 3D keeps the place: %d of 6 points on screen, tilt %.0f°, looking at %.4f, %.4f" % (on["on"], on["tilt"], on["lat"], on["lon"]))
+        check(on["on"] == 6 and on["tilt"] > 40 and abs(on["lat"] - 32.7094) < 0.006 and abs(on["lon"] + 117.1605) < 0.006, "the switch to 3D keeps the place: %d of 6 points on screen, tilt %.0f°, looking at %.4f, %.4f" % (on["on"], on["tilt"], on["lat"], on["lon"]))
         page.wait_for_timeout(15000); page.screenshot(path=str(shots / "switch-3d.png"))
         start("lab"); to_3d()
         drop("litter.csv", CSV); wv("#dataPanel:not([hidden]) #dataSubmit"); page.wait_for_timeout(1500)
