@@ -59,8 +59,10 @@ def main():
         check("pop-up has opened" in page.inner_text("#toast"), "and says so: " + page.inner_text("#toast"))
         page.keyboard.press("Escape"); page.wait_for_timeout(1200)
         check(not page.evaluate("!!(" + V + ".popup && " + V + ".popup.visible)") and page.evaluate(ON_MAP), "Escape closes it and the keyboard is back on the map: " + str(page.evaluate("(() => { let e = document.activeElement; const pth = []; while (e) { pth.push(e.tagName + '.' + String(e.className).split(' ')[0]); e = e.shadowRoot && e.shadowRoot.activeElement; } return [!!(" + V + ".popup && " + V + ".popup.visible), pth.join('>')]; })()")))
-        page.evaluate("(async () => { await " + V + ".goTo({ center: [-140, -50], zoom: 9 }, { animate: false }); })()"); page.wait_for_timeout(3500); page.keyboard.press("Enter"); page.wait_for_timeout(1500)
-        check("Nothing to open" in page.inner_text("#toast"), "where there is nothing at the centre it says so: " + page.inner_text("#toast") + str(page.evaluate("(() => { const p = " + V + ".popup; return [!!(p && p.visible), p && p.featureCount]; })()")))
+        page.evaluate("(async () => { await " + V + ".goTo({ center: [-140, -50], zoom: 9 }, { animate: false }); })()"); page.wait_for_timeout(3500); page.keyboard.press("Enter")
+        try: page.wait_for_function("document.getElementById('toast').textContent.includes('Nothing to open')", timeout=15000)
+        except Exception: pass
+        check("Nothing to open" in page.inner_text("#toast"), "where there is nothing at the centre it says so: " + page.inner_text("#toast"))
 
         print("== an elevation profile without a mouse")
         page.evaluate("document.getElementById('tool-profile').click()"); page.wait_for_selector("#profChart .prof-msg", timeout=60000)

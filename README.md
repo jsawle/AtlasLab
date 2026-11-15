@@ -26,6 +26,12 @@ Three gaps from the persona review (findings 2, 3 and 12), ahead of an accessibi
 
 Still needing a pointer: **Measure** and **Sketch** (drawing a shape). Both are the SDK's own components.
 
+Found while checking, and put right:
+
+- **The accessibility scans were not running.** Seventeen browser tests scan panels with axe-core (WCAG 2.1 A and AA), but only when given its path, and the workflow never gave it; since the Content Security Policy of beta.38 the way the tests loaded it was refused as well. The workflow now installs axe-core 4.14.0 for the tests (it is not part of the app) and the tests load it in a way the policy allows. Run by hand across 21 states of the app, the scan found one fault: the Versions panel scrolls and could not be reached by keyboard. Fixed.
+- **Edges of buttons and fields** were #d0d0d0 on white, 1.5 to 1; WCAG 1.4.11 asks 3 to 1 for the edge of a field. Now #767676, 4.5 to 1.
+- At 400% the 2D / 3D row in Open map pushed the window 13 pixels sideways. It wraps.
+
 Tests: `tests/live-keyboard.py` (18). Keyboard on the map 1.0; Small screens and zoom 1.0. Wording 1.14 in `locales/es.json`. Not tested: a screen reader.
 
 ## The time slider has one handle (5.0.0-beta.56)

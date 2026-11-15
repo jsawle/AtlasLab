@@ -25,7 +25,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))

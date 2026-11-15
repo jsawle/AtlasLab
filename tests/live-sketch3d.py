@@ -23,7 +23,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -92,7 +92,7 @@ def main():
             page.wait_for_timeout(1000); tools3d = page.evaluate(TOOLS)
         check(draw(tools3d) == draw(tools2d) == ["circle", "point", "polygon", "polyline", "rectangle", "text"], "the 3D toolbar offers the same drawing tools as 2D: " + ", ".join(draw(tools3d)))
         if a.axe:
-            page.add_script_tag(path=a.axe); v = page.evaluate(AXE)
+            csp_shim.add_axe(page, a.axe); v = page.evaluate(AXE)
             check(not v, "Sketch panel in 3D: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         start("point"); tap(500, 300)
         check(count(1) and page.evaluate(SKETCHES)[0]["kind"] == "point", "a point is drawn with one click")

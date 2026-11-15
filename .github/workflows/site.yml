@@ -127,6 +127,8 @@ jobs:
           python-version: "3.13"
       - run: pip install -r tests/requirements.txt
       - run: python -m playwright install --with-deps chromium
+      # axe-core, for the accessibility scans in the tests (WCAG 2.1 A and AA). Kept out of the app and out of dist.
+      - run: npm install --no-save --prefix "$RUNNER_TEMP/axe" axe-core@4.14.0
       - uses: actions/download-artifact@v4
         with:
           name: site
@@ -135,6 +137,7 @@ jobs:
         env:
           ATLAS_SERVE: dist
           CONSOLE_LOG: /dev/stderr
+          ATLAS_AXE: ${{ runner.temp }}/axe/node_modules/axe-core/axe.min.js
         run: python tests/${{ matrix.test }} || (echo "::warning::${{ matrix.test }} failed once; running it again" && python tests/${{ matrix.test }})
 
   other-browsers:

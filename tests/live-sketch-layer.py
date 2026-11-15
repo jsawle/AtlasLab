@@ -22,7 +22,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -53,7 +53,7 @@ def main():
             page.evaluate("(() => { const s = " + SK + "; try { if (s.state === 'active') s.cancel(); } catch (e) {} })()"); page.wait_for_timeout(500)
         def axe(sel, what):
             if not a.axe: return
-            if not page.evaluate("typeof axe !== 'undefined'"): page.add_script_tag(path=a.axe)
+            if not page.evaluate("typeof axe !== 'undefined'"): csp_shim.add_axe(page, a.axe)
             v = page.evaluate(AXE, sel); check(not v, what + ": no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
 
         print("== a web map with no sketches")

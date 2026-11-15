@@ -38,7 +38,8 @@ async function popupAtCentre() {
   try {
     await v.openPopup({ location: v.toMap(at), fetchFeatures: true });
     // the keyboard goes into the pop-up once it has something to show, and back to the map when it closes
-    await reactiveUtils.whenOnce(() => v.popup && v.popup.visible && v.popup.selectedFeature);
+    const got = await Promise.race([reactiveUtils.whenOnce(() => v.popup && v.popup.visible && v.popup.selectedFeature).then(() => true), new Promise((res) => setTimeout(() => res(false), 6000))]);
+    if (!got) { try { v.closePopup(); } catch (e) { /* none open */ } toast(S.nothingAtCentre, 5000); return; }      // something was there, with nothing to say
     toast(S.popupOpened, 6000);      // said to a screen reader; moving the focus into the pop-up below does not always take
     setTimeout(() => {
       try {

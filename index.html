@@ -232,13 +232,14 @@
     .label{ font-size:13px; font-weight:600; color:var(--ink); margin:0 0 8px; }
     .hint{ font-size:12.5px; color:var(--muted); line-height:1.5; margin:0 0 10px; }
     .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .btn{ background:#fff; border:1px solid var(--line2); border-radius:5px; padding:7px 12px; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
+    .btn{ background:#fff; border:1px solid #767676; border-radius:5px; padding:7px 12px; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
     .btn:hover{ background:var(--soft); }
     .btn.primary{ background:var(--brand); border-color:var(--brand); color:var(--brand-ink); }
     .btn[aria-pressed="true"]{ background:var(--brand); border-color:var(--brand); color:var(--brand-ink); }
     .btn:disabled{ opacity:.5; cursor:default; }
     .btn.danger{ color:var(--danger); border-color:#e4b6ae; }
-    .field{ width:100%; padding:8px 10px; border:1px solid var(--line2); border-radius:4px; font-size:14px; color:var(--ink); background:#fff; }
+    /* 5.0.0-beta.57: the edge of a button or a field is #767676, 4.5 to 1 on white (WCAG 1.4.11 asks 3 to 1); it was #d0d0d0, 1.5 to 1 */
+    .field{ width:100%; padding:8px 10px; border:1px solid #767676; border-radius:4px; font-size:14px; color:var(--ink); background:#fff; }
     .field:focus{ border-color:var(--brand); }
     .field:disabled{ background:#f7f7f7; color:#999; }
     textarea.field{ resize:vertical; min-height:64px; line-height:1.45; }
@@ -977,7 +978,7 @@
 
       <section class="panel" id="aboutPanel" hidden aria-labelledby="aboutH">
         <div class="panel-head"><h2 id="aboutH" tabindex="-1" data-i18n="versions">Versions</h2><button class="x-btn" type="button" data-close data-i18n-aria="close">&times;</button></div>
-        <div class="panel-body"><p class="hint" data-i18n="versionsIntro"></p><table class="vers" id="versTable"></table></div>
+        <div class="panel-body" tabindex="0" role="region" aria-labelledby="aboutH"><p class="hint" data-i18n="versionsIntro"></p><table class="vers" id="versTable"></table></div>
       </section>
 
       <div class="drop-overlay" id="dropOverlay" hidden><div class="drop-inner" data-i18n="dropHere">Drop your file to add it to the map</div></div>

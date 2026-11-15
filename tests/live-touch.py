@@ -20,7 +20,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--3d", dest="three", action="store_true"); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--3d", dest="three", action="store_true"); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -89,7 +89,7 @@ def main():
         check(page.is_visible("#profNew"), "and New profile is offered")
         page.screenshot(path="/tmp/touch-profile.png")
         if a.axe:
-            page.add_script_tag(path=a.axe)
+            csp_shim.add_axe(page, a.axe)
             v = page.evaluate("async () => (await axe.run('#profilePanel', { runOnly: ['wcag2a','wcag2aa','wcag21a','wcag21aa'] })).violations.map(v => v.id)")
             check(not v, "the dock passes the accessibility scan: " + ", ".join(v))
 

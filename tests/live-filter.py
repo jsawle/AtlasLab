@@ -28,7 +28,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -120,7 +120,7 @@ def main():
         check(count_is(" of 949") and "368" not in count(), "and the count follows: " + count())
         at8 = count()
         if a.axe:
-            page.add_script_tag(path=a.axe); v = page.evaluate(AXE)
+            csp_shim.add_axe(page, a.axe); v = page.evaluate(AXE)
             check(not v, "Filter panel: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         page.click("#filterCancel"); page.wait_for_selector("#layersPanel:not([hidden])")
         check(page.evaluate("document.activeElement && document.activeElement.dataset.key || ''").endswith(":filter"), "Cancel goes back to the layer's Filter button")
@@ -213,7 +213,7 @@ def main():
         total = page.evaluate("(async () => " + LYR + ".queryFeatureCount({ where: '1=1' }))()")
         check(count_is("Showing 21 of %d features" % total) and drawn() == 21, "the count is of the whole layer: " + count())
         if a.axe:
-            page.add_script_tag(path=a.axe); v = page.evaluate(AXE)
+            csp_shim.add_axe(page, a.axe); v = page.evaluate(AXE)
             check(not v, "Filter panel with an author's list: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         page.screenshot(path=str(shots / "filter-author-list.png"))
         unselect("April 19, 1775"); unselect("August 27, 1776")
