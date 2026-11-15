@@ -1,19 +1,19 @@
 // ============================================================ Legend, basemaps, measure
-import "./sketch.js?v=5.0.0-beta.56";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.56";
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.56";
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.56";
-import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.56";
-import { state, late } from "./state.js?v=5.0.0-beta.56";
-import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.56";
-import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.56";
-import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.56";
-import { markDirty } from "./session.js?v=5.0.0-beta.56";
-import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.56";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.56";
-import { sketch } from "./sketch.js?v=5.0.0-beta.56";
-import { shownMap } from "./maps.js?v=5.0.0-beta.56";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.56";
+import "./sketch.js?v=5.0.0-beta.57";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.57";
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.57";
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.57";
+import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.57";
+import { state, late } from "./state.js?v=5.0.0-beta.57";
+import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.57";
+import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.57";
+import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.57";
+import { markDirty } from "./session.js?v=5.0.0-beta.57";
+import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.57";
+import { updatePopupEnabled, showCentre } from "./popups.js?v=5.0.0-beta.57";
+import { sketch } from "./sketch.js?v=5.0.0-beta.57";
+import { shownMap } from "./maps.js?v=5.0.0-beta.57";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.57";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let legend = null, legendMaking = null, coordWidget = null;
@@ -238,7 +238,7 @@ export const PROF_KEYS = ["line", "dot", "draft", "draftDots"];
 // A finger (or a device with no hovering pointer) gets the touch wording; the last pointer used on the map decides.
 let profTouch = (() => { try { return matchMedia("(hover: none)").matches; } catch (e) { return false; } })();
 const isTouch = (e) => { const n = e && e.native; return !!n && n.pointerType === "touch"; };
-const profHint = () => (profTouch ? S.profileHintTouch : S.profileHint);
+const profHint = () => (profTouch ? S.profileHintTouch : S.profileHint + " " + S.profileHintKeys);
 const PROF_LINE = { type: "simple-line", color: [255, 127, 0, 1], width: 3 };
 const PROF_DOT = { type: "simple-marker", style: "circle", color: [255, 255, 255, 1], size: 13, outline: { color: [200, 60, 0, 1], width: 3 } };
 const PROF_VERTEX = { type: "simple-marker", style: "circle", color: [255, 127, 0, 1], size: 13, outline: { color: [255, 255, 255, 1], width: 2 } };
@@ -367,7 +367,7 @@ async function profileOf(geometry, via) {
   for (const p of pts) { if (p.z == null) p.z = first.z; }
   prof = { line: geometry, sr, pts, total: dist, min, max, gain, loss, via: via ? via.map((c) => [c[0], c[1]]) : null };
   showProfHandles(prof.via);
-  profAt = -1; $("profNew").hidden = false;
+  profAt = -1; $("profNew").hidden = false; syncDraftButtons();
   renderProfile();
 }
 // --- numbers, in the units the app is set to
@@ -577,7 +577,20 @@ function drawDraft(to) {
 export function syncDraftButtons() {
   const n = state.profDraft ? state.profDraft.length : 0;
   $("profFinish").hidden = n < 2; $("profUndo").hidden = n < 1;
+  $("profCentre").hidden = !!prof && !state.profDraft;      // while a line can be drawn
 }
+// Without a mouse (5.0.0-beta.57): a point of the line is put at the centre of the map, by Space on the map or the Add point
+// button. Move the map between points with the arrow keys; Enter or Finish line ends the line.
+function addProfPointAtCentre() {
+  if (!profActive() || !state.view) return;
+  const c = state.view.center; if (!c) return;
+  if (!state.profDraft) { if (prof) clearProfile(); state.profDraft = []; }
+  const last = state.profDraft[state.profDraft.length - 1];
+  if (last && Math.abs(last.x - c.x) < 1e-6 && Math.abs(last.y - c.y) < 1e-6) { profMessage(S.profileMoveFirst); return; }
+  state.profDraft.push({ x: c.x, y: c.y, spatialReference: c.spatialReference, sx: -9999, sy: -9999 });
+  drawDraft(); profMessage(t("profilePointAdded", { n: state.profDraft.length }));
+}
+{ const b = $("profCentre"); b.addEventListener("click", addProfPointAtCentre); for (const [ev, on] of [["focus", true], ["blur", false], ["pointerenter", true], ["pointerleave", false]]) b.addEventListener(ev, () => showCentre(on || document.activeElement === b)); }
 function cancelDraft() { state.profDraft = null; drawDraft(); profMessage(profHint()); }
 function finishProfileDraft() {
   if (!state.profDraft) return;
@@ -618,6 +631,7 @@ onViews("drag", (e) => {
   }
   if (e.action === "end") { const via = prof.via.map((c) => [c[0], c[1]]); profEdit = null; setViewCursor("grab"); profileOf(geodesicPath(via, 96), via); }
 });
+onViews("key-down", (e) => { if (profActive() && (e.key === " " || e.key === "Spacebar") && !e.repeat) { e.stopPropagation(); addProfPointAtCentre(); } });
 onViews("key-down", (e) => { if (!profActive() || !state.profDraft) return; if (e.key === "Enter") { e.stopPropagation(); finishProfileDraft(); } else if (e.key === "Escape") { e.stopPropagation(); cancelDraft(); } });
 $("profFinish").addEventListener("click", () => finishProfileDraft());
 $("profUndo").addEventListener("click", () => { if (!state.profDraft) return; state.profDraft.pop(); if (!state.profDraft.length) cancelDraft(); else drawDraft(); });

@@ -1,9 +1,9 @@
 // ============================================================ Map, views and widgets
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.56";
-import { state, late } from "./state.js?v=5.0.0-beta.56";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.56";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.56";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.56";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.57";
+import { state, late } from "./state.js?v=5.0.0-beta.57";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.57";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.57";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.57";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -97,6 +97,7 @@ export function addViewUI(v, is3d) {
   if (F.search !== false) { const ex = slot("arcgis-expand", "top-left", { "expand-icon": "search", "expand-tooltip": S.search, group: "top-left" }); ex.appendChild(document.createElement("arcgis-search")); }
   // Home remembers where the view was when it was made, so it is made once the view is somewhere: a map opened from
   // a link starts with no basemap, and nowhere yet (Home made then threw an error inside the SDK).
+  v.when(() => { const s = v.container && v.container.querySelector(".esri-view-surface"); if (s) s.setAttribute("aria-label", S.mapKeys); }).catch(() => {});      // what the keys do, for a screen reader (5.0.0-beta.57)
   const zoom = slot("arcgis-zoom", "top-left");
   const home = document.createElement("arcgis-home"); home.slot = "top-left";
   started.then(() => reactiveUtils.whenOnce(() => v.ready && !!v.viewpoint && !!v.viewpoint.targetGeometry)).then(() => el.insertBefore(home, zoom)).catch(() => {});

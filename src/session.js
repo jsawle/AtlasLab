@@ -1,8 +1,8 @@
 // ============================================================ State
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.56";
-import { state, late } from "./state.js?v=5.0.0-beta.56";
-import { $, S, t } from "./config.js?v=5.0.0-beta.56";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.56";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.57";
+import { state, late } from "./state.js?v=5.0.0-beta.57";
+import { $, S, t } from "./config.js?v=5.0.0-beta.57";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.57";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)
@@ -60,7 +60,12 @@ function layoutCorner() {
 // Keep the toolbar clear of the attribution bar (it grows when the disclaimer wraps on phones), and lift the
 // compass and scale bar above the toolbar when the toolbar would cover them (phones, narrower laptops).
 const uiBottom = new WeakMap(), uiBase = new WeakMap();
+// The toolbar scrolls sideways when the screen is too narrow for it; its edges show where there is more (index.html).
+function toolbarEdges() { const tb = $("toolbar"); if (!tb) return; tb.classList.toggle("more-left", tb.scrollLeft > 4); tb.classList.toggle("more-right", tb.scrollLeft + tb.clientWidth < tb.scrollWidth - 4); }
+$("toolbar").addEventListener("scroll", toolbarEdges, { passive: true });
+$("toolbar").addEventListener("focusin", (e) => { const b = e.target && e.target.closest && e.target.closest(".tool, .seg button"); if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" }); });
 export function layoutBottom() {
+  toolbarEdges();
   const v = state.view, root = v && v.container;
   const attr = root && root.querySelector(".esri-attribution");
   if (attr) $("mapWrap").style.setProperty("--attr-h", Math.ceil(attr.getBoundingClientRect().height || 16) + "px");

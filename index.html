@@ -65,6 +65,15 @@
 
     /* ---------- Map area ---------- */
     .map-wrap{ position:relative; flex:1 1 auto; min-height:0; }
+    /* 5.0.0-beta.57: the map shows plainly when it has the keyboard's focus, and where its centre is (what Enter and Space act on) */
+    .map-ring{ position:absolute; inset:0; border:4px solid var(--focus, #005e95); box-shadow:inset 0 0 0 2px #fff; pointer-events:none; z-index:3; }
+    .map-ring[hidden]{ display:none; }
+    @media (forced-colors: active){ .map-ring{ border-color:Highlight; } }
+    .centre-mark{ position:absolute; left:50%; top:50%; width:34px; height:34px; margin:-17px 0 0 -17px; pointer-events:none; z-index:4;
+      background:linear-gradient(#111,#111) center/3px 100% no-repeat, linear-gradient(#111,#111) center/100% 3px no-repeat; filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
+    .centre-mark[hidden]{ display:none; }
+    @media (forced-colors: active){ .centre-mark{ forced-color-adjust:none; background:linear-gradient(CanvasText,CanvasText) center/3px 100% no-repeat, linear-gradient(CanvasText,CanvasText) center/100% 3px no-repeat; } }
+    .tool:focus-visible, .seg button:focus-visible{ outline:4px solid var(--focus, #005e95); outline-offset:-4px; }      /* inside the tool: the toolbar clips a ring drawn outside it */
     #viewDiv, #sceneDiv{ position:absolute; inset:0; }
     .view-el{ display:block; width:100%; height:100%; }
     .hdr .ver-btn{ flex:0 0 auto; background:transparent; color:inherit; border-color:currentColor; }   /* 5.0.0-beta.50: the version is in the header, off the map */
@@ -684,6 +693,36 @@
       .open-body{ padding:14px 16px 18px; }
       .dev-top{ padding:12px 16px; }
     }
+    /* 5.0.0-beta.57: short screens, and any screen zoomed a long way in. A 1280 x 1024 screen at 400% is 320 x 256, the size
+       WCAG's Reflow asks for. The header and the toolbar shrink to leave the map room; the compass goes; a panel or the
+       Open map window takes the whole screen and scrolls as one piece, up and down only. Measure, Sketch and Filter keep
+       their place over the map, which they are used with. */
+    @media (max-height:440px){
+      .hdr{ height:38px; gap:8px; padding:0 8px; }
+      .hdr-logo img, .hdr-logo .compact{ height:26px; } .hdr-partners img{ height:22px; }
+      .logo-text{ font-size:16px; } .doc-title{ font-size:14px; padding:2px 6px; }
+      :root{ --tb-h:48px; }
+      .tool{ width:50px; padding:4px 2px; gap:0; }
+      .tool .tl{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+      .seg{ width:60px; } .seg button{ font-size:12px; gap:4px; }
+      .rose{ display:none; }
+      .hdr .ver-btn{ font-size:11px; padding:2px 5px; }
+      #app .corner .tools-toggle.labelled{ flex-direction:row; height:32px; width:auto; padding:0 8px 0 6px; gap:5px; border-radius:4px; }
+      #app .corner .tools-toggle.labelled svg{ width:16px; height:16px; }
+      .panel:not(#measurePanel):not(#sketchPanel):not(#filterPanel), .panel.wide:not(#measurePanel), .panel.bmg-panel, .panel.lyr-panel{ position:fixed; inset:0; width:auto; max-height:none; border:none; border-radius:0; z-index:58; }
+      #measurePanel, #sketchPanel, #filterPanel{ max-height:62%; }
+      .modal, .modal.top{ padding:0; align-items:stretch; }
+      .open-card{ display:block; height:100%; max-height:none; border-radius:0; overflow-y:auto; }
+      .open-card .tabs{ position:static; }
+      .cat-body{ display:block; } .cat-side, .cat-main, .open-body{ overflow:visible; max-height:none; min-height:auto; }
+      .cat-dims{ max-width:100%; flex-wrap:wrap; } .cat-dims button{ padding:6px 9px; font-size:14px; }
+      .modal-card, .modal .card{ max-height:100%; overflow-y:auto; }
+      .dock{ height:62vh; height:62dvh; }
+    }
+    /* the toolbar scrolls sideways when it does not fit: its edge fades where there are more tools that way */
+    .toolbar.more-right{ -webkit-mask-image:linear-gradient(to left, transparent 0, #000 34px); mask-image:linear-gradient(to left, transparent 0, #000 34px); }
+    .toolbar.more-left{ -webkit-mask-image:linear-gradient(to right, transparent 0, #000 34px); mask-image:linear-gradient(to right, transparent 0, #000 34px); }
+    .toolbar.more-left.more-right{ -webkit-mask-image:linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%); mask-image:linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%); }
     @media (prefers-reduced-motion: reduce){ *{ scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
   </style>
 </head>
@@ -722,6 +761,8 @@
     </header>
 
     <main class="map-wrap" id="mapWrap">
+      <div class="map-ring" id="mapRing" aria-hidden="true" hidden></div>
+      <div class="centre-mark" id="centreMark" aria-hidden="true" hidden></div>
       <div id="viewDiv"></div>
       <div id="sceneDiv" hidden></div>
       <div class="corner"><button class="ver-btn tips-btn" id="tipsBtn" type="button" aria-pressed="true" hidden></button></div>
@@ -962,6 +1003,7 @@
             <div class="units-seg" role="group" data-i18n-aria="units" aria-label="Units"><button type="button" data-units="metric" aria-pressed="false" data-i18n-aria="unitsMetric" aria-label="km: kilometres and metres">km</button><button type="button" data-units="imperial" aria-pressed="false" data-i18n-aria="unitsImperial" aria-label="mi: miles and feet">mi</button></div>
             <button class="btn" type="button" id="profFish" aria-pressed="false" data-i18n="profileFish" data-i18n-title="profileFishTitle" hidden>Fish</button>
             <span id="profLinesWrap" hidden><label class="sr-only" for="profLines" data-i18n="profilePickLine">Use a sketched line</label><select class="field" id="profLines"></select></span>
+            <button class="btn" type="button" id="profCentre" data-i18n="profileCentre" data-i18n-title="profileCentreTitle">Add point at map centre</button>
             <button class="btn" type="button" id="profUndo" data-i18n="profileUndo" hidden>Undo point</button>
             <button class="btn primary" type="button" id="profFinish" data-i18n="profileFinish" hidden>Finish line</button>
             <button class="btn" type="button" id="profNew" data-i18n="profileNew" hidden>New profile</button>
@@ -1118,6 +1160,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.56"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.57"></script>
 </body>
 </html>
