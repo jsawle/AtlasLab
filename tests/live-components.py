@@ -24,7 +24,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -45,7 +45,7 @@ def main():
         page.on("pageerror", lambda e: errors.append((getattr(e, "stack", "") or str(e))[:700])); page.on("request", lambda r: urls.append(r.url)); page.on("dialog", lambda d: d.accept())
         def axe(sel, what):
             if not a.axe: return
-            page.add_script_tag(path=a.axe)
+            csp_shim.add_axe(page, a.axe)
             res = page.evaluate("async (sel) => { const r = await axe.run(sel, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] }); return r.violations.map(v => v.id + ': ' + v.nodes.length + ' ' + (v.nodes[0] && v.nodes[0].target.join(' '))); }", sel)
             check(not res, what + " passes the accessibility scan" + (": " + "; ".join(res) if res else ""))
         def deep(sel): return page.evaluate(DEEP, sel)

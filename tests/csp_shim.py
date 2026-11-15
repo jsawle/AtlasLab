@@ -4,7 +4,7 @@ Playwright's wait_for_function runs a text expression with eval() inside the pag
 should). Wrapping the expression in a function avoids that: Playwright then calls the function and never evals in the page.
 Importing this module is enough. It also collects what the policy blocked: csp_shim.blocked is a list of console messages.
 """
-import os, shutil
+import os, pathlib, shutil
 from playwright.sync_api import Page, Browser, BrowserContext
 
 blocked = []
@@ -82,3 +82,9 @@ def launch(p, options):
         if os.environ.get("DISPLAY"): opts["headless"] = False
     print("running in " + name, flush=True)
     return getattr(p, name).launch(**opts)
+
+
+def add_axe(page, path):
+    """Put axe-core on the page. The app's Content Security Policy refuses an inline script tag, so the file's text is run
+    through the browser's debugger instead (which the policy does not govern); axe then scans the page as it is."""
+    page.evaluate(pathlib.Path(path).read_text())

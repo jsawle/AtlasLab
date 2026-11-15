@@ -20,7 +20,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -68,7 +68,7 @@ def main():
         check(bool(c0) and bool(c1) and c1 == c0[::-1], f"ticked, the preview's colours run the other way ({c0[0]}…{c0[-1]} → {c1[0]}…{c1[-1]})")
         check(bg0 != bg1 and "270deg" in bg1, "and the ramp buttons show it")
         if a.axe:
-            page.add_script_tag(path=a.axe); v = page.evaluate(AXE, "#dataPanel"); check(not v, "the panel with Reverse colours: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
+            csp_shim.add_axe(page, a.axe); v = page.evaluate(AXE, "#dataPanel"); check(not v, "the panel with Reverse colours: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         style("graduated"); check(page.evaluate("document.querySelector('#rampRevRow').hidden"), "By size has no Reverse colours (no ramp)")
         PIE = "(() => { const b = document.querySelectorAll('#styleList .style-card')[5]; return [b.disabled, b.title]; })()"
         pie = page.evaluate(PIE); check(pie[0] is False, "in 2D Pie charts is offered")
@@ -114,7 +114,7 @@ def main():
         check(bool(r24) and abs(r24["width"] / w12 - 2) < 0.01 and r24["stops"][1][1] == h12, "the Size slider at 24 makes the columns twice as thick, the same height (%.0f m → %.0f m)" % (w12, r24["width"]))
         page.evaluate("(() => { const s = document.querySelector('#dataSize'); s.value = 12; s.dispatchEvent(new Event('input', { bubbles: true })); s.dispatchEvent(new Event('change', { bubbles: true })); })()"); page.wait_for_timeout(2500)
         if a.axe:
-            page.add_script_tag(path=a.axe); v = page.evaluate(AXE, "#dataPanel"); check(not v, "the panel with the choice: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
+            csp_shim.add_axe(page, a.axe); v = page.evaluate(AXE, "#dataPanel"); check(not v, "the panel with the choice: no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         page.screenshot(path=str(shots / "columns-panel.png"))
         mark("preview"); js("#dataSubmit"); wf("document.querySelector('#layersBadge').textContent === '1'"); page.wait_for_timeout(1500); mark("added")
         r = rend("__data_")

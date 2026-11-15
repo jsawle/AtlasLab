@@ -23,7 +23,7 @@ def scene_json(item):
     with urllib.request.urlopen(f"https://www.arcgis.com/sharing/rest/content/items/{item}/data?f=json", timeout=60) as r: return json.load(r)
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -47,7 +47,7 @@ def main():
         page.on("dialog", lambda d: d.accept())
         def axe(sel, what):
             if not a.axe: return
-            if not page.evaluate("typeof axe !== 'undefined'"): page.add_script_tag(path=a.axe)
+            if not page.evaluate("typeof axe !== 'undefined'"): csp_shim.add_axe(page, a.axe)
             v = page.evaluate(AXE, sel); check(not v, what + ": no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         SCENE_READY = "(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready && s.view.map && s.view.map.declaredClass === 'esri.WebScene' && s.view.map.loaded); })()"
         ON = "document.querySelector('arcgis-scene').view.map.layers.toArray().filter(l => l.visible && l.listMode !== 'hide' && l.type !== 'graphics').map(l => l.id).sort()"

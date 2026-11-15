@@ -99,7 +99,7 @@ ATLAS_BROWSER=firefox python tests/live-start.py
 
 ## Conventions
 
-- **Accessibility**: every control has a name, works from the keyboard, and keeps a visible focus. `tests/live-elevation.py` runs axe-core when given its path (`--axe`). Don't remove the browser's own zoom or text resizing.
+- **Accessibility**: every control has a name, works from the keyboard, and keeps a visible focus. Seventeen of the browser tests scan what they open with axe-core (WCAG 2.1 A and AA) when given its path, by `--axe` or in `ATLAS_AXE`; the workflow installs axe-core for them and sets `ATLAS_AXE`. To run them here: `npm install --no-save --prefix /tmp/axe axe-core@4.14.0`, then `ATLAS_AXE=/tmp/axe/node_modules/axe-core/axe.min.js python3 tests/live-parity.py`. Don't remove the browser's own zoom or text resizing.
 - **Wording** goes in `lib/strings.js` (and `locales/`), never in the code.
 - **Experimental features** are switched on per config under `features` and tried in `config/lab.json` first.
 - **Security**: no `innerHTML` with content that came from outside the app; item descriptions go through `safeFragment`. No inline script or event handlers: the Content Security Policy refuses them. A new outside address may need adding to the policy in `index.html`; the tests will say so.

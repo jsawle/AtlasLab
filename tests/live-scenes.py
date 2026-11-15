@@ -24,7 +24,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default="")
+    ap = argparse.ArgumentParser(); ap.add_argument("--shots", default=str(HERE / ".shots")); ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY", "")); ap.add_argument("--axe", default=os.environ.get("ATLAS_AXE", ""))
     a = ap.parse_args()
     shots = pathlib.Path(a.shots); shots.mkdir(parents=True, exist_ok=True)
     srv = http.server.ThreadingHTTPServer(("localhost", 0), functools.partial(Quiet, directory=csp_shim.served(APP)))
@@ -51,7 +51,7 @@ def main():
         page.on("dialog", lambda d: d.accept())
         def axe(sel, what):
             if not a.axe: return
-            if not page.evaluate("typeof axe !== 'undefined'"): page.add_script_tag(path=a.axe)
+            if not page.evaluate("typeof axe !== 'undefined'"): csp_shim.add_axe(page, a.axe)
             v = page.evaluate(AXE, sel); check(not v, what + ": no WCAG 2.1 A/AA violations (axe-core): " + "; ".join(v))
         MODE = "({ p2: document.querySelector('#tg2d').getAttribute('aria-pressed'), p3: document.querySelector('#tg3d').getAttribute('aria-pressed'), d2: document.querySelector('#tg2d').getAttribute('aria-disabled'), d3: document.querySelector('#tg3d').getAttribute('aria-disabled'), sceneShown: !document.querySelector('#sceneDiv').hidden, mapShown: !document.querySelector('#viewDiv').hidden })"
         SCENE_READY = "(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready && s.view.map && s.view.map.declaredClass === 'esri.WebScene' && s.view.map.loaded); })()"
