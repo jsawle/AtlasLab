@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.62";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.62";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.62";
-import { state } from "./state.js?v=5.0.0-beta.62";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.62";
-import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.62";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.62";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.62";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.62";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.62";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.62";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.63";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.63";
+import { state } from "./state.js?v=5.0.0-beta.63";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.63";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.63";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.63";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.63";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.63";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.63";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.62";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.62";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.62";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.62";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.62";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.62";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.62";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.63";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.63";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.63";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.63";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.63";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.63";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.63";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -77,6 +77,53 @@ function syncNotes3d() {
   });
   if (notes3d.length) v.graphics.addMany(notes3d);
 }
+// ---- Sketched areas with a styled fill (hatch, land use, pencil), in 3D (5.0.0-beta.63; 2D to 3D 1.2). The 3D view
+// draws such a fill as a thin outline only, which is easy to miss. So in 3D each one gets a helper drawing that is the
+// view's own (nothing is added to the sketch, the layer list or a saved file): a thicker outline and a light tint.
+// Lab (features.drapeFills): the fill itself is also drawn into a picture, cut to the shape and laid on the ground (a
+// MediaLayer the list doesn't show); where that works the tint is left off. The pattern in the picture is fixed to the
+// ground, where 2D keeps it the same size on screen.
+const DRAPE = !!F.drapeFills, FILL3D_ID = "__fills3d";
+let fills3d = [], fillWatch = null, fillTimer = 0, fillSeq = 0, fillMedia = null, drapeCode = null;
+const styledAreas = () => { const out = []; for (const l of sketchLayers) { if (!state.sceneView || !shownHere(l, state.sceneView)) continue; l.graphics.forEach((g) => { if (g.visible !== false && g.symbol && g.symbol.type === "cim" && g.geometry && g.geometry.type === "polygon" && g.geometry.extent) out.push(g); }); } return out; };
+const helperFor = (g, tint) => new Graphic({ geometry: g.geometry, symbol: { type: "simple-fill", color: [50, 50, 50, tint ? FILL3D.tint : 0], outline: { color: [50, 50, 50, 1], width: FILL3D.outline } } });
+async function drapeElement(g, mods) {
+  const [symbolUtils, , ImageElement, Georeference] = mods, ext = g.geometry.extent;
+  if (!(ext.width > 0 && ext.height > 0)) return null;
+  const el = await symbolUtils.renderPreviewHTML(g.symbol, { size: { width: 96, height: 96 }, symbolConfig: { isSquareFill: true } });
+  const src = el.tagName === "IMG" || el.tagName === "CANVAS" ? el : (el.querySelector("canvas") || el.querySelector("img"));
+  if (!src) return null;
+  if (src.tagName === "IMG" && !src.complete) await new Promise((r) => { src.onload = r; src.onerror = r; });
+  const size = drapeSize(ext.width, ext.height), c = document.createElement("canvas"); c.width = size.w; c.height = size.h;
+  const x = c.getContext("2d"), tile = document.createElement("canvas"); tile.width = tile.height = size.tile; tile.getContext("2d").drawImage(src, 0, 0, size.tile, size.tile);
+  x.beginPath();
+  for (const ring of g.geometry.rings) { ring.forEach((p, i) => { const px = (p[0] - ext.xmin) / ext.width * size.w, py = (ext.ymax - p[1]) / ext.height * size.h; if (i) x.lineTo(px, py); else x.moveTo(px, py); }); x.closePath(); }
+  x.clip("evenodd"); x.fillStyle = x.createPattern(tile, "repeat"); x.fillRect(0, 0, size.w, size.h);
+  return new ImageElement({ image: c, georeference: new Georeference({ extent: ext }) });
+}
+async function syncFills3d() {
+  const v = state.sceneView, seq = ++fillSeq;
+  if (v && fills3d.length) v.graphics.removeMany(fills3d);
+  fills3d = [];
+  const dropMedia = () => { if (fillMedia) { try { if (fillMedia.parent) fillMedia.parent.remove(fillMedia); fillMedia.destroy(); } catch (e) { /* already gone */ } fillMedia = null; } };
+  if (!v || state.mode !== "3d" || !v.map) { dropMedia(); if (fillWatch) { fillWatch.remove(); fillWatch = null; } return; }
+  // drawn again a moment after a sketch is added, changed, moved, hidden or taken away
+  if (!fillWatch) fillWatch = reactiveUtils.watch(() => [v.map, v.map && v.map.layers.length, sketchLayers.map((l) => [l.visible, l.graphics.length, l.graphics.map((g) => [g.geometry, g.symbol, g.visible]).toArray()])], () => { clearTimeout(fillTimer); fillTimer = setTimeout(syncFills3d, 350); });
+  const areas = styledAreas(), draped = new Set();
+  if (DRAPE && areas.length) {
+    try {
+      if (!drapeCode) drapeCode = $arcgis.import(["@arcgis/core/symbols/support/symbolUtils.js", "@arcgis/core/layers/MediaLayer.js", "@arcgis/core/layers/support/ImageElement.js", "@arcgis/core/layers/support/ExtentAndRotationGeoreference.js"]);
+      const mods = await drapeCode, els = [];
+      for (const g of areas.slice(0, FILL3D.most)) { try { const el = await drapeElement(g, mods); if (el) { els.push(el); draped.add(g); } } catch (e) { console.warn("Couldn't lay a fill on the ground", e); } }
+      if (seq !== fillSeq) return;
+      dropMedia();
+      if (els.length) { fillMedia = new mods[1]({ id: FILL3D_ID, source: els, listMode: "hide", title: "" }); v.map.add(fillMedia); }
+    } catch (e) { drapeCode = null; draped.clear(); console.warn("Couldn't lay fills on the ground", e); }
+  } else dropMedia();
+  if (seq !== fillSeq || state.mode !== "3d") return;
+  fills3d = areas.map((g) => helperFor(g, !draped.has(g)));
+  if (fills3d.length) v.graphics.addMany(fills3d);
+}
 // A short note, once for each map, when layers that are switched on will look different in 3D; Map layers says how for each.
 const told3d = new WeakSet();
 function tellDiffers3d(map) {
@@ -129,7 +176,7 @@ export async function setMode(m, opts) {
       if (state.sceneView && wantMode && state.sceneView.viewingMode !== wantMode) { const oldEl = viewEls.get(state.sceneView); viewEls.delete(state.sceneView); try { oldEl.destroy(); } catch (e) { /* gone */ } oldEl.remove(); state.sceneView = null; }
       if (!quality3d) { quality3d = pick3dQuality(); console.info("3D quality", quality3d.quality, "(" + quality3d.why + ")"); document.documentElement.dataset.quality3d = quality3d.quality; }
       if (!state.sceneView) { state.sceneView = await componentView("arcgis-scene", "sceneDiv", { map: curMap, qualityProfile: quality3d.quality }); tune3d(state.sceneView); addViewUI(state.sceneView, true);
-        { const sv = state.sceneView; reactiveUtils.watch(() => [hazeOn(sv.scale), sv.map], () => haze(sv)); reactiveUtils.watch(() => sv.map, () => { if (state.mode === "3d") syncNotes3d(); }); }
+        { const sv = state.sceneView; reactiveUtils.watch(() => [hazeOn(sv.scale), sv.map], () => haze(sv)); reactiveUtils.watch(() => sv.map, () => { if (state.mode === "3d") { syncNotes3d(); syncFills3d(); } }); }
         // the layer count and the basemap gallery now follow the 3D view's map too (see shownMap)
         reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
         reactiveUtils.watch(() => { const m = shownMap(), b = m && m.basemap; return b ? ((b.portalItem && b.portalItem.id) || "") + "|" + (b.title || "") : ""; }, syncGallerySelection); viewHandlers.forEach((h) => state.sceneView.on(h[0], h[1])); }
@@ -178,7 +225,7 @@ export async function setMode(m, opts) {
   watchBottom(0);
   if (m === "3d" && dataLayers.some((l) => l.renderer && l.renderer.type === "pie-chart")) toast(S.pieIn3d);
   else if (m === "3d") tellDiffers3d(state.sceneView.map);
-  syncNotes3d();
+  syncNotes3d(); syncFills3d();
   dataLayers.concat(previewLayer ? [previewLayer] : []).forEach(syncColumns);
   if (state.addState && !$("dataPanel").hidden) { renderStyleList(); renderFieldRows(); }   // what the styles offer depends on the view
 }

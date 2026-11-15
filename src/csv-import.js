@@ -1,18 +1,18 @@
 // ============================================================ CSV import (configure panel with live preview)
-import "./item-info.js?v=5.0.0-beta.62";   // first: keeps the files running in the order they were written in (see app.js)
+import "./item-info.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
 import { PALETTE_HEX, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable, pickAutoStyle, pickAutoFields, aliasOf,
-  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX } from "../lib/csv.js?v=5.0.0-beta.62";
-import { state } from "./state.js?v=5.0.0-beta.62";
-import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.62";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.62";
-import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.62";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.62";
-import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.62";
-import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.62";
-import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.62";
-import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.62";
-import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.62";
-import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.62";
+  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX } from "../lib/csv.js?v=5.0.0-beta.63";
+import { state } from "./state.js?v=5.0.0-beta.63";
+import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.63";
+import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.63";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.63";
+import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.63";
+import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.63";
+import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.63";
+import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.63";
+import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.63";
+import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.63";
 
 export let previewLayer = null, previewTimer = 0, prePreviewCam = null, dataLayerSeq = 0;
 const STYLE_TEXT = { simple: ["styleSimple", "styleSimpleHint"], categorical: ["styleCategorical", "styleCategoricalHint"], graduated: ["styleGraduated", "styleGraduatedHint"],

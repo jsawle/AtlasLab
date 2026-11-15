@@ -120,6 +120,7 @@ jobs:
           - live-outline.py
           - live-fish.py
           - live-3d-switch.py
+          - live-fills-3d.py
           - live-keyboard.py
           - live-partner.py
     steps:
