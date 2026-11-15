@@ -1,8 +1,8 @@
 // ============================================================ State
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.58";
-import { state, late } from "./state.js?v=5.0.0-beta.58";
-import { $, S, t } from "./config.js?v=5.0.0-beta.58";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.58";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.59";
+import { state, late } from "./state.js?v=5.0.0-beta.59";
+import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.59";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.59";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)
@@ -42,7 +42,9 @@ window.addEventListener("beforeunload", (e) => { if (state.dirty || unfinishedDa
 function sizeTitle() { const el = $("docTitle"); el.size = Math.max(8, Math.min(60, (el.value || el.placeholder || "").length + 2)); }
 $("docTitle").addEventListener("input", () => { markDirty(); sizeTitle(); });
 export function currentTitle() { return ($("docTitle").value || "").trim() || S.untitled; }
-function updateTitleShown() { $("hdrTitle").classList.toggle("empty", !($("docTitle").value || "").trim() && document.activeElement !== $("docTitle")); }
+// The browser tab and the page's main heading name the map that is open (5.0.0-beta.58; WCAG 2.4.2, 1.3.1).
+function namePage() { const tl = ($("docTitle").value || "").trim(); document.title = tl ? tl + " · " + cfg.appName : cfg.appName; const h = $("pageH1"); if (h) h.textContent = tl ? cfg.appName + ": " + tl : cfg.appName; }
+function updateTitleShown() { $("hdrTitle").classList.toggle("empty", !($("docTitle").value || "").trim() && document.activeElement !== $("docTitle")); namePage(); }
 export function setTitle(v) { $("docTitle").value = (v && String(v).trim()) || ""; sizeTitle(); updateTitleShown(); }
 $("docTitle").addEventListener("blur", updateTitleShown);
 // Saved maps are .amap files (Atlas map). .mmap files from versions before 1.7 open too.

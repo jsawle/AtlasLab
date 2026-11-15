@@ -1,24 +1,51 @@
 // ============================================================ Toast, panels, modals (keyboard accessible)
-import "./session.js?v=5.0.0-beta.58";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.58";
-import { $, cfg, F, t } from "./config.js?v=5.0.0-beta.58";
-import { need } from "./sdk.js?v=5.0.0-beta.58";
-import { syncToolsToggles } from "./views.js?v=5.0.0-beta.58";
-import { layoutBottom } from "./session.js?v=5.0.0-beta.58";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.58";
-import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.58";
-import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.58";
-import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.58";
-import { endFilter } from "./filter-panel.js?v=5.0.0-beta.58";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.58";
-import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.58";
-import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.58";
-import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.58";
-import { renderVersions } from "./versions.js?v=5.0.0-beta.58";
+import "./session.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.59";
+import { $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.59";
+import { need } from "./sdk.js?v=5.0.0-beta.59";
+import { syncToolsToggles } from "./views.js?v=5.0.0-beta.59";
+import { layoutBottom } from "./session.js?v=5.0.0-beta.59";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.59";
+import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.59";
+import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.59";
+import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.59";
+import { endFilter } from "./filter-panel.js?v=5.0.0-beta.59";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.59";
+import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.59";
+import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.59";
+import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.59";
+import { renderVersions } from "./versions.js?v=5.0.0-beta.59";
 late.toast = toast;   // for the start-up files, which run before this one (see late in state.js)
 
+// Messages (2.0, 5.0.0-beta.58). A message used to be gone after a few seconds whatever the reader was doing (WCAG 2.2.1,
+// and 3.3.1 where the message is an error). Now: it waits while the pointer is on it or the keyboard is in it; it has a
+// Close button; a setting in the Versions panel keeps every message until it is closed; and the last ten are listed there.
 let toastTimer = 0;
-export function toast(msg, ms) { const el = $("toast"); el.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.textContent = ""; }, ms || 3400); }
+const KEEP_KEY = "atlas.keepMessages", recentMessages = [];
+const keepMessages = () => { try { return localStorage.getItem(KEEP_KEY) === "1"; } catch (e) { return false; } };
+const clearToast = () => { clearTimeout(toastTimer); toastTimer = 0; $("toast").textContent = ""; };
+function armToast(ms) { clearTimeout(toastTimer); toastTimer = setTimeout(clearToast, ms); }
+function renderMessages() {
+  const ul = $("recentMsgs"); if (!ul) return;
+  ul.replaceChildren(...(recentMessages.length ? recentMessages : [{ msg: S.noMessages }]).map((m) => { const li = document.createElement("li"); if (m.at) { const tm = document.createElement("time"); tm.textContent = m.at.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); li.append(tm, " "); } li.append(m.msg); return li; }));
+}
+export function toast(msg, ms) {
+  const el = $("toast"); el.textContent = msg; clearTimeout(toastTimer); toastTimer = 0;
+  if (!msg) return;
+  recentMessages.unshift({ msg, at: new Date() }); if (recentMessages.length > 10) recentMessages.length = 10;
+  renderMessages();
+  if (!keepMessages()) armToast(ms || 3400);
+}
+{
+  const wrap = $("toastWrap"), hold = () => { clearTimeout(toastTimer); toastTimer = 0; };
+  const go = () => { if (!toastTimer && $("toast").textContent && !keepMessages() && !wrap.matches(":hover") && !wrap.contains(document.activeElement)) armToast(2500); };      // a moment more, then it goes
+  wrap.addEventListener("pointerenter", hold); wrap.addEventListener("focusin", hold);
+  wrap.addEventListener("pointerleave", go); wrap.addEventListener("focusout", () => setTimeout(go, 0));
+  $("toastClose").addEventListener("click", clearToast);
+  const keep = $("keepMsgs"); keep.checked = keepMessages();
+  keep.addEventListener("change", () => { try { localStorage.setItem(KEEP_KEY, keep.checked ? "1" : "0"); } catch (e) { /* not kept between visits */ } if (keep.checked) { clearTimeout(toastTimer); toastTimer = 0; } else if ($("toast").textContent) armToast(3400); });
+  renderMessages();
+}
 // Several messages, one after another, each for its own time: [[text, ms], ...], starting after `delay`.
 function toastSeries(list, delay) {
   let at = delay || 0;

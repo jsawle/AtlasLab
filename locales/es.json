@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.14",
+  "version": "1.15",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -561,7 +561,7 @@
     "profileDrawing": "Haz clic para cada punto de la línea. Para terminar, haz doble clic, pulsa Intro o elige Terminar línea.",
     "profileHintTouch": "Toca el mapa para cada punto de una línea y toca dos veces el último para terminar. O toca una línea que ya esté en el mapa.",
     "profileDrawingTouch": "Toca para cada punto de la línea. Toca dos veces el último punto para terminar, o usa el botón Terminar línea de abajo.",
-    "profileCentre": "Añadir punto en el centro del mapa", "profileCentreTitle": "Pone un punto de la línea donde está la cruz, en el centro del mapa. Mueve el mapa y añade el siguiente.", "profileHintKeys": "Con el teclado: mueve el mapa hasta que el lugar quede bajo la cruz del centro y pulsa Espacio o elige Añadir punto en el centro del mapa.", "profilePointAdded": "Punto {n} añadido en el centro del mapa. Mueve el mapa para el siguiente; Intro o Terminar línea acaba la línea.", "profileMoveFirst": "Ese punto ya está en la línea. Mueve antes el mapa.", "popupOpened": "Se ha abierto una ventana emergente. Tab entra en ella; Escape la cierra.", "nothingAtCentre": "No hay nada que abrir en el centro del mapa. Mueve el mapa hasta que un elemento quede bajo la cruz y pulsa Intro.", "mapKeys": "Mapa. Las flechas lo mueven, más y menos acercan y alejan, Intro abre lo que hay en su centro.",
+    "profileCentre": "Añadir punto en el centro del mapa", "profileCentreTitle": "Pone un punto de la línea donde está la cruz, en el centro del mapa. Mueve el mapa y añade el siguiente.", "profileHintKeys": "Con el teclado: mueve el mapa hasta que el lugar quede bajo la cruz del centro y pulsa Espacio o elige Añadir punto en el centro del mapa.", "profilePointAdded": "Punto {n} añadido en el centro del mapa. Mueve el mapa para el siguiente; Intro o Terminar línea acaba la línea.", "profileMoveFirst": "Ese punto ya está en la línea. Mueve antes el mapa.", "closeMessage": "Cerrar mensaje", "recentMessages": "Mensajes recientes", "keepMessages": "Mantener los mensajes en pantalla hasta que los cierre", "noMessages": "Aún no hay mensajes.", "popupOpened": "Se ha abierto una ventana emergente. Tab entra en ella; Escape la cierra.", "nothingAtCentre": "No hay nada que abrir en el centro del mapa. Mueve el mapa hasta que un elemento quede bajo la cruz y pulsa Intro.", "mapKeys": "Mapa. Las flechas lo mueven, más y menos acercan y alejan, Intro abre lo que hay en su centro.",
     "profileFinish": "Terminar línea",
     "profileUndo": "Deshacer punto",
     "profileWorking": "Buscando las alturas a lo largo de la línea…",

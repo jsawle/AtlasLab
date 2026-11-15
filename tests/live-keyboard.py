@@ -1,4 +1,4 @@
-"""Checks the keyboard on the map and the layout at 400% zoom (Atlas 5.0.0-beta.57).
+"""Checks the keyboard on the map, messages, and the layout at 400% zoom (Atlas 5.0.0-beta.57 and .58).
 
 Run:  python3 tests/live-keyboard.py [--shots DIR] [--proxy URL]
 Needs network access to js.arcgis.com, www.arcgis.com and Esri's elevation service, and Python Playwright with Chromium.
@@ -63,6 +63,30 @@ def main():
         try: page.wait_for_function("document.getElementById('toast').textContent.includes('Nothing to open')", timeout=15000)
         except Exception: pass
         check("Nothing to open" in page.inner_text("#toast"), "where there is nothing at the centre it says so: " + page.inner_text("#toast"))
+
+        print("== messages that wait, the page's name, state shown by more than colour")
+        title = page.title(); h1 = page.inner_text("#pageH1")
+        check(title.endswith(" · AtlasLab") and len(title) > 14 and h1.startswith("AtlasLab: "), "the browser tab and the page's main heading name the open map: " + title)
+        check("Nothing to open" in page.inner_text("#toast") and page.is_visible("#toastClose"), "a message has a Close button")
+        box = page.evaluate("(() => { const r = document.getElementById('toast').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()")
+        page.mouse.move(*box); page.wait_for_timeout(7000)
+        check("Nothing to open" in page.inner_text("#toast"), "with the pointer on it, a 5 second message is still there after 7")
+        page.mouse.move(5, 300); page.wait_for_timeout(3500)
+        check(page.inner_text("#toast") == "", "and goes a little after the pointer leaves")
+        page.evaluate(V + ".focus()"); page.keyboard.press("Enter"); page.wait_for_function("document.getElementById('toast').textContent.includes('Nothing to open')", timeout=15000)
+        page.click("#toastClose"); page.wait_for_timeout(200)
+        check(page.inner_text("#toast") == "" and page.is_hidden("#toastWrap"), "Close takes a message away at once")
+        page.click("#verBtn"); page.wait_for_selector("#aboutPanel:not([hidden])", timeout=20000); page.wait_for_timeout(500)
+        rec = page.evaluate("[...document.querySelectorAll('#recentMsgs li')].map((l) => l.textContent)")
+        check(len(rec) >= 2 and "Nothing to open" in rec[0], "the Versions panel lists recent messages, newest first (%d)" % len(rec))
+        page.check("#keepMsgs"); page.keyboard.press("Escape"); page.wait_for_timeout(400)
+        page.evaluate(V + ".focus()"); page.keyboard.press("Enter"); page.wait_for_function("document.getElementById('toast').textContent.includes('Nothing to open')", timeout=15000); page.mouse.move(5, 300); page.wait_for_timeout(8000)
+        check("Nothing to open" in page.inner_text("#toast"), "with Keep messages on, a message stays until it is closed")
+        page.click("#toastClose"); page.click("#verBtn"); page.wait_for_selector("#aboutPanel:not([hidden])", timeout=20000); page.uncheck("#keepMsgs"); page.keyboard.press("Escape"); page.wait_for_timeout(400)
+        page.click("#tool-legend"); page.wait_for_selector("#legendPanel:not([hidden])", timeout=20000)
+        st = page.evaluate("(() => { const a = getComputedStyle(document.getElementById('tool-legend')), l = getComputedStyle(document.querySelector('#tool-legend .tl')), b = getComputedStyle(document.getElementById('tool-save')), on = getComputedStyle(document.getElementById('tg2d')), off = getComputedStyle(document.getElementById('tg3d')); return { bar: a.boxShadow !== 'none' && b.boxShadow === 'none', bold: l.fontWeight, seg: on.boxShadow !== 'none' && off.boxShadow === 'none' && on.fontWeight === '700' && off.fontWeight !== '700' }; })()")
+        check(st["bar"] and st["bold"] == "700" and st["seg"], "the open tool has a bar and bolder words, and so has whichever of 2D and 3D is on, as well as the colour")
+        page.keyboard.press("Escape"); page.wait_for_timeout(400)
 
         print("== an elevation profile without a mouse")
         page.evaluate("document.getElementById('tool-profile').click()"); page.wait_for_selector("#profChart .prof-msg", timeout=60000)
