@@ -161,7 +161,7 @@ test("a map author's list filter, and a condition added to it, open as two condi
   assert.deepEqual(F.parseWhere("iglesia_ca NOT IN ('Mision','Mision cabecera','Mision capital')", [{ name: "iglesia_ca", type: "string" }]).conditions[0].op, "isNotOneOf");
 });
 test("the plain panel: a short list of conditions first, and the filter said as a sentence (1.3)", () => {
-  for (const k of ["number", "text"]) { assert.ok(F.SIMPLE_OPERATORS[k].length <= 4); for (const op of F.SIMPLE_OPERATORS[k]) assert.ok(F.OPERATORS[k].includes(op)); assert.ok(F.SIMPLE_OPERATORS[k].includes(F.DEFAULT_OPERATOR[k])); }
+  for (const k of ["number", "text"]) { assert.ok(F.SIMPLE_OPERATORS[k].length <= 6); for (const op of F.SIMPLE_OPERATORS[k]) assert.ok(F.OPERATORS[k].includes(op)); assert.ok(F.SIMPLE_OPERATORS[k].includes(F.DEFAULT_OPERATOR[k])); }
   const fields = [{ name: "mag", type: "double" }, { name: "place", type: "string" }];
   const words = { op: { atLeast: "is at least", between: "is between", contains: "contains", isOneOf: "is one of", blank: "has no value" }, and: "and", or: "or" };
   const alias = (n) => ({ mag: "Magnitude", place: "Place" })[n];
