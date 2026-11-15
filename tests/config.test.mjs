@@ -70,7 +70,7 @@ const fetchJson = async (path) => JSON.parse(fs.readFileSync(root + path.replace
 }
 // 5.0.0-beta.58: a partner's config from an ArcGIS Online item (?appid=), and the manager's preview
 {
-  const ID = "0123456789abcdef0123456789abcdef", ORG = "iFGeGXTAJXnjq0YN", PORTAL = "https://www.arcgis.com";
+  const ID = "0123456789abcdef0123456789abcdef", ORG = "HNLEA4GfnbCFQZGa", PORTAL = "https://www.arcgis.com";
   const item = { id: ID, title: "Mapas Escolares (Panamá)", orgId: ORG, typeKeywords: ["Web Map", PARTNER_KEYWORD], modified: 1 };
   const data = { configVersion: 3, appName: "Mapas", locale: "es", extends: "mapmaker", portalUrl: "https://evil.example.com", contentGroup: "c3ac404ac811494ea6fa116abc0cf39b" };
   const asked = [];
@@ -100,7 +100,9 @@ const fetchJson = async (path) => JSON.parse(fs.readFileSync(root + path.replace
   const pv = await loadPreviewConfig({ appName: "Draft", portalUrl: "https://evil.example.com", locale: "es-PA" }, fetchJson);
   ok(pv.name === "preview" && pv.raw.appName === "Draft" && !("portalUrl" in pv.raw) && pv.localeFile.name === "es", "a preview config is read like an item's");
   const src = fs.readFileSync(root + "src/config.js", "utf8");
-  ok(/PARTNER_ORGS = \["iFGeGXTAJXnjq0YN", "HNLEA4GfnbCFQZGa"\]/.test(src), "item configs are accepted from the MapMaker and GIS 4 Schools organizations only");
+  ok(/PARTNER_ORGS = \["HNLEA4GfnbCFQZGa"\]/.test(src), "item configs are accepted from GIS 4 Schools only");
+  const mm = await loadItemConfig(ID, { portal: PORTAL, orgs: ["HNLEA4GfnbCFQZGa"], fetchJson: fake({ ...item, orgId: "iFGeGXTAJXnjq0YN" }, data) });
+  ok(mm.refused === "not from the education team's organization", "an item in the MapMaker organization is refused too");
   ok(/e\.source !== window\.parent \|\| !PREVIEW_ORIGINS\.includes\(e\.origin\)/.test(src), "a preview config is taken only from the parent page, on our own sites");
 }
 console.log(`${n - bad}/${n} config and language checks passed (${configs.length} configs, ${locales.length} language file(s))`);

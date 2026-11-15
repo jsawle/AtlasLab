@@ -14,7 +14,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
 READY = "(() => { const m = document.querySelector('arcgis-map'); return !!(m && m.view && m.view.ready); })()"
 ID = "0123456789abcdef0123456789abcdef"
-MAPMAKER_ORG, OTHER_ORG = "iFGeGXTAJXnjq0YN", "someoneElsesOrg1"
+TEAM_ORG, OTHER_ORG = "HNLEA4GfnbCFQZGa", "iFGeGXTAJXnjq0YN"   # GIS 4 Schools; the MapMaker organization is not accepted
 # a 1 x 1 PNG, as the manager keeps a logo: inside the config
 LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 CONFIG = {"configVersion": 2, "appName": "Mapas Escolares Panamá", "locale": "es",
@@ -53,8 +53,8 @@ def main():
             ctx.add_init_script("window.__toasts = []; document.addEventListener('DOMContentLoaded', () => { const t = document.getElementById('toast'); if (t) new MutationObserver(() => { if (t.textContent) window.__toasts.push(t.textContent); }).observe(t, { childList: true, characterData: true, subtree: true }); });")
             return ctx.new_page(), asked
 
-        # 1. ?appid= with an item of the MapMaker organization
-        page, asked = page_with_item(MAPMAKER_ORG)
+        # 1. ?appid= with an item of GIS 4 Schools
+        page, asked = page_with_item(TEAM_ORG)
         page.goto(f"{base}/index.html?appid={ID.upper()}"); page.wait_for_function(READY, timeout=120000)
         got = page.evaluate("""() => ({ title: document.title, name: document.getElementById('logoText').textContent, lang: document.documentElement.lang,
           logo: document.getElementById('logoImg').getAttribute('src') || '', logoHidden: document.getElementById('logoImg').hidden, home: document.getElementById('logoLink').getAttribute('href'),
@@ -74,7 +74,7 @@ def main():
             check(not res, "axe: no WCAG 2.1 A/AA problems with a partner's item config open" + ("" if not res else ": " + ", ".join(res)))
         page.context.close()
 
-        # 2. an item from another organization is not used
+        # 2. an item from another organization (here the MapMaker one) is not used
         page, asked = page_with_item(OTHER_ORG)
         page.goto(f"{base}/index.html?appid={ID}"); page.wait_for_function(READY, timeout=120000); page.wait_for_timeout(1500)
         name = page.evaluate("() => document.title")
@@ -84,7 +84,7 @@ def main():
         page.context.close()
 
         # 3. an item without the AtlasLab keyword is not used either
-        page, asked = page_with_item(MAPMAKER_ORG, keywords=("Web Mapping Application",))
+        page, asked = page_with_item(TEAM_ORG, keywords=("Web Mapping Application",))
         page.goto(f"{base}/index.html?appid={ID}"); page.wait_for_function(READY, timeout=120000)
         check(page.evaluate("() => document.title") == "AtlasLab", "an item not marked as an AtlasLab config is ignored")
         page.context.close()
