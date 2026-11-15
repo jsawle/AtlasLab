@@ -16,6 +16,15 @@ Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, an
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
 
+## Accessibility: messages that wait, the page's name, state by more than colour (5.0.0-beta.59)
+
+Three of the "could come next" items of the draft conformance report.
+
+- **Messages wait** (Messages 2.0; WCAG 2.2.1, 3.3.1). A message over the map was gone after 3 to 7 seconds whatever the reader was doing. Now it waits while the pointer is on it or the keyboard is in it, and has a Close button. A setting in the Versions panel, **Keep messages on screen until I close them**, keeps every message (remembered on the device). The last ten messages are listed in the Versions panel.
+- **The page is named for the open map** (2.4.2, 1.3.1). The browser tab reads "Major Earthquakes · AtlasLab", and the page has a main heading saying the same to a screen reader.
+- **State by more than colour** (1.4.1). The open tool has a bar along its foot and bolder words; whichever of 2D and 3D is on has a bar at its side and bolder words. Both kept their colour.
+
+Tests: `tests/live-keyboard.py` (now 26). Wording 1.15 in `locales/es.json`.
 ## A partner's config in an ArcGIS Online item (5.0.0-beta.58)
 
 The first step towards managing partners' versions (Esri distributors, National Geographic) from the education team's manager app (`jsawle/AtlasLab-manager`). Configs and language files 2.0 → 2.1. Nothing changes for any existing link.
