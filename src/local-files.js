@@ -1,29 +1,29 @@
 // ============================================================ Local save and open (.amap; older .mmap files open too)
 // A sketch drawn in 3D carries a height of 0 on every point (the sketch layer lies on the ground). Saved sketches are
 // flat shapes, as the ones drawn in 2D are: x and y only (Sketch 3D 1.0).
-import "./drag-drop.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import "./drag-drop.js?v=5.0.0-beta.66";   // first: keeps the files running in the order they were written in (see app.js)
 import { DOC_TYPE, DOC_VERSION, sanitizeDoc, docToWebMap, looksLikeWebMap, LOCK_PROP, isLockedText, TWO_D_ONLY_PROP, VIEW_3D_PROP, looksLikeWebScene,
-  docToWebScene } from "../lib/doc.js?v=5.0.0-beta.65";
-import { PAIR_PROP } from "../lib/pairs.js?v=5.0.0-beta.65";
-import { state } from "./state.js?v=5.0.0-beta.65";
-import { APP_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.65";
-import { Extent } from "./sdk.js?v=5.0.0-beta.65";
-import { graphicsLayer, defaultBasemap, sketchLayers, sketchKeyOfLayer, sketchCount, localMap, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.65";
+  docToWebScene } from "../lib/doc.js?v=5.0.0-beta.66";
+import { PAIR_PROP } from "../lib/pairs.js?v=5.0.0-beta.66";
+import { state } from "./state.js?v=5.0.0-beta.66";
+import { APP_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.66";
+import { Extent } from "./sdk.js?v=5.0.0-beta.66";
+import { graphicsLayer, defaultBasemap, sketchLayers, sketchKeyOfLayer, sketchCount, localMap, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.66";
 import { dataLayers, portalLayers, bindOpened, lockedBase, copyBase, openedEntry, restoreOpened, markClean, confirmDiscard, currentTitle, setTitle,
-  FILE_EXT, OPEN_EXTS, titleFromFileName, titleSlug } from "./session.js?v=5.0.0-beta.65";
-import { toast, saveNotes, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.65";
-import { vectorSymbol, styleOf, straighten, addSketchGraphic } from "./sketch.js?v=5.0.0-beta.65";
-import { mapPair, setMode } from "./view-mode.js?v=5.0.0-beta.65";
+  FILE_EXT, OPEN_EXTS, titleFromFileName, titleSlug } from "./session.js?v=5.0.0-beta.66";
+import { toast, saveNotes, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.66";
+import { vectorSymbol, styleOf, straighten, addSketchGraphic } from "./sketch.js?v=5.0.0-beta.66";
+import { mapPair, setMode } from "./view-mode.js?v=5.0.0-beta.66";
 import { setActiveMap, timeWidgetsJson, updateToolBadges, keepSketchOnTop, applyLayerOrder, resetWorkspace, sourceLayers, basemapFrom, basemapRef,
-  restoreSketchLayers, openWebMapItem, openWebSceneFile, openWebMapFile, addPortalLayer } from "./maps.js?v=5.0.0-beta.65";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.65";
-import { sketchLayersMeta, layerOrderIds } from "./layers-panel.js?v=5.0.0-beta.65";
-import { filterText, hasFilter } from "./filter-panel.js?v=5.0.0-beta.65";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.65";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.65";
-import { readText } from "./drag-drop.js?v=5.0.0-beta.65";
-import { recordSave } from "./saved-maps.js?v=5.0.0-beta.65";
-import { layerToJson, currentBaseMapJson, sourceLayersJson, saveToAgol } from "./arcgis-online.js?v=5.0.0-beta.65";
+  restoreSketchLayers, openWebMapItem, openWebSceneFile, openWebMapFile, addPortalLayer } from "./maps.js?v=5.0.0-beta.66";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.66";
+import { sketchLayersMeta, layerOrderIds } from "./layers-panel.js?v=5.0.0-beta.66";
+import { filterText, hasFilter } from "./filter-panel.js?v=5.0.0-beta.66";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.66";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.66";
+import { readText } from "./drag-drop.js?v=5.0.0-beta.66";
+import { recordSave } from "./saved-maps.js?v=5.0.0-beta.66";
+import { layerToJson, currentBaseMapJson, sourceLayersJson, saveToAgol } from "./arcgis-online.js?v=5.0.0-beta.66";
 
 function flatGeometryJson(geom) {
   const j = geom.toJSON(), xy = (c) => [c[0], c[1]];
