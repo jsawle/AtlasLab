@@ -112,7 +112,7 @@ def main():
                 page.wait_for_timeout(2000)
             return d
         print("== a web map's layer filtered in 3D")
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={QUAKES}")
+        page.goto(f"{base}/index.html?config=classic&webmap={QUAKES}")
         wf("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         to_3d(); page.wait_for_timeout(12000)
         open_filter()
@@ -170,7 +170,7 @@ def main():
         check("viewingMode" not in csvmap and own["featureCollection"]["layers"][0]["layerDefinition"].get("definitionExpression") == "Plastic >= 9" and len(own["featureCollection"]["layers"][0]["featureSet"]["features"]) == 4, "saved as a web map, with the filter and all 4 rows")
 
         print("== a spreadsheet added to a web scene")
-        page.goto(f"{base}/index.html?config=mapmaker&webscene={SCENE}")
+        page.goto(f"{base}/index.html?config=classic&webscene={SCENE}")
         wf("(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready && s.view.map.declaredClass === 'esri.WebScene') && document.querySelector('#tg2d').getAttribute('aria-disabled') === 'true'; })()", timeout=180000)
         page.wait_for_timeout(8000)
         drop("rotterdam.csv", CSV_NL, "text/csv")
@@ -185,7 +185,7 @@ def main():
         scene = save_map("rotterdam_data")
         own = [o for o in scene["operationalLayers"] if str(o.get("id", "")).startswith("__data_")]
         check(scene.get("viewingMode") == "global" and len(own) == 1 and own[0]["featureCollection"]["layers"][0]["layerDefinition"].get("definitionExpression") == "Plastic >= 9", "the scene file holds the spreadsheet layer and its filter")
-        page.goto(f"{base}/index.html?config=mapmaker"); wf("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000); page.wait_for_timeout(1500)
+        page.goto(f"{base}/index.html?config=classic"); wf("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000); page.wait_for_timeout(1500)
         drop("rotterdam_data.amap", json.dumps(scene), "application/json")
         wf("document.querySelector('#toast').textContent.includes('rotterdam data')", timeout=180000); page.wait_for_timeout(8000)
         s1 = drawn("__data_", 2)

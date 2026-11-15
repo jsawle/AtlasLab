@@ -1,4 +1,4 @@
-"""Runs the plain Filter panel of the lab app (features.plainFilter, Filter 1.3) in Chromium against the real services:
+"""Runs the plain Filter panel (features.plainFilter, Filter 1.3; in the main app since 5.0.0-beta.64) in Chromium against the real services:
 the ArcGIS Maps SDK from Esri's CDN, ArcGIS Online, and MapMaker's "Major Earthquakes (1950-2023)" map.
 
 Run:  python3 tests/live-filter-plain.py [--shots DIR] [--proxy URL] [--axe FILE]
@@ -6,7 +6,7 @@ Run:  python3 tests/live-filter-plain.py [--shots DIR] [--proxy URL] [--axe FILE
 Checks: the heading names the layer; each box has a label that can be seen, and the box's own name starts with those
 words; a short list of conditions with More, which shows them all; the chart is called "Chart of values", says what
 its bars are and marks the average, and the slider shows its value; the filter is said back as a sentence with its
-count; two conditions joined with "and"/"or"; "has no value"; no WCAG A/AA violations; and the main app is unchanged.
+count; two conditions joined with "and"/"or"; "has no value"; no WCAG A/AA violations; and config/classic.json still gives the panel as it was.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
@@ -77,8 +77,8 @@ def main():
         def drop(name, text, mime):
             page.evaluate("""([name, text, mime]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: mime })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", [name, text, mime])
 
-        print("== the plain panel (lab)")
-        page.goto(f"{base}/index.html?config=lab&webmap={QUAKES}")
+        print("== the plain panel (the main app)")
+        page.goto(f"{base}/index.html?config=mapmaker&webmap={QUAKES}")
         page.wait_for_function("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         open_filter()
         check(page.inner_text("#filterShowH") == "Show Earthquakes (Major) where", "the heading names the layer: " + page.inner_text("#filterShowH"))
@@ -115,8 +115,8 @@ def main():
         check(count_is("or Place has no value."), "has no value: " + count())
         page.click("#filterCancel")
 
-        print("== the main app keeps the panel it had")
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={QUAKES}")
+        print("== config/classic.json: the panel as it was")
+        page.goto(f"{base}/index.html?config=classic&webmap={QUAKES}")
         page.wait_for_function("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         open_filter()
         check(page.inner_text("#filterShowH") == "Show features where" and count_is("Showing all 949 features") and not page.query_selector("#filterConds .flt-lab"), "Show features where, no labels above the boxes")

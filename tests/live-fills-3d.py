@@ -4,7 +4,7 @@ Run:  python3 tests/live-fills-3d.py [--shots DIR] [--proxy URL]
 
 Checks: an area drawn with a pencil fill gets, in 3D, a helper drawing of the view's own (a thicker outline and a
 light tint); nothing is added to the sketch or the map; it goes when the area is deleted and on going back to 2D. In
-the lab config the fill is also laid on the ground as a picture (a media layer the list doesn't show), and then the
+the main app (features.drapeFills, lab until 5.0.0-beta.64) the fill is also laid on the ground as a picture (a media layer the list doesn't show), and then the
 helper has no tint; the layer list and its count don't change, and the picture goes on going back to 2D.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, re, sys, threading
@@ -55,7 +55,7 @@ def main():
             page.evaluate("async () => { await " + SK + ".create('rectangle'); }"); page.wait_for_timeout(900)
             page.click("#skSymbolOpen"); page.wait_for_selector("#skSymbols:not([hidden])")
             page.select_option("#symbolSet", "pencil"); page.wait_for_function("document.querySelector('#symbolStatus').textContent === '' && document.querySelectorAll('#symbolGrid .sym-btn').length > 3", timeout=60000)
-            check("tint" in page.inner_text("#symbolNote"), "the symbol list says how a styled fill looks in 3D: " + page.inner_text("#symbolNote"))
+            check("3D" in page.inner_text("#symbolNote"), "the symbol list says how a styled fill looks in 3D: " + page.inner_text("#symbolNote"))
             page.click('#symbolGrid .sym-btn[aria-label="Mountains"]'); page.click("#skSymbolsDone"); page.wait_for_timeout(2500)
             page.mouse.move(420, 200); page.mouse.down(); page.mouse.move(600, 320, steps=5); page.mouse.move(700, 400, steps=3); page.mouse.up()
             page.wait_for_function("(() => { const v = document.querySelector('arcgis-map').view; return v.map.layers.find(x => x.id === '__sketch').graphics.some(g => g.symbol && g.symbol.type === 'cim' && g.geometry.type === 'polygon'); })()", timeout=30000)
@@ -70,12 +70,12 @@ def main():
             if lab:
                 page.wait_for_function(MEDIA + " !== null", timeout=60000); page.wait_for_timeout(2500)
                 m = page.evaluate(MEDIA); h = page.evaluate(HELP)[0]
-                check(m == ["media", "hide", 1], "lab: the fill is laid on the ground as a picture, in a layer the list doesn't show: " + str(m))
+                check(m == ["media", "hide", 1], "the fill is laid on the ground as a picture, in a layer the list doesn't show: " + str(m))
                 check(h[1] == 0, "and then the helper has no tint: %s" % h[1])
                 check(page.inner_text("#layersBadge") == badge, "the layer count doesn't change: " + page.inner_text("#layersBadge"))
             else:
                 check(abs(h[1] - 0.16) < 0.01, "and a light tint: %s" % h[1])
-                check(page.evaluate(MEDIA) is None, "the main app lays no picture")
+                check(page.evaluate(MEDIA) is None, "config/classic.json lays no picture")
             page.wait_for_timeout(6000); page.screenshot(path=str(shots / ("fills-3d-" + config + ".png")))
             page.click("#tg2d"); page.wait_for_function("document.querySelector('arcgis-map').view.ready && !document.querySelector('arcgis-map').closest('[hidden]')", timeout=60000); page.wait_for_timeout(2500)
             check(page.evaluate(HELP + ".length") == 0 and page.evaluate(MEDIA) is None, "back in 2D the helper%s gone" % (" and the picture are" if lab else " is"))
@@ -85,8 +85,8 @@ def main():
             page.evaluate(SV + ".map.layers.find(x => x.id === '__sketch').graphics.removeAll()")
             page.wait_for_function(HELP + ".length === 0" + (" && " + MEDIA + " === null" if lab else ""), timeout=30000)
             check(True, "deleting the area in 3D takes its helper%s away" % (" and picture" if lab else ""))
-        run("mapmaker", False)
-        run("lab", True)
+        run("classic", False)
+        run("mapmaker", True)
         check(not errors, "no uncaught errors: " + " | ".join(errors[:3]))
         browser.close()
     print(f"{checks[0] - len(failures)}/{checks[0]} checks passed")

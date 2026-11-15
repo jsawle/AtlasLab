@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.63";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.63";
-import { state } from "./state.js?v=5.0.0-beta.63";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.63";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.63";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.63";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.63";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.63";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.63";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.64";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.64";
+import { state } from "./state.js?v=5.0.0-beta.64";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.64";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.64";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.64";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.64";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.64";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.64";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.64";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.63";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.63";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.63";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.63";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.63";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.63";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.63";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.64";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.64";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.64";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.64";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.64";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.64";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.64";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -83,7 +83,7 @@ function syncNotes3d() {
 // Lab (features.drapeFills): the fill itself is also drawn into a picture, cut to the shape and laid on the ground (a
 // MediaLayer the list doesn't show); where that works the tint is left off. The pattern in the picture is fixed to the
 // ground, where 2D keeps it the same size on screen.
-const DRAPE = !!F.drapeFills, FILL3D_ID = "__fills3d";
+const DRAPE = !!F.drapeFills, FILL3D_ID = "__fills3d", DRAPE_TRIM = 0.04;
 let fills3d = [], fillWatch = null, fillTimer = 0, fillSeq = 0, fillMedia = null, drapeCode = null;
 const styledAreas = () => { const out = []; for (const l of sketchLayers) { if (!state.sceneView || !shownHere(l, state.sceneView)) continue; l.graphics.forEach((g) => { if (g.visible !== false && g.symbol && g.symbol.type === "cim" && g.geometry && g.geometry.type === "polygon" && g.geometry.extent) out.push(g); }); } return out; };
 const helperFor = (g, tint) => new Graphic({ geometry: g.geometry, symbol: { type: "simple-fill", color: [50, 50, 50, tint ? FILL3D.tint : 0], outline: { color: [50, 50, 50, 1], width: FILL3D.outline } } });
@@ -95,7 +95,7 @@ async function drapeElement(g, mods) {
   if (!src) return null;
   if (src.tagName === "IMG" && !src.complete) await new Promise((r) => { src.onload = r; src.onerror = r; });
   const size = drapeSize(ext.width, ext.height), c = document.createElement("canvas"); c.width = size.w; c.height = size.h;
-  const x = c.getContext("2d"), tile = document.createElement("canvas"); tile.width = tile.height = size.tile; tile.getContext("2d").drawImage(src, 0, 0, size.tile, size.tile);
+  const x = c.getContext("2d"), tile = document.createElement("canvas"); tile.width = tile.height = size.tile; { const sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height, m = Math.round(Math.min(sw, sh) * DRAPE_TRIM); tile.getContext("2d").drawImage(src, m, m, sw - 2 * m, sh - 2 * m, 0, 0, size.tile, size.tile); }   // the swatch's clear edge and its border are left off, or every repeat shows a seam
   x.beginPath();
   for (const ring of g.geometry.rings) { ring.forEach((p, i) => { const px = (p[0] - ext.xmin) / ext.width * size.w, py = (ext.ymax - p[1]) / ext.height * size.h; if (i) x.lineTo(px, py); else x.moveTo(px, py); }); x.closePath(); }
   x.clip("evenodd"); x.fillStyle = x.createPattern(tile, "repeat"); x.fillRect(0, 0, size.w, size.h);

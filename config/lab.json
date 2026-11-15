@@ -1,5 +1,5 @@
 {
-  "configVersion": 18,
+  "configVersion": 19,
   "extends": "mapmaker",
-  "features": { "drapeFills": true, "plainFilter": true, "profileFish": true }
+  "features": { "profileFish": true }
 }
