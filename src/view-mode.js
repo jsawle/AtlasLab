@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.54";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.54";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.54";
-import { state } from "./state.js?v=5.0.0-beta.54";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.54";
-import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.54";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.54";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.54";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.54";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.54";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.54";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.55";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.55";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.55";
+import { state } from "./state.js?v=5.0.0-beta.55";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.55";
+import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.55";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.55";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.55";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.55";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.55";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.55";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.54";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.54";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.54";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.54";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.54";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.54";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.54";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.55";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.55";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.55";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.55";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.55";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.55";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.55";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
