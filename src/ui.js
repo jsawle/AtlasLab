@@ -1,20 +1,20 @@
 // ============================================================ Toast, panels, modals (keyboard accessible)
-import "./session.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.63";
-import { $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
-import { need } from "./sdk.js?v=5.0.0-beta.63";
-import { syncToolsToggles } from "./views.js?v=5.0.0-beta.63";
-import { layoutBottom } from "./session.js?v=5.0.0-beta.63";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.63";
-import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.63";
-import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.63";
-import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.63";
-import { endFilter } from "./filter-panel.js?v=5.0.0-beta.63";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.63";
-import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.63";
-import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.63";
-import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.63";
-import { renderVersions } from "./versions.js?v=5.0.0-beta.63";
+import "./session.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.64";
+import { $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.64";
+import { need } from "./sdk.js?v=5.0.0-beta.64";
+import { syncToolsToggles } from "./views.js?v=5.0.0-beta.64";
+import { layoutBottom } from "./session.js?v=5.0.0-beta.64";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.64";
+import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.64";
+import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.64";
+import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.64";
+import { endFilter } from "./filter-panel.js?v=5.0.0-beta.64";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.64";
+import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.64";
+import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.64";
+import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.64";
+import { renderVersions } from "./versions.js?v=5.0.0-beta.64";
 late.toast = toast;   // for the start-up files, which run before this one (see late in state.js)
 
 // Messages (2.0, 5.0.0-beta.58). A message used to be gone after a few seconds whatever the reader was doing (WCAG 2.2.1,

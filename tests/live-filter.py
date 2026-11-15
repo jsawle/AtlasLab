@@ -83,7 +83,7 @@ def main():
             page.evaluate("""([name, text, mime]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: mime })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", [name, text, mime])
 
         print("== a map layer (Major Earthquakes)")
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={QUAKES}")
+        page.goto(f"{base}/index.html?config=classic&webmap={QUAKES}")
         page.wait_for_function("document.querySelector('#layersBadge') && document.querySelector('#layersBadge').textContent === '1'", timeout=120000)
         open_layers()
         check(filter_btn().get_attribute("aria-label").startswith("Filter:") and "on" not in (filter_btn().get_attribute("class") or "").split(), "the layer has a Filter button, not marked: " + str(filter_btn().get_attribute("aria-label")))
@@ -200,7 +200,7 @@ def main():
         def chips(card=0): return page.evaluate("(card) => { const c = document.querySelectorAll('#filterConds .flt-cond')[card].querySelector('[data-part=\"value\"]'); return [...c.querySelectorAll('calcite-combobox-item')].filter(i => i.selected).map(i => i.value); }", card)
         def unselect(value, card=0):
             page.evaluate("([value, card]) => { const c = document.querySelectorAll('#filterConds .flt-cond')[card].querySelector('[data-part=\"value\"]'); const it = [...c.querySelectorAll('calcite-combobox-item')].find(i => i.value === value); it.selected = !it.selected; c.dispatchEvent(new CustomEvent('calciteComboboxChange')); }", [value, card]); page.wait_for_timeout(1200)
-        page.goto(f"{base}/index.html?config=mapmaker&webmap={BATTLES}")
+        page.goto(f"{base}/index.html?config=classic&webmap={BATTLES}")
         page.wait_for_function("(() => { const m = document.querySelector('arcgis-map'); return m && m.view && m.view.ready && m.view.map.loaded && !!" + LYR + "; })()", timeout=120000); page.wait_for_timeout(5000)
         de0 = page.evaluate(LYR + ".definitionExpression")
         open_battles()
@@ -225,6 +225,8 @@ def main():
         VICTOR = "Side A Victory"
         v1 = page.evaluate("[...document.querySelectorAll('#filterConds .flt-cond')[1].querySelectorAll('[data-part=\"value\"] calcite-combobox-item')].map(i => i.value)")
         page.evaluate("([v]) => { const c = document.querySelectorAll('#filterConds .flt-cond')[1].querySelector('[data-part=\"value\"]'); [...c.querySelectorAll('calcite-combobox-item')].find(i => i.value === v).selected = true; c.dispatchEvent(new CustomEvent('calciteComboboxChange')); }", [VICTOR]); page.wait_for_timeout(2500)
+        try: page.wait_for_function("!document.querySelector('#filterCount').textContent.includes('Showing 19 of')", timeout=20000)   # the count follows a moment after the value is chosen
+        except Exception: pass
         both = count(); n_both = int(re.search(r"Showing (\d+) of", both).group(1))
         check(0 < n_both < 19, "a second condition (Battle Victor is %s) narrows it: %s" % (VICTOR, both))
         page.click("#filterApply"); page.wait_for_selector("#layersPanel:not([hidden])"); page.wait_for_timeout(2500)

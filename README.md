@@ -106,6 +106,10 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## In the main app since 5.0.0-beta.64: the plain Filter panel and styled fills laid on the ground in 3D
+
+`features.plainFilter` and `features.drapeFills` are on by default (Filter 1.5, 2D to 3D 1.3). `config/classic.json` turns both off; the tests of the Filter panel and of fills as they were use it. Seen with a hatch, a land-use and a pencil fill: the swatch's clear edge and border are now left off each repeat, which showed as seams.
+
 ## Sketched areas with a styled fill, in 3D (5.0.0-beta.63)
 
 The 3D view draws a hatch, land-use or pencil fill as a thin outline only. From 2D to 3D 1.2, each such area gets a helper drawing in 3D that is the view's own (`syncFills3d` in `src/view-mode.js`): a thicker outline and a light tint. Nothing is added to the sketch, the layer list or a saved file, and it is taken away on going back to 2D.
