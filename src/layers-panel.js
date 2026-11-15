@@ -1,18 +1,18 @@
 // ============================================================ Map layers panel
-import "./data-layers.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.64";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.64";
-import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.64";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.64";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.64";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.64";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.64";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.64";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.64";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.64";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.64";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.64";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.64";
+import "./data-layers.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.65";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.65";
+import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.65";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.65";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.65";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.65";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.65";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.65";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.65";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.65";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.65";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.65";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.65";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
 export function eachToggleableLayer(fn) {

@@ -1,10 +1,10 @@
 // ============================================================ Pop-ups
-import "./ui.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.64";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.64";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.64";
-import { $, S } from "./config.js?v=5.0.0-beta.64";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.64";
+import "./ui.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.65";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.65";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.65";
+import { $, S } from "./config.js?v=5.0.0-beta.65";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.65";
 
 export function updatePopupEnabled() {
   const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";
@@ -22,13 +22,26 @@ export function updatePopupEnabled() {
 // focus, so it is plain which place Enter (and, in Elevation, Space) means.
 export function showCentre(on) { const m = $("centreMark"); if (m) m.hidden = !on; }
 // The map's own surface is inside the map component (its shadow tree), where this page's styles do not reach: the ring
-// and the cross are drawn over the map by the page, when the surface takes the keyboard's focus.
-$("mapWrap").addEventListener("focusin", (e) => {
-  const t = (e.composedPath && e.composedPath()[0]) || e.target;
-  const on = !!(t && t.classList && t.classList.contains("esri-view-surface") && t.matches(":focus-visible"));
-  showCentre(on); $("mapRing").hidden = !on;
-});
-$("mapWrap").addEventListener("focusout", () => { showCentre(false); $("mapRing").hidden = true; });
+// and the cross are drawn over the map by the page, when the surface has the focus and the keyboard was the last thing used.
+// 1.1 (5.0.0-beta.65): the app keeps track of that itself. The browser's own test (:focus-visible) also says yes when the
+// map is given the focus by code after a click or tap on something that can't take the focus, and the SDK does give it the
+// focus when Sketch starts drawing; in Safari a tap on a button counts, so on an iPad the ring and cross showed with no keyboard.
+let byKeyboard = false, marked = false;
+const MODIFIER_KEYS = new Set(["Shift", "Control", "Alt", "Meta", "CapsLock", "Fn", "FnLock", "OS", "Hyper", "Super"]);
+function surfaceFocused() {
+  if (!$("mapWrap").contains(document.activeElement)) return false;
+  let a = document.activeElement; while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement;
+  return !!(a && a.classList && a.classList.contains("esri-view-surface"));
+}
+function markMap() {
+  const on = byKeyboard && surfaceFocused();
+  if (on === marked) return;
+  marked = on; showCentre(on); $("mapRing").hidden = !on;
+}
+document.addEventListener("keydown", (e) => { if (MODIFIER_KEYS.has(e.key) || e.metaKey || e.ctrlKey) return; byKeyboard = true; markMap(); }, true);
+document.addEventListener("pointerdown", () => { byKeyboard = false; markMap(); }, true);
+$("mapWrap").addEventListener("focusin", markMap);
+$("mapWrap").addEventListener("focusout", () => { if (marked) { marked = false; showCentre(false); $("mapRing").hidden = true; } });
 async function popupAtCentre() {
   const v = state.view; if (!v) return;
   const at = { x: v.width / 2, y: v.height / 2 };

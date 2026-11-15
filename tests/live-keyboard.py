@@ -43,6 +43,17 @@ def main():
             page.keyboard.press("Tab"); page.wait_for_timeout(50)
             if page.evaluate(ON_MAP): break
         check(page.evaluate(ON_MAP) and page.is_visible("#mapRing") and page.is_visible("#centreMark"), "Tab reaches the map (%d presses): it shows a ring, and a cross at its centre" % n)
+        # 1.1: the map given the focus by code after a click (as the SDK does when Sketch starts drawing; in Safari a tap on a
+        # button counts as such a click) shows no ring or cross; a key pressed then does
+        page.mouse.click(400, 20); page.wait_for_timeout(300)
+        page.evaluate("(() => " + V + ".focus())()"); page.wait_for_timeout(300)
+        check(page.evaluate(ON_MAP) and page.is_hidden("#mapRing") and page.is_hidden("#centreMark"), "the map given the focus by code after a click: no ring, no cross")
+        page.keyboard.press("ArrowLeft"); page.wait_for_timeout(300)
+        check(page.is_visible("#mapRing") and page.is_visible("#centreMark"), "an arrow key then: the ring and the cross")
+        page.mouse.click(400, 20); page.wait_for_timeout(300); page.evaluate("(() => " + V + ".focus())()"); page.wait_for_timeout(300)
+        page.keyboard.press("Shift"); page.wait_for_timeout(200)
+        check(page.is_hidden("#centreMark"), "Shift alone doesn't count as using the keyboard")
+        page.keyboard.press("Shift+Tab"); page.wait_for_timeout(200); page.keyboard.press("Tab"); page.wait_for_timeout(300)
         label = page.evaluate("(() => " + V + ".container.querySelector('.esri-view-surface').getAttribute('aria-label'))()")
         check(label and "Enter opens" in label and "Arrow keys" in label, "a screen reader is told what the keys do: " + str(label))
         page.screenshot(path=str(shots / "keyboard-map.png"))
