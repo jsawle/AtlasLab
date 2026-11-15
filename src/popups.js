@@ -1,10 +1,10 @@
 // ============================================================ Pop-ups
-import "./ui.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.64";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.64";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.64";
-import { $, S } from "./config.js?v=5.0.0-beta.64";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.64";
+import "./ui.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.65";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.65";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.65";
+import { $, S } from "./config.js?v=5.0.0-beta.65";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.65";
 
 export function updatePopupEnabled() {
   const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";
@@ -23,9 +23,15 @@ export function updatePopupEnabled() {
 export function showCentre(on) { const m = $("centreMark"); if (m) m.hidden = !on; }
 // The map's own surface is inside the map component (its shadow tree), where this page's styles do not reach: the ring
 // and the cross are drawn over the map by the page, when the surface takes the keyboard's focus.
+// 1.1 (5.0.0-beta.65): only when the focus was moved there with the keyboard. The browser's own :focus-visible is also
+// true when a script gives the map the focus (seen on an iPad at start-up, with nobody near a keyboard), so the page
+// keeps its own note of whether the last thing used was a key or a pointer or finger.
+let byKeys = false;
+window.addEventListener("keydown", (e) => { if (!e.metaKey && !e.ctrlKey && !e.altKey) byKeys = true; }, true);
+for (const ev of ["pointerdown", "touchstart"]) window.addEventListener(ev, () => { byKeys = false; if (!$("mapRing").hidden) { showCentre(false); $("mapRing").hidden = true; } }, { capture: true, passive: true });
 $("mapWrap").addEventListener("focusin", (e) => {
   const t = (e.composedPath && e.composedPath()[0]) || e.target;
-  const on = !!(t && t.classList && t.classList.contains("esri-view-surface") && t.matches(":focus-visible"));
+  const on = !!(byKeys && t && t.classList && t.classList.contains("esri-view-surface") && t.matches(":focus-visible"));
   showCentre(on); $("mapRing").hidden = !on;
 });
 $("mapWrap").addEventListener("focusout", () => { showCentre(false); $("mapRing").hidden = true; });

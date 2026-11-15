@@ -1,10 +1,10 @@
 // ============================================================ Map and item information (ⓘ)
-import "./collection.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.64";
-import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.64";
-import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.64";
-import { currentTitle } from "./session.js?v=5.0.0-beta.64";
-import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.64";
+import "./collection.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.65";
+import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.65";
+import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.65";
+import { currentTitle } from "./session.js?v=5.0.0-beta.65";
+import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.65";
 
 export function safeFragment(html) {
   const src = new DOMParser().parseFromString(String(html || ""), "text/html").body;
