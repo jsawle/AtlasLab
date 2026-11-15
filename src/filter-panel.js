@@ -5,17 +5,17 @@
 // The filter is saved as the layer's definitionExpression (lib/filter.js), which is how Map Viewer saves one.
 // While the panel is open the map previews the conditions through the layer view (no data is fetched again as a
 // slider moves), and the layer itself shows everything, so the histogram, value lists and counts cover all the data.
-import "./layers-panel.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
-import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.60";
-import { state } from "./state.js?v=5.0.0-beta.60";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.60";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.60";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.60";
-import { isSketch } from "./views.js?v=5.0.0-beta.60";
-import { markDirty } from "./session.js?v=5.0.0-beta.60";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.60";
-import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.60";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.60";
+import "./layers-panel.js?v=5.0.0-beta.61";   // first: keeps the files running in the order they were written in (see app.js)
+import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.61";
+import { state } from "./state.js?v=5.0.0-beta.61";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.61";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.61";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.61";
+import { isSketch } from "./views.js?v=5.0.0-beta.61";
+import { markDirty } from "./session.js?v=5.0.0-beta.61";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.61";
+import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.61";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.61";
 
 const FILTER_ON = F.filter !== false;
 let filterState = null;
@@ -86,8 +86,9 @@ async function updateFilterCount() {
     if (filterState !== st || token !== st.countSeq) return;
     // the plain panel says the filter back as a sentence, with its count
     const said = PLAIN && filtered ? describeFilter(st.conditions, st.match, st.all, { op: Object.fromEntries(OPERATORS.number.concat(OPERATORS.text).map((op) => [op, opWord(op)])), and: S.filterAnd, or: S.filterOr }, (name) => { const f = filterField(name); return (f && f.alias) || name; }) : "";
-    $("filterCount").textContent = said ? t("filterSaid", { layer: l.title || "", said, n: fmtNum(n), total: fmtNum(st.total) })
-      : filtered ? t("filterCount", { n: fmtNum(n), total: fmtNum(st.total) }) : PLAIN ? t("filterSaidAll", { total: fmtNum(st.total) }) : t("filterCountAll", { total: fmtNum(st.total) });
+    // 1.4: the sentence, then the numbers on a line of their own at the right: how many are shown, how many hidden, out of how many
+    if (said) { const a = document.createElement("span"); a.className = "flt-said"; a.textContent = t("filterSaid", { layer: l.title || "", said }); const b = document.createElement("span"); b.className = "flt-num"; b.textContent = t("filterSaidCount", { n: fmtNum(n), hidden: fmtNum(Math.max(0, st.total - n)), total: fmtNum(st.total) }); $("filterCount").replaceChildren(a, " ", b); }
+    else $("filterCount").textContent = filtered ? t("filterCount", { n: fmtNum(n), total: fmtNum(st.total) }) : PLAIN ? t("filterSaidAll", { total: fmtNum(st.total) }) : t("filterCountAll", { total: fmtNum(st.total) });
   } catch (e) { if (filterState === st) $("filterCount").textContent = ""; }
 }
 // ---- The plain panel (lab, features.plainFilter; Filter 1.3). Written for students: the layer is named ("Show Earthquakes

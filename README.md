@@ -108,9 +108,9 @@ Lab config only (`?config=lab`, `features.plainFilter`, Filter 1.3). The main ap
 
 - the heading names the layer ("Show Earthquakes (Major) where"); "Add another condition"; "has a value" / "has no value";
 - a label that can be seen above each box (Look at, Keep where it, Number / Words / Any of these, From, To), and each box's own name starts with those words (WCAG 2.5.3);
-- the conditions offered first are the few most used (number: at least, at most, between, is; text: is, is one of, includes), with More… for the rest (`SIMPLE_OPERATORS`);
+- the conditions offered first are the few most used (number: greater than, less than, at least, at most, between, is; text: is, is one of, includes), with More… for the rest (`SIMPLE_OPERATORS`);
 - "Histogram" is "Chart of values", with a caption that says what the bars are, the average marked on the chart, the value shown over the slider's handle, and the word histogram given at the end;
-- the filter is said back as a sentence with its count ("Showing Earthquakes (Major) where Magnitude is at least 8: 60 of 949."), `describeFilter` in `lib/filter.js`.
+- the filter is said back as a sentence ("Showing Earthquakes (Major) where Magnitude is at least 8."), `describeFilter` in `lib/filter.js`, with the numbers on their own line at the right ("60 shown, 889 hidden, out of 949"). Filter 1.4 (5.0.0-beta.61): that line, and is greater than / is less than in the short list of number conditions.
 
 Test: `tests/live-filter-plain.py`.
 
