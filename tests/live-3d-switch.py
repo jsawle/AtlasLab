@@ -47,9 +47,11 @@ def main():
 
         print("== a region: the Okavango Wilderness Project")
         page, m2 = open_map(OKAVANGO); to3d(page)
-        s = page.evaluate("(() => { const v = " + SV + "; return { lon: v.center.longitude, lat: v.center.latitude, scale: v.scale, tilt: v.camera.tilt, haze: v.environment.atmosphereEnabled }; })()")
+        try: page.wait_for_function("() => " + SV + ".camera.tilt > 28 && !" + SV + ".animation", timeout=60000)
+        except Exception: pass
+        s = page.evaluate("(() => { const v = " + SV + "; return { lon: v.center.longitude, lat: v.center.latitude, scale: v.viewpoint.scale, tilt: v.camera.tilt, haze: v.environment.atmosphereEnabled }; })()")
         want = m2["scale"] * math.cos(math.radians(m2["lat"]))
-        check(s["tilt"] < 1, "looking at a region (1:%s) the 3D view opens looking straight down: tilt %.1f°" % (format(round(m2["scale"]), ","), s["tilt"]))
+        check(28 < s["tilt"] < 32, "looking at a region (1:%s) the 3D view tilts 30°, enough to show it is 3D with the place still in the middle: tilt %.1f°" % (format(round(m2["scale"]), ","), s["tilt"]))
         check(abs(s["lon"] - m2["lon"]) < 0.2 and abs(s["lat"] - m2["lat"]) < 0.2, "at the same place")
         check(abs(s["scale"] / want - 1) < 0.03, "its scale is the 2D map's corrected for latitude, so the place is the same size: 1:%s, wanted 1:%s" % (format(round(s["scale"]), ","), format(round(want), ",")))
         check(s["haze"] is False, "from this far out the map is drawn without haze")
