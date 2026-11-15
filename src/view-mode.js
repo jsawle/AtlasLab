@@ -1,22 +1,22 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.52";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.52";
-import { state } from "./state.js?v=5.0.0-beta.52";
-import { $, reduceMotion, params, cfg, F, S } from "./config.js?v=5.0.0-beta.52";
-import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.52";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.52";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.52";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.52";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.52";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.52";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.53";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.53";
+import { state } from "./state.js?v=5.0.0-beta.53";
+import { $, reduceMotion, params, cfg, F, S } from "./config.js?v=5.0.0-beta.53";
+import { EsriMap, WebMap, WebScene, reactiveUtils } from "./sdk.js?v=5.0.0-beta.53";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.53";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.53";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.53";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.53";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.53";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.52";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.52";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.52";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.52";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.52";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.52";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.52";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.53";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.53";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.53";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.53";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.53";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.53";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.53";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
