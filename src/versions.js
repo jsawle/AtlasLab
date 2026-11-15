@@ -1,22 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.55";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.55";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.55";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.55";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.55";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.55";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.55";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.55";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.55";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.55";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.55";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.55";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.55";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.55";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.55";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.55";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.55";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.55";
+import "./arcgis-online.js?v=5.0.0-beta.56";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.56";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.56";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.56";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.56";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.56";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.56";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.56";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.56";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.56";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.56";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.56";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.56";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.56";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.56";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.56";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.56";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.56";
 
 export function renderVersions() {
   const rows = [
@@ -48,7 +48,7 @@ export function renderVersions() {
     ["Outline maps", OUTLINE_VERSION, "In the main app since 5.0.0-beta.49. Print an outline map, in the Save panel, prints a blank map for a class to label and colour: the world with its continents, a continent with its countries, or the United States with its states, with or without names. Black lines on white, drawn from Esri's public boundary layers, not from the map on screen. Equal-area projections throughout."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],
     ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place. 2.0: the code is 27 files, one for each part of the app, in place of one long file. 3.0: for publishing, those files are joined and shrunk into one by a build that runs the tests first; a failed test leaves the published app as it was. Nothing looks or works differently."],
-    ["Time", "1.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider, set up from the map's own settings."],
+    ["Time", "2.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider over the map's own span, steps and speed. 2.0: the slider has one handle, the date the map is showing, with everything up to that date on the map, whatever way the map's author saved; the date is written above the handle; the settings button is left out. A config can have the map's own way back (timeMode)."],
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
     ["CSV import", CSV_VERSION, "Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
     ["Filter (lab)", FILTER_VERSION, "A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],

@@ -1,23 +1,23 @@
 // ============================================================ Maps and layers
-import "./view-mode.js?v=5.0.0-beta.55";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.55";
-import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.55";
-import { state } from "./state.js?v=5.0.0-beta.55";
-import { APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.55";
-import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.55";
+import "./view-mode.js?v=5.0.0-beta.56";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.56";
+import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.56";
+import { state } from "./state.js?v=5.0.0-beta.56";
+import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.56";
+import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.56";
 import { graphicsLayer, defaultBasemap, sketchLayers, isSketch, sketchLayerByKey, sketchCount, localMap, takePreloaded, startCenter, setViewMap,
-  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.55";
-import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.55";
-import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.55";
+  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.56";
+import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.56";
+import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.56";
 import { addSketchGraphic, syncSketchLayerPicker, newSketchLayer, nextSketchLayerName, setActiveSketch, removeSketchLayer, updatePinned,
-  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.55";
-import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.55";
-import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.55";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.55";
-import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.55";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.55";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.55";
-import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.55";
+  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.56";
+import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.56";
+import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.56";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.56";
+import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.56";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.56";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.56";
+import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.56";
 
 export function setActiveMap(m, opts) {
   const old = state.view.map;
@@ -52,15 +52,27 @@ function syncTimeBar() {
   for (const v of [mapView, state.sceneView]) { if (v && !on) v.timeExtent = null; }   // the last map's time filter doesn't carry over
   host.hidden = !on; $("app").classList.toggle("has-time", on);
   if (!on) return;
+  // Time 2.0 (5.0.0-beta.56). People found the slider hard to use with two handles to pull apart, so it has one: the date
+  // the map is showing, with everything up to that date on the map (the Time Bar's "cumulative from start"). Whatever the
+  // map's author saved (often a window between two dates), it is shown this way; the span, the steps and the speed are
+  // the author's. The settings button, which offers the other ways, is left out. A config can have the map's own way and
+  // the settings back: "timeMode": "map".
+  const single = cfg.timeMode !== "map";
   timeBar = document.createElement("arcgis-time-bar");
-  for (const a of ["show-play", "show-previous", "show-next", "show-time-extent", "show-settings"]) timeBar.setAttribute(a, "");
+  for (const a of ["show-play", "show-previous", "show-next", "show-time-extent"].concat(single ? [] : ["show-settings"])) timeBar.setAttribute(a, "");
   timeBar.setAttribute("label", S.timeTool);
   // the slider takes the place of the bar's date label (its "time-extent" slot) and shows the dates itself
   const slider = document.createElement("arcgis-time-bar-slider"); slider.slot = "time-extent";
   for (const a of ["show-ticks", "show-min", "show-max"]) slider.setAttribute(a, "");
+  if (single) slider.setAttribute("popover-display", "always");      // the date is written above the handle, always
   timeBar.appendChild(slider);
   host.appendChild(timeBar);
   timeBar.view = state.view;
+  if (single) {      // the bar reads the map's settings a moment after it is made, and they bring their own mode: put ours back each time
+    const bar = timeBar, one = () => { if (bar === timeBar && bar.mode !== "cumulative-from-start") bar.mode = "cumulative-from-start"; };
+    bar.addEventListener("arcgisPropertyChange", one);
+    Promise.resolve(bar.componentOnReady && bar.componentOnReady()).then(one).catch(() => {});
+  }
 }
 // The time settings to save: the map's own, with where the slider is now.
 export function timeWidgetsJson() {
@@ -70,7 +82,10 @@ export function timeWidgetsJson() {
   try { props = { ...((typeof ts.toJSON === "function" ? ts.toJSON() : ts).properties || {}) }; } catch (e) { props = {}; }
   if (state.currentSource && state.currentSource.data && state.currentSource.data.widgets) props = { ...state.currentSource.data.widgets.timeSlider.properties, ...props };
   const te = timeBar && timeBar.timeExtent;
-  if (te && (te.start || te.end)) props.currentTimeExtent = [te.start ? te.start.getTime() : null, te.end ? te.end.getTime() : null];
+  // With one handle the start is open. A map its author saved with two handles gets the start of its span there, so it
+  // still opens as its author made it in Map Viewer.
+  const full = timeBar && timeBar.fullTimeExtent, start = te && (te.start || (props.thumbCount === 2 && full && full.start) || null);
+  if (te && (start || te.end)) props.currentTimeExtent = [start ? start.getTime() : null, te.end ? te.end.getTime() : null];
   return { timeSlider: { properties: props } };
 }
 // Toolbar badges, as MapMaker shows them: the number of layers on Map layers, and a dot on Bookmarks when the map has
