@@ -1,22 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.64";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.64";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.64";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.64";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.64";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.64";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.64";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.64";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.64";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.64";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.64";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.64";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.64";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.64";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.64";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.64";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.64";
+import "./arcgis-online.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.65";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.65";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.65";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.65";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.65";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.65";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.65";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.65";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.65";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.65";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.65";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.65";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.65";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.65";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.65";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.65";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.65";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -50,7 +50,7 @@ export function renderVersions() {
     ["Lesson questions", QUESTIONS_VERSION, "In the main app since 5.0.0-beta.50 (features.lessonQuestions). A map whose description has a heading Questions gets a Questions button beside its title, and its questions open beside the map. A summary that is itself a question is shown above them."],
     ["Hide the toolbar", "1.4", "1.4: the compass is hidden only while a table or the elevation chart is open and has taken the tools away; Hide tools on the full map leaves it. 1.2: the button is at the bottom right, level with the toolbar; the version button moved to the header. 1.1: in the main app; the button reads Hide tools or Show tools. 1.0: A Tools button at the bottom left of the map hid the row of tools at any time, to give the map the whole screen, and brings it back. Without it, the toolbar is only tucked away while a table or the elevation chart is open."],
     ["Messages", "2.0", "The short messages over the map. 2.0: a message waits while the pointer is on it or the keyboard is in it, and has a Close button; a setting below keeps every message until it is closed; the last ten are listed below."],
-    ["Keyboard on the map", "1.0", "With the map focused (it shows a ring, and a cross at its centre): the arrow keys move it, + and - zoom, Enter opens the pop-up for what is at the centre and Escape closes it. In Elevation, Space or the Add point at map centre button puts a point of the line at the centre, and Finish line ends it. Measure and Sketch still need a pointer."],
+    ["Keyboard on the map", "1.1", "1.1: the ring and the cross show only when the keyboard was the last thing used (they showed on an iPad after Sketch, with no keyboard). With the map focused (it shows a ring, and a cross at its centre): the arrow keys move it, + and - zoom, Enter opens the pop-up for what is at the centre and Escape closes it. In Elevation, Space or the Add point at map centre button puts a point of the line at the centre, and Finish line ends it. Measure and Sketch still need a pointer."],
     ["Small screens and zoom", "1.0", "On a short screen, or any screen zoomed a long way in (a 1280 x 1024 screen at 400% is 320 x 256), the header and toolbar shrink, the compass is left out, a panel or the Open map window takes the whole screen and scrolls up and down only, and the toolbar's edge fades where more tools are off to the side."],
     ["2D to 3D", THREED_VERSION, "1.3: a sketched area's styled fill is laid on the ground as a picture in 3D in the main app (was lab); no seams between repeats. 1.2: a sketched area with a styled fill (hatch, land use, pencil), which 3D draws as a thin outline only, gets a thicker outline and a light tint in 3D; in the lab config the fill itself is laid on the ground as a picture. What happens to a map when 3D is pressed. The camera tilts by how far out the map is (none looking at a continent, the config's angle at town scale); the scale is corrected for latitude so a place stays the same size; a web map seen from far out is drawn without haze; map notes, which the 3D view cannot show as a layer, are drawn on the view; and a note says when layers will look different, with the reason in Map layers."],
     ["Fish in the profile (lab)", FISH_VERSION, "Only where a config turns it on (features.profileFish). A few small fish wander at random in the upper water of an elevation profile that goes below sea level. For fun: they are not to scale and are not data. A Fish button turns them on and off; they start off where the device asks for less motion, and keep still while a place on the line is being read."],
