@@ -46,7 +46,7 @@ const DEFAULT_CONFIG = {
   csvMaxRows: 1000,
   features: { openMap: true, addLayer: true, csv: true, layers: true, legend: true, basemaps: true, measure: true, sketch: true,
     bookmarks: true, threeD: true, save: true, localSave: true, screenshot: true, print: true, search: true, signIn: true, compass: true, elevationProfile: true, filter: true,
-    lockedCopy: false, profileFish: false, plainFilter: false,   /* lab (5.0.0-beta.60): the Filter panel in plain words */   /* lab (5.0.0-beta.51): fish in the sea of an elevation profile */ columns3d: true, pairs: true, sketchLayers: true,   // in the main app since 5.0.0-beta.50
+    lockedCopy: false, profileFish: false, plainFilter: false, drapeFills: false,   /* lab (5.0.0-beta.62): styled fills laid on the ground in 3D */   /* lab (5.0.0-beta.60): the Filter panel in plain words */   /* lab (5.0.0-beta.51): fish in the sea of an elevation profile */ columns3d: true, pairs: true, sketchLayers: true,   // in the main app since 5.0.0-beta.50
     toolTips: true, tipsSwitch: false, lessonQuestions: true, hideToolbar: true, outlinePrint: true },   // lab features (5.0.0-beta.44): what each tool does, in its tooltip, with a Tips switch; a lesson's questions beside the map   // Save a locked copy: off since 5.0.0-beta.43 (it confused people shown the app). A config can turn it back on. Locked files already made are still respected.
   strings: {}
 };

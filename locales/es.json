@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.17",
+  "version": "1.18",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -309,7 +309,7 @@
     "noRecentSymbols": "No tienes símbolos recientes.",
     "noRecentPolygonSymbols": "No tienes símbolos de polígono recientes.",
     "basicPolygon": "Polígono básico",
-    "styledFillNote": "En 3D, un relleno con estilo se muestra solo como contorno.",
+    "styledFillNote": "En 3D, un relleno con estilo se muestra como un tono claro con su contorno.",
     "fillColour": "Color de relleno",
     "fillTransparency": "Transparencia del relleno",
     "outlineColour": "Color del contorno",

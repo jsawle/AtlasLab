@@ -106,6 +106,14 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Sketched areas with a styled fill, in 3D (5.0.0-beta.62)
+
+The 3D view draws a hatch, land-use or pencil fill as a thin outline only. From 2D to 3D 1.2, each such area gets a helper drawing in 3D that is the view's own (`syncFills3d` in `src/view-mode.js`): a thicker outline and a light tint. Nothing is added to the sketch, the layer list or a saved file, and it is taken away on going back to 2D.
+
+**Lab** (`features.drapeFills`): the fill itself is drawn into a picture cut to the area's shape and laid on the ground (a MediaLayer the list doesn't show; sizes from `drapeSize` in `lib/threed.js`). The pattern is fixed to the ground (about six repeats across the area), where 2D keeps it the same size on screen, so it grows and softens as you zoom in. At most 40 areas get a picture.
+
+Test: `tests/live-fills-3d.py`.
+
 ## Lab: the Filter panel in plain words (5.0.0-beta.60)
 
 Lab config only (`?config=lab`, `features.plainFilter`, Filter 1.3). The main app keeps the panel it had. For students:

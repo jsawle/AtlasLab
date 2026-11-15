@@ -22,4 +22,8 @@ ok(layerDiffers3d({ type: "feature", effect: "bloom(1)" }).join() === "effect" &
 ok(layerDiffers3d({ type: "feature", blendMode: "multiply" }).join() === "blend" && layerDiffers3d({ type: "imagery-tile", blendMode: "multiply" }).length === 0 && layerDiffers3d({ type: "feature", blendMode: "normal" }).length === 0, "blending is lost on feature layers, kept on tiled ones");
 ok(layerDiffers3d({ type: "feature", featureReduction: { type: "cluster" } }).join() === "cluster" && layerDiffers3d({ type: "feature", featureReduction: { type: "selection" } }).length === 0, "clusters are not");
 ok(layerDiffers3d({ type: "feature", renderer: { symbol: cim("CIMLineSymbol") }, effect: "x", blendMode: "multiply", featureReduction: { type: "cluster" } }).join() === "symbols,effect,blend,cluster" && layerDiffers3d(null).length === 0, "a layer can have several reasons; none for no layer");
+{ const { FILL3D, drapeSize } = await import("../lib/threed.js");
+  ok(FILL3D.outline >= 2 && FILL3D.tint > 0 && FILL3D.tint < 0.3, "styled fills in 3D: a thicker outline and a light tint");
+  const a = drapeSize(200, 100), b = drapeSize(100, 400), c = drapeSize(1000, 1);
+  ok(a.w === 2048 && a.h === 1024 && b.w === 512 && b.h === 2048 && c.h === 64 && a.tile === 341, "the picture's size: longer side 2048, shorter in proportion (64 at least), about six repeats"); }
 console.log(`${n - bad}/${n} checks passed`); process.exit(bad ? 1 : 0);
