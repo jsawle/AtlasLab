@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.60";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.60";
+import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.61";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.61";
 
-export const APP_VERSION = "5.0.0-beta.60";
+export const APP_VERSION = "5.0.0-beta.61";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
@@ -66,8 +66,8 @@ const fetchJson = async (path) => { const r = await fetch(path, { cache: "no-cac
 
 // A partner's config can also come from an ArcGIS Online item (?appid=<item id>, 5.0.0-beta.58), set up and changed by the
 // education team in the manager app (jsawle/AtlasLab-manager). Only items owned by these organizations are accepted:
-// the MapMaker organization, and GIS 4 Schools for testing.
-export const PARTNER_ORGS = ["iFGeGXTAJXnjq0YN", "HNLEA4GfnbCFQZGa"];
+// GIS 4 Schools, the organization the partners' items are kept in (5.0.0-beta.61; the MapMaker organization isn't used).
+export const PARTNER_ORGS = ["HNLEA4GfnbCFQZGa"];
 const appidAsked = String(params.get("appid") || (authStash && authStash.appid) || "").toLowerCase();
 export const appId = HEX32.test(appidAsked) ? appidAsked : "";
 // The manager app shows a config before it is published by opening the app in a frame with ?preview=1 and handing it the

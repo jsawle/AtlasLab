@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.59**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.61**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -16,6 +16,10 @@ Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, an
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
 
+## Partners' config items: GIS 4 Schools only (5.0.0-beta.61)
+
+The partners' config items (`?appid=`) will be kept in GIS 4 Schools (`HNLEA4GfnbCFQZGa`), not the MapMaker organization, so `PARTNER_ORGS` now lists GIS 4 Schools alone. An item in any other organization, the MapMaker one included, opens the default app with the usual message. Tests: `config.test.mjs` (+1, a MapMaker item refused); `tests/live-partner.py` uses a GIS 4 Schools item and refuses a MapMaker one.
+
 ## Accessibility: messages that wait, the page's name, state by more than colour (5.0.0-beta.59)
 
 Three of the "could come next" items of the draft conformance report.
@@ -30,7 +34,7 @@ Tests: `tests/live-keyboard.py` (now 26). Wording 1.15 in `locales/es.json`.
 The first step towards managing partners' versions (Esri distributors, National Geographic) from the education team's manager app (`jsawle/AtlasLab-manager`). Configs and language files 2.0 → 2.1. Nothing changes for any existing link.
 
 - **`?appid=<item ID>`** opens the app with the config kept in that ArcGIS Online item's data, as an Instant App does. The config is the same JSON as a file in `config/`: it lists only what differs from the app's defaults, can start from a config here (`"extends": "mapmaker"`), and names its language (the wording still comes from `locales/`).
-- **Only the education team's items are used.** The item must be public, owned by the MapMaker organization (`iFGeGXTAJXnjq0YN`) or GIS 4 Schools (`HNLEA4GfnbCFQZGa`, for testing), and carry the type keyword `AtlasLabPartnerConfig`, which the manager sets. Anything else (another organization's item, an unmarked one, a private or deleted one, no connection) opens the default app with the usual "Config … wasn't found" message. `PARTNER_ORGS` in `src/config.js` holds the list. A config from an item can't change `portalUrl`.
+- **Only the education team's items are used.** The item must be public, owned by GIS 4 Schools (`HNLEA4GfnbCFQZGa`; from 5.0.0-beta.61 the only organization, the MapMaker one isn't used), and carry the type keyword `AtlasLabPartnerConfig`, which the manager sets. Anything else (another organization's item, an unmarked one, a private or deleted one, no connection) opens the default app with the usual "Config … wasn't found" message. `PARTNER_ORGS` in `src/config.js` holds the list. A config from an item can't change `portalUrl`.
 - **Why an item.** Each opening of a partner's app reads the item's data, which ArcGIS Online counts as a view of that item, so views per partner come from Esri's own counts with nothing added to the app. The config also stays put when the app moves host. (A test map used only by this app's tests has 1,488 views, which says reads from an app off arcgis.com are counted; still to be confirmed on a real partner item.)
 - **Logos inside the config.** A logo may now be a picture in the config itself (`data:image/png`, `jpeg`, `webp` or `svg+xml`, base64). The manager keeps partners' logos this way, so a logo is never fetched from a partner's own website, which would see every student's address.
 - **Preview for the manager** (`?preview=1`, only in a frame). The app tells the page that framed it that it is ready, and takes a config from it by message. Only a page of `jsawle.github.io` or the app's own site is listened to; when the app moves host, its address goes in `PREVIEW_ORIGINS` (and a `frame-ancestors` header there must let the manager frame it). With no config within 10 seconds, or not in a frame, the default opens.
