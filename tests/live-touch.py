@@ -6,7 +6,7 @@ Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright 
 An iPad-sized page with touch. Checks: taps add points and the line so far is drawn through them, with a dot at each;
 the message says "tap"; Undo point takes the last one away; Finish line charts the line; panning with a finger while
 drawing doesn't pull the line to the finger or ask the map what is under the finger; a drawn line's handles can be
-hit with a finger and dragged.
+hit with a finger and dragged; a pen's taps add points, it is told to tap (not click), and its double tap finishes.
 """
 import argparse, functools, glob, http.server, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
@@ -100,6 +100,20 @@ def main():
         page.wait_for_timeout(4000)
         moved = page.evaluate("(() => { const v = " + V + "; const h = v.graphics.find(g => g.attributes && g.attributes.kind === 'vertex' && g.attributes.i === 1); return [h.geometry.x, h.geometry.y]; })()")
         check(abs(moved[1] - vtx[3]) > 1000, "a finger near a handle (19 px off) drags it: the point moved %.0f km" % (abs(moved[1] - vtx[3]) / 1000))
+
+        print("== a pen (Apple Pencil): told to tap, as a finger is (Elevation profile 3.5)")
+        def pen(kind, x, y, count=1):
+            cdp.send("Input.dispatchMouseEvent", {"type": kind, "x": x, "y": y, "pointerType": "pen", "button": "left", "buttons": 1 if kind == "mousePressed" else 0, "clickCount": count})
+        def pen_tap(p, count=1): pen("mousePressed", *p, count); page.wait_for_timeout(60); pen("mouseReleased", *p, count)
+        page.tap("#profNew"); page.wait_for_timeout(1200)
+        pen_tap(pt(0.3, 0.4)); page.wait_for_timeout(900)
+        msg = page.inner_text("#profChart")
+        check(page.evaluate(DRAFT)["dots"] == 1 and msg.startswith("Tap for each point"), "a pen tap adds a point, and the message says tap, not click: " + msg[:60])
+        pen_tap(pt(0.5, 0.35)); page.wait_for_timeout(900)
+        pen_tap(pt(0.62, 0.5)); page.wait_for_timeout(110); pen_tap(pt(0.62, 0.5), 2)
+        try: page.wait_for_selector("#profChart .prof-land", timeout=60000); ok = True
+        except Exception: ok = False
+        check(ok and page.evaluate(DRAFT)["dots"] == 0, "a double tap with the pen finishes the line")
 
         check(not errors, "no script errors: " + " | ".join(errors[:2]))
         browser.close()

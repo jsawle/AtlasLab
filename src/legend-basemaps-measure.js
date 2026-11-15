@@ -1,19 +1,19 @@
 // ============================================================ Legend, basemaps, measure
-import "./sketch.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.65";
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.65";
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.65";
-import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.65";
-import { state, late } from "./state.js?v=5.0.0-beta.65";
-import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.65";
-import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.65";
-import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.65";
-import { markDirty } from "./session.js?v=5.0.0-beta.65";
-import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.65";
-import { updatePopupEnabled, showCentre } from "./popups.js?v=5.0.0-beta.65";
-import { sketch } from "./sketch.js?v=5.0.0-beta.65";
-import { shownMap } from "./maps.js?v=5.0.0-beta.65";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.65";
+import "./sketch.js?v=5.0.0-beta.66";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.66";
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.66";
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.66";
+import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.66";
+import { state, late } from "./state.js?v=5.0.0-beta.66";
+import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.66";
+import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.66";
+import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.66";
+import { markDirty } from "./session.js?v=5.0.0-beta.66";
+import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.66";
+import { updatePopupEnabled, showCentre } from "./popups.js?v=5.0.0-beta.66";
+import { sketch } from "./sketch.js?v=5.0.0-beta.66";
+import { shownMap } from "./maps.js?v=5.0.0-beta.66";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.66";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let legend = null, legendMaking = null, coordWidget = null;
@@ -235,9 +235,12 @@ const PROF_POINTS = 512, PROF_CLIMB_MAX = 50000;   // points along every line; t
 let topoBathy = null, prof = null, profHover = null, profBusy = 0, profAt = -1;
 const profGraphics = { line: null, dot: null, draft: null, draftDots: null };
 export const PROF_KEYS = ["line", "dot", "draft", "draftDots"];
-// A finger (or a device with no hovering pointer) gets the touch wording; the last pointer used on the map decides.
+// A finger or a pen (or a device with no hovering pointer) gets the touch wording ("Tap…"); the last pointer used on the map
+// decides. A pen (an Apple Pencil, a Logitech Crayon) is told "tap" from 5.0.0-beta.66 (Elevation profile 3.5): before, it
+// was given the mouse's "Click… Double-click". Only the wording: for everything else a pen is handled as the SDK handles it.
 let profTouch = (() => { try { return matchMedia("(hover: none)").matches; } catch (e) { return false; } })();
 const isTouch = (e) => { const n = e && e.native; return !!n && n.pointerType === "touch"; };
+const tapsNotClicks = (e) => { const n = e && e.native; return !!n && (n.pointerType === "touch" || n.pointerType === "pen"); };
 const profHint = () => (profTouch ? S.profileHintTouch : S.profileHint + " " + S.profileHintKeys);
 const PROF_LINE = { type: "simple-line", color: [255, 127, 0, 1], width: 3 };
 const PROF_DOT = { type: "simple-marker", style: "circle", color: [255, 255, 255, 1], size: 13, outline: { color: [200, 60, 0, 1], width: 3 } };
@@ -547,8 +550,8 @@ onViews("pointer-move", (e) => {
 onViews("click", (e) => { if (profActive()) e.stopPropagation(); });   // no pop-ups while the tool is open
 onViews("immediate-click", async (e) => {
   if (!profActive() || e.button === 2) return;
-  profTouch = isTouch(e);
-  if (!state.profDraft && (profEdit || profHandleAt(e.x, e.y, profTouch))) return;   // a handle pressed and let go without moving: nothing changes
+  profTouch = tapsNotClicks(e);
+  if (!state.profDraft && (profEdit || profHandleAt(e.x, e.y, isTouch(e)))) return;   // a handle pressed and let go without moving: nothing changes
   if (!state.profDraft) {
     const g = profHover || await lineUnder(e);
     if (g) { profHover = null; setViewCursor("crosshair"); $("profLines").value = ""; profileOf(g.geometry.clone()); return; }   // a line on the map was chosen

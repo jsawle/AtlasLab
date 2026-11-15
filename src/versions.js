@@ -1,22 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.65";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.65";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.65";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.65";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.65";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.65";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.65";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.65";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.65";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.65";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.65";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.65";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.65";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.65";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.65";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.65";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.65";
+import "./arcgis-online.js?v=5.0.0-beta.66";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.66";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.66";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.66";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.66";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.66";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.66";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.66";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.66";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.66";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.66";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.66";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.66";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.66";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.66";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.66";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.66";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.66";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -33,7 +33,7 @@ export function renderVersions() {
     ["Units", UNITS_VERSION, "Kilometres and metres, or miles and feet, in Measure, Elevation and Sketch. 1.1: the Measure panel shows whole numbers, with no decimal places (the figure drawn on the map itself is Esri's and keeps them). With units set to auto the app starts in miles on a device whose time zone is in the United States and in kilometres elsewhere; if the time zone isn't known, the browser's language decides. Nothing is sent anywhere to work this out. The km / mi switch changes the units, and the choice is kept on this device."],
     ["Docks", "1.0", "The chart, the table and Elevation open in a dock under the map. Drag the bar along the dock's top, or use the arrow keys on it, to make it taller or shorter; double-click the bar for the usual height. The height is kept for each kind of dock while the app is open."],
     ["Charts", CHARTS_VERSION, "A chart set up on a layer in Map Viewer, kept in the map or with the layer's own item, drawn by the SDK's chart component under the map: Map layers, then the layer's Chart button. Selecting on the chart highlights those features on the map. The chart's own toolbar has its legend, selection, only what is in view, zoom and saving."],
-    ["Elevation profile", PROFILE_VERSION, "The height of the land and the sea floor along a line, from Esri's World Elevation TopoBathy 3D service (512 points along the line, on every screen). The chart stretches heights to fill its space, and says by how much (vertical exaggeration). Total climb and descent are given for lines up to 50 km. A line you draw takes the shortest way round the Earth between the places you click (a great circle), so on the flat map a long line is a curve; a line you choose on the map is followed as it is drawn. The app's own chart, the full width under the map: earth colours that darken with depth, the sea and a sea-level line where the line goes below it, and a dot on the map at the place the pointer is at on the chart."],
+    ["Elevation profile", PROFILE_VERSION, "3.5: a pen (Apple Pencil, Logitech Crayon) is told to tap and double-tap, as a finger is, not to click. The height of the land and the sea floor along a line, from Esri's World Elevation TopoBathy 3D service (512 points along the line, on every screen). The chart stretches heights to fill its space, and says by how much (vertical exaggeration). Total climb and descent are given for lines up to 50 km. A line you draw takes the shortest way round the Earth between the places you click (a great circle), so on the flat map a long line is a curve; a line you choose on the map is followed as it is drawn. The app's own chart, the full width under the map: earth colours that darken with depth, the sea and a sea-level line where the line goes below it, and a dot on the map at the place the pointer is at on the chart."],
     ["Compass", COMPASS_VERSION, "MapMaker's compass rose: turns with the map in 2D and 3D; select it to face north."],
     ["Saved map (.amap file and ArcGIS Online)", WEBMAP_WRITER_VERSION, "An ArcGIS web map (Web Map Specification " + WEBMAP_SPEC_VERSION + "): sketches, spreadsheet data, layers and their filters, basemap, view, bookmarks and a time-aware map's time settings. The same JSON is stored in ArcGIS Online. 3.0: a 3D scene is saved as a web scene (Web Scene Specification " + WEBSCENE_SPEC_VERSION + ") in the same kind of file, with its camera and its bookmarks as slides. 3.4: a map saved to a file while in 3D opens in 3D again, seen from the same place. 3.5: the sketch layer's transparency. 3.6: more than one sketch layer, and sketch layers anywhere in the layer order."],
     ["Sketch layers", SKETCH_LAYERS_VERSION, "A sketch layer is listed in Map layers once it has a sketch, can be moved in the drawing order like any other layer, and has transparency, swipe and remove. Where a config turns it on (features.sketchLayers): more sketch layers can be made from Add layer or the Sketch panel, each with its own name; Sketch says which one it is drawing on. A saved map that has several opens with them in any config."],

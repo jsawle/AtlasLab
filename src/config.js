@@ -2,13 +2,13 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.65";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.65";
+import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.66";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.66";
 
-export const APP_VERSION = "5.0.0-beta.65";
+export const APP_VERSION = "5.0.0-beta.66";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
-export const PROFILE_VERSION = "3.4";
+export const PROFILE_VERSION = "3.5";   // 3.5 (5.0.0-beta.66): a pen is told "tap", as a finger is
 export const SKETCH_VERSION = "2.2";   // 1.1: rotation only for text. 2.0: the SDK's Sketch component (Map Viewer's tools) replaces the app's own. 2.1: freehand segments. 2.2: keyboard route to the drawing tools
 export const CONFIG_SCHEMA = 2;
 export const SDK_VERSION = "5.2";

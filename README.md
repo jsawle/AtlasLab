@@ -106,6 +106,10 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Pens on an iPad (5.0.0-beta.66)
+
+Safari reports an Apple Pencil (and a Logitech Crayon, which uses the same technology) as a pen, and the SDK handles pens itself: a pen must move a few pixels before it drags, as a finger must, and its double taps use the mouse's limits. Tried with a simulated pen in Chromium: panning, tapping a feature for its pop-up, the toolbar, Sketch points, areas and freehand, and the Elevation profile all work as with a mouse. One change, Elevation profile 3.5: a pen is now told to tap and double-tap, as a finger is, where it was given the mouse's "Click… Double-click". Test: `tests/live-touch.py`.
+
 ## The keyboard's ring and cross on the map: only after the keyboard (5.0.0-beta.65)
 
 Keyboard on the map 1.1. The ring round the map and the cross at its centre (5.0.0-beta.57) were shown whenever the browser said the map had a visible focus (`:focus-visible`). Browsers also say so when code gives the map the focus after a click on something that can't take the focus, and the SDK gives the map the focus when Sketch starts drawing. In Safari a tap on a button counts as such a click, so on an iPad the ring and cross showed after using Sketch, with no keyboard. Now the app keeps track itself: any key (not Shift, Ctrl, Alt or Cmd alone) counts as the keyboard, any press of a pointer or finger as not, and the ring and cross show only when the map has the focus and the keyboard was the last thing used. Seen in Chromium by clicking the header and then starting Sketch; Safari wasn't available to test here. Test: `tests/live-keyboard.py`.
