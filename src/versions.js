@@ -1,22 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.59";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.59";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.59";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.59";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.59";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.59";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.59";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.59";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.59";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.59";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.59";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.59";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.59";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.59";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.59";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.59";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.59";
+import "./arcgis-online.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.60";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.60";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.60";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.60";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.60";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.60";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.60";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.60";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.60";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.60";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.60";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.60";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.60";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.60";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.60";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.60";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.60";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -60,7 +60,7 @@ export function renderVersions() {
     ["Time", "2.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider over the map's own span, steps and speed. 2.0: the slider has one handle, the date the map is showing, with everything up to that date on the map, whatever way the map's author saved; the date is written above the handle; the settings button is left out. A config can have the map's own way back (timeMode)."],
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
     ["CSV import", CSV_VERSION, "Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
-    ["Filter (lab)", FILTER_VERSION, "A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],
+    ["Filter (lab)", FILTER_VERSION, "1.3 (lab config only, features.plainFilter): the panel in plain words for students: the heading names the layer, a label above each box, a short list of conditions with More, the histogram called Chart of values with a caption and the average marked, and the filter said back as a sentence with its count. A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],
     ["Sketch", SKETCH_VERSION, "Points, lines, areas, circles and text, with pop-ups, images, colour, size and rotation; move, reshape and delete."],
     [S.configLabel, String(cfg.configVersion || 1), configSource() + " (schema " + CONFIG_SCHEMA + ")" + (localeFile ? "; language file locales/" + localeFile.name + ".json " + (localeFile.version || "1.0") : "")],
     ["Configs and language files", CONFIG_VERSION, "A config lists only what differs from the app's defaults and can start from another config (extends). The app's wording in a language comes from one shared file per language. 2.1: a partner's config can be kept in an ArcGIS Online item of the education team's (?appid=), set up in the manager app, which can also show a config before it is published."],

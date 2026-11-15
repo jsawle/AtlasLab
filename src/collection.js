@@ -2,23 +2,23 @@
 // After MapMaker's Add layer dialog: search, a Categories tree (the content group's categories, with chevrons for
 // sub-categories and a reset button), wide cards with an expandable description, and page numbers. Up to MAX_INDEX
 // items are loaded once and filtered in the browser, with counts; a bigger group is searched in ArcGIS Online instead.
-import "./topics.js?v=5.0.0-beta.59";   // first: keeps the files running in the order they were written in (see app.js)
-import { MAX_INDEX, OTHER, ALL, findTopic, topicTrail, indexItems, countTopics, filterEntries, pageList } from "../lib/catalog.js?v=5.0.0-beta.59";
-import { mergePairs, entryIs3d, entryIs2d } from "../lib/pairs.js?v=5.0.0-beta.59";
-import { state } from "./state.js?v=5.0.0-beta.59";
-import { $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.59";
-import { restGet } from "./sdk.js?v=5.0.0-beta.59";
-import { portalLayers } from "./session.js?v=5.0.0-beta.59";
-import { toast, openPanelName, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.59";
-import { SKETCH_LAYERS_ON, createSketchLayer, nextSketchLayerName } from "./sketch.js?v=5.0.0-beta.59";
-import { pairOn } from "./view-mode.js?v=5.0.0-beta.59";
-import { openWebMapItem, openWebSceneItem, newBlankMap, addPortalLayer, removePortalLayer } from "./maps.js?v=5.0.0-beta.59";
-import { calIcon } from "./layers-panel.js?v=5.0.0-beta.59";
-import { getTopicTree, cleanQuery, setThumb } from "./topics.js?v=5.0.0-beta.59";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.59";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.59";
-import { openFromDevice } from "./local-files.js?v=5.0.0-beta.59";
-import { renderSavedMaps } from "./saved-maps.js?v=5.0.0-beta.59";
+import "./topics.js?v=5.0.0-beta.60";   // first: keeps the files running in the order they were written in (see app.js)
+import { MAX_INDEX, OTHER, ALL, findTopic, topicTrail, indexItems, countTopics, filterEntries, pageList } from "../lib/catalog.js?v=5.0.0-beta.60";
+import { mergePairs, entryIs3d, entryIs2d } from "../lib/pairs.js?v=5.0.0-beta.60";
+import { state } from "./state.js?v=5.0.0-beta.60";
+import { $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.60";
+import { restGet } from "./sdk.js?v=5.0.0-beta.60";
+import { portalLayers } from "./session.js?v=5.0.0-beta.60";
+import { toast, openPanelName, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.60";
+import { SKETCH_LAYERS_ON, createSketchLayer, nextSketchLayerName } from "./sketch.js?v=5.0.0-beta.60";
+import { pairOn } from "./view-mode.js?v=5.0.0-beta.60";
+import { openWebMapItem, openWebSceneItem, newBlankMap, addPortalLayer, removePortalLayer } from "./maps.js?v=5.0.0-beta.60";
+import { calIcon } from "./layers-panel.js?v=5.0.0-beta.60";
+import { getTopicTree, cleanQuery, setThumb } from "./topics.js?v=5.0.0-beta.60";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.60";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.60";
+import { openFromDevice } from "./local-files.js?v=5.0.0-beta.60";
+import { renderSavedMaps } from "./saved-maps.js?v=5.0.0-beta.60";
 
 const PAGE_SIZE = 10;
 const SVG = (d, w) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + d + "</svg>";
