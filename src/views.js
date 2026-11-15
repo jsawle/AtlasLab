@@ -1,9 +1,9 @@
 // ============================================================ Map, views and widgets
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.62";
-import { state, late } from "./state.js?v=5.0.0-beta.62";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.62";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.62";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.62";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.63";
+import { state, late } from "./state.js?v=5.0.0-beta.63";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.63";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.63";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });

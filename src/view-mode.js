@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.62";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.62";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.62";
-import { state } from "./state.js?v=5.0.0-beta.62";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.62";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.62";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.62";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.62";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.62";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.62";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.62";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.63";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.63";
+import { state } from "./state.js?v=5.0.0-beta.63";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.63";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.63";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.63";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.63";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.63";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.63";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.63";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.62";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.62";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.62";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.62";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.62";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.62";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.62";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.63";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.63";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.63";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.63";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.63";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.63";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.63";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -77,7 +77,7 @@ function syncNotes3d() {
   });
   if (notes3d.length) v.graphics.addMany(notes3d);
 }
-// ---- Sketched areas with a styled fill (hatch, land use, pencil), in 3D (5.0.0-beta.62; Sketch in 3D 1.0). The 3D view
+// ---- Sketched areas with a styled fill (hatch, land use, pencil), in 3D (5.0.0-beta.63; 2D to 3D 1.2). The 3D view
 // draws such a fill as a thin outline only, which is easy to miss. So in 3D each one gets a helper drawing that is the
 // view's own (nothing is added to the sketch, the layer list or a saved file): a thicker outline and a light tint.
 // Lab (features.drapeFills): the fill itself is also drawn into a picture, cut to the shape and laid on the ground (a

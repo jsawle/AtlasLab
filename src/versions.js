@@ -1,22 +1,22 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.62";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.62";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.62";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.62";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.62";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.62";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.62";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.62";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.62";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.62";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.62";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.62";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.62";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.62";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.62";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.62";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.62";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.62";
+import "./arcgis-online.js?v=5.0.0-beta.63";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.63";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.63";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.63";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.63";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.63";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.63";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.63";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.63";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.63";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.63";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.63";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.63";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.63";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.63";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.63";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.63";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.63";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
