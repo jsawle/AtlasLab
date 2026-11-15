@@ -38,11 +38,24 @@ def main():
         page = browser.new_page(viewport={"width": 1180, "height": 760}); page.on("dialog", lambda d: d.accept())
         page.goto(f"{base}/index.html?webmap={QUAKES}"); page.wait_for_function("() => { const m = document.querySelector('arcgis-map'); return !!(m && m.view && m.view.ready && m.view.map && m.view.map.portalItem); }", timeout=120000); page.wait_for_timeout(7000)
         check(page.is_hidden("#mapRing") and page.is_hidden("#centreMark"), "with the keyboard elsewhere the map has no ring and no cross")
+        page.evaluate("(() => " + V + ".container.querySelector('.esri-view-surface').focus())()"); page.wait_for_timeout(300)
+        check(page.evaluate(ON_MAP) and page.is_hidden("#mapRing") and page.is_hidden("#centreMark"), "a script giving the map the focus shows no ring and no cross (1.1)")
+        page.evaluate("document.activeElement && document.activeElement.blur()"); page.keyboard.press("Shift+Tab"); page.keyboard.press("Tab"); page.wait_for_timeout(200)
         n = 0
         for n in range(1, 60):
             page.keyboard.press("Tab"); page.wait_for_timeout(50)
             if page.evaluate(ON_MAP): break
         check(page.evaluate(ON_MAP) and page.is_visible("#mapRing") and page.is_visible("#centreMark"), "Tab reaches the map (%d presses): it shows a ring, and a cross at its centre" % n)
+        box = page.evaluate("(() => { const r = " + V + ".container.getBoundingClientRect(); return [r.left + 80, r.top + r.height / 2]; })()")
+        page.mouse.click(box[0], box[1]); page.wait_for_timeout(400)
+        check(page.is_hidden("#mapRing") and page.is_hidden("#centreMark"), "a click on the map takes the ring and the cross away")
+        for _ in range(1, 60):
+            page.keyboard.press("Shift+Tab"); page.wait_for_timeout(50)
+            if not page.evaluate(ON_MAP): break
+        for _ in range(1, 60):
+            page.keyboard.press("Tab"); page.wait_for_timeout(50)
+            if page.evaluate(ON_MAP): break
+        check(page.evaluate(ON_MAP) and page.is_visible("#centreMark"), "and Tab back to the map brings them back")
         label = page.evaluate("(() => " + V + ".container.querySelector('.esri-view-surface').getAttribute('aria-label'))()")
         check(label and "Enter opens" in label and "Arrow keys" in label, "a screen reader is told what the keys do: " + str(label))
         page.screenshot(path=str(shots / "keyboard-map.png"))

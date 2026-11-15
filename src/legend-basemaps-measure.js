@@ -1,19 +1,19 @@
 // ============================================================ Legend, basemaps, measure
-import "./sketch.js?v=5.0.0-beta.64";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.64";
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.64";
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.64";
-import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.64";
-import { state, late } from "./state.js?v=5.0.0-beta.64";
-import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.64";
-import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.64";
-import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.64";
-import { markDirty } from "./session.js?v=5.0.0-beta.64";
-import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.64";
-import { updatePopupEnabled, showCentre } from "./popups.js?v=5.0.0-beta.64";
-import { sketch } from "./sketch.js?v=5.0.0-beta.64";
-import { shownMap } from "./maps.js?v=5.0.0-beta.64";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.64";
+import "./sketch.js?v=5.0.0-beta.65";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.65";
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.65";
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.65";
+import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.65";
+import { state, late } from "./state.js?v=5.0.0-beta.65";
+import { $, params, cfg, S, t, PORTAL, F } from "./config.js?v=5.0.0-beta.65";
+import { Graphic, Basemap, Portal, reactiveUtils, ElevationLayer, toolEl, dropEl, restGet } from "./sdk.js?v=5.0.0-beta.65";
+import { sketchLayers, viewEls, mapView, onViews, activeMap } from "./views.js?v=5.0.0-beta.65";
+import { markDirty } from "./session.js?v=5.0.0-beta.65";
+import { toast, openPanelName, openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.65";
+import { updatePopupEnabled, showCentre } from "./popups.js?v=5.0.0-beta.65";
+import { sketch } from "./sketch.js?v=5.0.0-beta.65";
+import { shownMap } from "./maps.js?v=5.0.0-beta.65";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.65";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let legend = null, legendMaking = null, coordWidget = null;
