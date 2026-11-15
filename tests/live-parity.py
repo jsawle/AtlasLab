@@ -106,6 +106,9 @@ def main():
         tb = page.evaluate(TB)
         check(page.is_visible("#timeHost") and tb["full"][:2] == [1775, 1783] and tb["stops"] == 10 and tb["rate"] == 2000, f"the time control shows, set up from the map's own settings (1775 to 1783, 10 stops, 2 s a step): {tb['full'][:2]}, {tb['stops']}, {tb['rate']}")
         check(tb["slider"], "with a slider across the time span")
+        one = page.evaluate("(() => { const t = document.querySelector('arcgis-time-bar'), v = document.querySelector('arcgis-map').view.timeExtent; return { mode: t.mode, start: t.timeExtent.start, settings: t.showSettings, pop: t.querySelector('arcgis-time-bar-slider').popoverDisplay, viewStart: v && v.start, viewEnd: !!(v && v.end) }; })()")
+        check(one["mode"] == "cumulative-from-start" and one["start"] is None and one["viewStart"] is None and one["viewEnd"], "it has one handle: the map shows everything up to its date (the map's author saved a window between two dates)")
+        check(one["settings"] is False and one["pop"] == "always", "the date is written above the handle, and there is no settings button")
         check(page.evaluate("document.querySelector('arcgis-time-bar').getAttribute('label')") == "Time", "it is the SDK's Time Bar component, labelled Time")
         # the map follows the time: zoom to the east coast, then compare the map at the first and a later step
         from PIL import Image, ImageChops; import io
@@ -116,7 +119,7 @@ def main():
         for _ in range(4): page.evaluate("document.querySelector('arcgis-time-bar').next()"); page.wait_for_timeout(500)
         page.wait_for_timeout(4000); a1 = grab(); a0.save(str(shots / "parity-time-a0.png")); a1.save(str(shots / "parity-time-a1.png"))
         later = page.evaluate(TB)
-        check(later["cur"][2] > tb["cur"][2], f"Next moves the time on: {tb['cur'][:2]} -> {later['cur'][:2]}")
+        check(later["cur"][3] > tb["cur"][3] and later["cur"][2] is None, f"Next moves the date on, still from the start: {tb['cur'][:2]} -> {later['cur'][:2]}")
         diff = sum(1 for px in ImageChops.difference(a0, a1).get_flattened_data() if sum(px) > 60)
         check(diff > 150, f"and the map shows different features for the new time ({diff} pixels changed)")
         page.screenshot(path=str(shots / "parity-time.png"))
@@ -127,7 +130,7 @@ def main():
         with page.expect_download() as dl: page.click("#nameConfirm")
         saved = json.loads(pathlib.Path(dl.value.path()).read_text())
         props = ((saved.get("widgets") or {}).get("timeSlider") or {}).get("properties") or {}
-        check(props.get("numberOfStops") == 10 and props.get("currentTimeExtent") == later["cur"][2:], f"the saved map keeps the time settings and the slider's place: {sorted(props)}")
+        check(props.get("numberOfStops") == 10 and props.get("currentTimeExtent") == [tb["full"][2], later["cur"][3]] and props.get("thumbCount") == 2, f"the saved map keeps the time settings and the slider's place: {sorted(props)}")
         page.evaluate("""(text) => { const dt = new DataTransfer(); dt.items.add(new File([text], 'battles_time.amap', { type: 'application/json' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", json.dumps(saved))
         page.wait_for_function("document.querySelector('#toast').textContent.includes('battles time')", timeout=90000)
         page.wait_for_function("document.querySelector('arcgis-time-bar') && document.querySelector('arcgis-time-bar').state === 'ready'", timeout=60000); page.wait_for_timeout(2500)
