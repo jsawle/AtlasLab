@@ -1,23 +1,29 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.57";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.57";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.57";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.57";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.57";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.57";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.57";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.57";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.57";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.57";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.57";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.57";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.57";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.57";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.57";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.57";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.57";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.57";
+import "./arcgis-online.js?v=5.0.0-beta.58";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.58";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.58";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.58";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.58";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.58";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.58";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.58";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.58";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.58";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.58";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.58";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.58";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.58";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.58";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.58";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.58";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.58";
 
+// Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
+function configSource() {
+  const files = cfgChain.filter((c) => c !== "preview" && !c.startsWith("item ")).map((c) => c + ".json");
+  const first = cfgItem ? "ArcGIS Online item " + cfgItem.id : cfgChain[0] === "preview" ? "a preview from the manager app" : files.shift();
+  return [first, ...files].join(", on ");
+}
 export function renderVersions() {
   const rows = [
     [cfg.appName + " (app)", APP_VERSION, "White-label build of the MapMaker app: every MapMaker tool, local save, CSV data, ArcGIS Online sign-in. Created by Jason Sawle."],
@@ -55,8 +61,8 @@ export function renderVersions() {
     ["CSV import", CSV_VERSION, "Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
     ["Filter (lab)", FILTER_VERSION, "A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],
     ["Sketch", SKETCH_VERSION, "Points, lines, areas, circles and text, with pop-ups, images, colour, size and rotation; move, reshape and delete."],
-    [S.configLabel, String(cfg.configVersion || 1), cfgChain.join(".json, on ") + ".json (schema " + CONFIG_SCHEMA + ")" + (localeFile ? "; language file locales/" + localeFile.name + ".json " + (localeFile.version || "1.0") : "")],
-    ["Configs and language files", CONFIG_VERSION, "A config lists only what differs from the app's defaults and can start from another config (extends). The app's wording in a language comes from one shared file per language."],
+    [S.configLabel, String(cfg.configVersion || 1), configSource() + " (schema " + CONFIG_SCHEMA + ")" + (localeFile ? "; language file locales/" + localeFile.name + ".json " + (localeFile.version || "1.0") : "")],
+    ["Configs and language files", CONFIG_VERSION, "A config lists only what differs from the app's defaults and can start from another config (extends). The app's wording in a language comes from one shared file per language. 2.1: a partner's config can be kept in an ArcGIS Online item of the education team's (?appid=), set up in the manager app, which can also show a config before it is published."],
     ["ArcGIS Maps SDK for JavaScript", SDK_VERSION, "Esri mapping library"]
   ];
   const tbl = $("versTable"); tbl.innerHTML = "";

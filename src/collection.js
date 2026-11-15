@@ -2,23 +2,23 @@
 // After MapMaker's Add layer dialog: search, a Categories tree (the content group's categories, with chevrons for
 // sub-categories and a reset button), wide cards with an expandable description, and page numbers. Up to MAX_INDEX
 // items are loaded once and filtered in the browser, with counts; a bigger group is searched in ArcGIS Online instead.
-import "./topics.js?v=5.0.0-beta.57";   // first: keeps the files running in the order they were written in (see app.js)
-import { MAX_INDEX, OTHER, ALL, findTopic, topicTrail, indexItems, countTopics, filterEntries, pageList } from "../lib/catalog.js?v=5.0.0-beta.57";
-import { mergePairs, entryIs3d, entryIs2d } from "../lib/pairs.js?v=5.0.0-beta.57";
-import { state } from "./state.js?v=5.0.0-beta.57";
-import { $, cfgName, cfg, F, S, t } from "./config.js?v=5.0.0-beta.57";
-import { restGet } from "./sdk.js?v=5.0.0-beta.57";
-import { portalLayers } from "./session.js?v=5.0.0-beta.57";
-import { toast, openPanelName, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.57";
-import { SKETCH_LAYERS_ON, createSketchLayer, nextSketchLayerName } from "./sketch.js?v=5.0.0-beta.57";
-import { pairOn } from "./view-mode.js?v=5.0.0-beta.57";
-import { openWebMapItem, openWebSceneItem, newBlankMap, addPortalLayer, removePortalLayer } from "./maps.js?v=5.0.0-beta.57";
-import { calIcon } from "./layers-panel.js?v=5.0.0-beta.57";
-import { getTopicTree, cleanQuery, setThumb } from "./topics.js?v=5.0.0-beta.57";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.57";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.57";
-import { openFromDevice } from "./local-files.js?v=5.0.0-beta.57";
-import { renderSavedMaps } from "./saved-maps.js?v=5.0.0-beta.57";
+import "./topics.js?v=5.0.0-beta.58";   // first: keeps the files running in the order they were written in (see app.js)
+import { MAX_INDEX, OTHER, ALL, findTopic, topicTrail, indexItems, countTopics, filterEntries, pageList } from "../lib/catalog.js?v=5.0.0-beta.58";
+import { mergePairs, entryIs3d, entryIs2d } from "../lib/pairs.js?v=5.0.0-beta.58";
+import { state } from "./state.js?v=5.0.0-beta.58";
+import { $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.58";
+import { restGet } from "./sdk.js?v=5.0.0-beta.58";
+import { portalLayers } from "./session.js?v=5.0.0-beta.58";
+import { toast, openPanelName, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.58";
+import { SKETCH_LAYERS_ON, createSketchLayer, nextSketchLayerName } from "./sketch.js?v=5.0.0-beta.58";
+import { pairOn } from "./view-mode.js?v=5.0.0-beta.58";
+import { openWebMapItem, openWebSceneItem, newBlankMap, addPortalLayer, removePortalLayer } from "./maps.js?v=5.0.0-beta.58";
+import { calIcon } from "./layers-panel.js?v=5.0.0-beta.58";
+import { getTopicTree, cleanQuery, setThumb } from "./topics.js?v=5.0.0-beta.58";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.58";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.58";
+import { openFromDevice } from "./local-files.js?v=5.0.0-beta.58";
+import { renderSavedMaps } from "./saved-maps.js?v=5.0.0-beta.58";
 
 const PAGE_SIZE = 10;
 const SVG = (d, w) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + d + "</svg>";
@@ -268,7 +268,7 @@ const mapBrowser = createBrowser({ p: "om", query: F.threeD === false ? 'type:"W
 // The link Share copies: this app (and these settings) opening that map. Nothing about the person is in it.
 function mapLink(itemId, scene) {
   const u = new URL(location.origin + location.pathname);
-  if (cfgName !== "default") u.searchParams.set("config", cfgName);
+  keepConfig(u.searchParams);
   u.searchParams.set(scene ? "webscene" : "webmap", itemId);
   return u.href;
 }

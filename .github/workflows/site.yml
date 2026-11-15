@@ -120,6 +120,7 @@ jobs:
           - live-fish.py
           - live-3d-switch.py
           - live-keyboard.py
+          - live-partner.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

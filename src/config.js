@@ -2,10 +2,10 @@
 // ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
 // Created by Jason Sawle.
 // Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.57";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.57";
+import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.58";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.58";
 
-export const APP_VERSION = "5.0.0-beta.57";
+export const APP_VERSION = "5.0.0-beta.58";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.4";
@@ -63,10 +63,51 @@ const returningFromSignIn = params.has("code") && params.has("state");
 export const authStash = returningFromSignIn ? readAuthStash() : null;
 export let cfgName = (params.get("config") || (authStash && authStash.config) || "default").replace(/[^\w-]/g, "") || "default";
 const fetchJson = async (path) => { const r = await fetch(path, { cache: "no-cache" }); if (!r.ok) throw new Error(String(r.status)); return r.json(); };
-const loaded = await loadConfig(cfgName, fetchJson);
+
+// A partner's config can also come from an ArcGIS Online item (?appid=<item id>, 5.0.0-beta.58), set up and changed by the
+// education team in the manager app (jsawle/AtlasLab-manager). Only items owned by these organizations are accepted:
+// the MapMaker organization, and GIS 4 Schools for testing.
+export const PARTNER_ORGS = ["iFGeGXTAJXnjq0YN", "HNLEA4GfnbCFQZGa"];
+const appidAsked = String(params.get("appid") || (authStash && authStash.appid) || "").toLowerCase();
+export const appId = HEX32.test(appidAsked) ? appidAsked : "";
+// The manager app shows a config before it is published by opening the app in a frame with ?preview=1 and handing it the
+// config by message. Only a page of these sites can do that; anything else is ignored and the default config is shown.
+const PREVIEW_ORIGINS = [location.origin, "https://jsawle.github.io"];
+export const previewing = params.get("preview") === "1" && window.parent !== window;
+function previewConfig() {
+  return new Promise((resolve) => {
+    const finish = (v) => { window.removeEventListener("message", onMessage); clearTimeout(timer); resolve(v); };
+    const onMessage = (e) => {
+      const d = e.data;
+      if (e.source !== window.parent || !PREVIEW_ORIGINS.includes(e.origin)) return;
+      if (d && d.type === "atlaslab-preview-config" && d.config && typeof d.config === "object" && !Array.isArray(d.config)) finish(d.config);
+    };
+    window.addEventListener("message", onMessage);
+    const timer = setTimeout(() => finish(null), 10000);
+    window.parent.postMessage({ type: "atlaslab-preview-ready" }, "*");   // says only that the page is ready
+  });
+}
+async function loadAny() {
+  if (previewing) { const raw = await previewConfig(); if (raw) return loadPreviewConfig(raw, fetchJson); }
+  if (appId) {
+    const r = await loadItemConfig(appId, { portal: DEFAULT_CONFIG.portalUrl, orgs: PARTNER_ORGS, fetchJson });
+    if (!r.refused) return r;
+    console.warn("Config item " + appId + " not used: " + r.refused + ".");
+    return { ...(await loadConfig("default", fetchJson)), missing: "appid " + appId };
+  }
+  return loadConfig(cfgName, fetchJson);
+}
+const loaded = await loadAny();
 cfgName = loaded.name;
 export const rawCfg = loaded.raw, cfgChain = loaded.chain, configMissing = loaded.missing, localeFile = loaded.localeFile, localeMissing = loaded.localeMissing;
+export const cfgItem = loaded.item || null;   // the ArcGIS Online item the config came from, if it did
 if (configMissing) console.warn("Config not found:", configMissing);
+// Puts this config's choice into a link the app makes (Share, the logo, coming back from sign-in), so the link opens the same settings.
+export function keepConfig(searchParams) {
+  if (cfgItem) searchParams.set("appid", cfgItem.id);
+  else if (cfgName !== "default" && cfgName !== "preview") searchParams.set("config", cfgName);
+  return searchParams;
+}
 export const cfg = mergeConfig(DEFAULT_CONFIG, rawCfg);
 for (const k of ["contentGroup", "basemapGroup", "defaultBasemap"]) if (!HEX32.test(cfg[k] || "")) { console.warn("Config " + k + " isn't a 32-character item or group ID; using the default."); cfg[k] = DEFAULT_CONFIG[k]; }
 export const F = cfg.features;
