@@ -106,6 +106,10 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Pop-ups follow into the other view; opening a map ends Add data (5.0.0-beta.70)
+
+From a review of workflows like the 3D bug above (13 tried in Chromium; the rest behaved). A pop-up open when 2D or 3D is chosen was left behind in the hidden view and came back on returning; now it is closed there and opened again in the view switched to, on the same feature, at the same place (2D to 3D 1.5). Not when a map's 2D and 3D versions are swapped (different layers), and not for a cluster's summary. And opening a map while Add data or Change style was open left the panel open with nothing behind it (a style button then gave a script error); it now closes, as Measure does. Test: `tests/live-3d-switch.py`.
+
 ## Fixed: 3D too close after opening a map, and Measure left on (5.0.0-beta.69)
 
 Reported: use Measure in 2D and 3D, go back to 2D, open Real-Time Earthquakes; Measure was still on, and 3D came down at street level over Laos instead of showing the region. The Measure part had nothing to do with it: 3D, then 2D, then opening any map was enough. The 3D view made earlier is hidden while the 2D map is on screen; given the place to look at in the same moment it is shown again, the SDK worked out the camera as if the view were tiny (1:59,000 for a 1:70 million world map). Given the same place two frames later it is right, so it now waits two frames (2D to 3D 1.4). And opening a map now closes Measure, the Elevation profile and Filter, which work on the map that was on screen. Test: `tests/live-3d-switch.py`.

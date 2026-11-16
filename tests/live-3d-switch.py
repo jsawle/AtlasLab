@@ -89,6 +89,42 @@ def main():
         want = m2["scale"] * math.cos(math.radians(m2["lat"]))
         check(abs(s["scale"] / want - 1) < 0.1 and abs(s["lon"] - m2["lon"]) < 1, "then 3D shows the same place at the same size, not a thousand times closer: 1:%s (camera %s km up), wanted 1:%s" % (format(round(s["scale"]), ","), format(round(s["z"] / 1000), ","), format(round(want), ",")))
         page.screenshot(path=str(shots / "3d-switch-after-open.png"))
+
+        print("== a pop-up follows into the other view (5.0.0-beta.70)")
+        FIND = """(async () => { const v = document.querySelector('arcgis-map').view, l = v.map.allLayers.find(x => x.type === 'feature' && x.visible && x.geometryType === 'point' && x.popupEnabled !== false); const lv = await v.whenLayerView(l); await new Promise(r => setTimeout(r, 1500));
+          const r = await lv.queryFeatures({ geometry: v.extent, returnGeometry: true, num: 500 }); const box = v.container.getBoundingClientRect();
+          for (const f of r.features) { const s = v.toScreen(f.geometry); if (!s || !(s.x > 150 && s.x < box.width - 450 && s.y > 150 && s.y < box.height - 200)) continue; const h = await v.hitTest(s); if (h.results.some(x => x.layer === l)) return [box.left + s.x, box.top + s.y]; }
+          return null; })()"""
+        POP = "(v) => { const p = v.popup; return p && p.visible && p.selectedFeature ? JSON.stringify(p.selectedFeature.attributes) : null; }"
+        page.click("#tg2d"); page.wait_for_function("() => document.getElementById('tg2d').getAttribute('aria-pressed') === 'true'", timeout=60000); page.wait_for_timeout(3000)
+        pt = page.evaluate(FIND)
+        if pt: page.mouse.click(*pt); page.wait_for_timeout(4000)
+        f2 = page.evaluate("(" + POP + ")(" + MV + ")")
+        check(bool(f2), "a pop-up is open on an earthquake in 2D")
+        to3d(page); page.wait_for_timeout(2500)
+        f3 = page.evaluate("(" + POP + ")(" + SV + ")")
+        check(f3 == f2 and not page.evaluate("(" + POP + ")(" + MV + ")"), "switching to 3D opens it there, on the same earthquake, and closes it in 2D")
+        page.screenshot(path=str(shots / "3d-switch-popup.png"))
+        page.click("#tg2d"); page.wait_for_function("() => document.getElementById('tg2d').getAttribute('aria-pressed') === 'true'", timeout=60000); page.wait_for_timeout(3000)
+        check(page.evaluate("(" + POP + ")(" + MV + ")") == f2 and not page.evaluate("(" + POP + ")(" + SV + ")"), "and back in 2D it is open on the same earthquake again")
+        page.evaluate("document.querySelector('arcgis-map').view.closePopup()"); page.wait_for_timeout(500)
+        to3d(page); page.wait_for_timeout(1500)
+        check(not page.evaluate("(" + POP + ")(" + SV + ")"), "with no pop-up open, 3D opens none")
+
+        print("== opening a map ends Add data (5.0.0-beta.70)")
+        page.click("#tg2d"); page.wait_for_function("() => document.getElementById('tg2d').getAttribute('aria-pressed') === 'true'", timeout=60000); page.wait_for_timeout(2000)
+        errs = []; page.on("pageerror", lambda e: errs.append(str(e)[:200]))
+        page.evaluate("""([name, text]) => { const dt = new DataTransfer(); dt.items.add(new File([text], name, { type: 'text/csv' })); window.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true })); }""", ["pts.csv", "Name,Latitude,Longitude,Count\nA,10,10,3\nB,20,20,5\n"])
+        page.wait_for_selector("#dataPanel:not([hidden]) #dataControls:not([hidden])", timeout=60000); page.wait_for_timeout(1500)
+        page.click("#tool-open"); page.wait_for_selector("#omList .cat-card", timeout=120000); page.wait_for_timeout(1200)
+        page.fill("#omSearch", "Real-Time Earthquakes"); page.wait_for_timeout(1500)
+        page.evaluate("(() => { const c = [...document.querySelectorAll('#omList .cat-card')].find((x) => /with chart/.test(x.textContent)); [...c.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Open map').click(); })()")
+        try: page.wait_for_function("() => { const m = document.querySelector('arcgis-map').view.map; return !!(m.portalItem && m.portalItem.id === '69874ffe9be341afbe2e93a51dbfc5c3'); }", timeout=120000)
+        except Exception: pass
+        page.wait_for_timeout(3000)
+        check(page.is_hidden("#dataPanel") and not page.evaluate("document.querySelector('arcgis-map').view.map.layers.some(l => l.title === 'pts')"), "a file part-way through Add data: after Discard the map opens and the Add data panel closes")
+        check(not errs, "no script errors" + (": " + " | ".join(errs[:2]) if errs else ""))
+
         page.close()
 
         print("== street scale, with a map note: the Expansion of Islam, at Mecca")

@@ -1,23 +1,23 @@
 // ============================================================ Maps and layers
-import "./view-mode.js?v=5.0.0-beta.69";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.69";
-import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.69";
-import { state } from "./state.js?v=5.0.0-beta.69";
-import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.69";
-import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.69";
+import "./view-mode.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.70";
+import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.70";
+import { state } from "./state.js?v=5.0.0-beta.70";
+import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.70";
+import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.70";
 import { graphicsLayer, defaultBasemap, sketchLayers, isSketch, sketchLayerByKey, sketchCount, localMap, takePreloaded, startCenter, setViewMap,
-  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.69";
-import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.69";
-import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.69";
+  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.70";
+import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.70";
+import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.70";
 import { addSketchGraphic, syncSketchLayerPicker, newSketchLayer, nextSketchLayerName, setActiveSketch, removeSketchLayer, updatePinned,
-  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.69";
-import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.69";
-import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.69";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.69";
-import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.69";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.69";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.69";
-import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.69";
+  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.70";
+import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.70";
+import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.70";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.70";
+import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.70";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.70";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.70";
+import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.70";
 
 export function setActiveMap(m, opts) {
   const old = state.view.map;
@@ -198,7 +198,8 @@ export async function openWebMapItem(itemId, opts) {
     if (!opts.keepWorkspace) {
       resetWorkspace();
       // tools that work on the map on screen end with it (5.0.0-beta.69): Measure stayed on, measuring the new map
-      if (["measure", "profile", "filter"].includes(openPanelName)) closePanels(false);
+      // and Add data / Change style (5.0.0-beta.70): their file or layer went with the old map, so the panel was left open with nothing in it
+      if (["measure", "profile", "filter", "data"].includes(openPanelName)) closePanels(false);
     }
     for (const op of (data.operationalLayers || []).filter(isOwnLayerJson)) { const l = wm.layers.find((x) => x.id === op.id); if (l) wm.remove(l); }
     const wasScene = state.sceneOnly;
