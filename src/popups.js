@@ -1,10 +1,10 @@
 // ============================================================ Pop-ups
-import "./ui.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.70";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.70";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.70";
-import { $, S } from "./config.js?v=5.0.0-beta.70";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.70";
+import "./ui.js?v=5.0.0-beta.71";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.71";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.71";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.71";
+import { $, S } from "./config.js?v=5.0.0-beta.71";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.71";
 
 export function updatePopupEnabled() {
   const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";
@@ -45,11 +45,14 @@ $("mapWrap").addEventListener("focusout", () => { if (marked) { marked = false; 
 async function popupAtCentre() {
   const v = state.view; if (!v) return;
   const at = { x: v.width / 2, y: v.height / 2 };
-  let found = false;
-  try { const hit = await v.hitTest(at); found = hit.results.some((r) => r.type === "graphic" && r.graphic && r.graphic.layer && r.graphic.layer.popupEnabled !== false && (r.graphic.layer.popupTemplate || r.graphic.popupTemplate || r.graphic.layer.type === "graphics")); } catch (e) { /* nothing there */ }
+  let found = false, features = null;
+  // inside a fill laid on the ground in 3D: what is there is found apart (view-mode.js, 5.0.0-beta.71)
+  const draped = state.drapedPopup && state.drapedPopup(v, v.toMap(at), at);
+  if (draped) { features = await draped; found = features.length > 0; }
+  else try { const hit = await v.hitTest(at); found = hit.results.some((r) => r.type === "graphic" && r.graphic && r.graphic.layer && r.graphic.layer.popupEnabled !== false && (r.graphic.layer.popupTemplate || r.graphic.popupTemplate || r.graphic.layer.type === "graphics")); } catch (e) { /* nothing there */ }
   if (!found) { toast(S.nothingAtCentre, 5000); return; }
   try {
-    await v.openPopup({ location: v.toMap(at), fetchFeatures: true });
+    await v.openPopup(features ? { features, location: v.toMap(at), updateLocationEnabled: false } : { location: v.toMap(at), fetchFeatures: true });
     // the keyboard goes into the pop-up once it has something to show, and back to the map when it closes
     const got = await Promise.race([reactiveUtils.whenOnce(() => v.popup && v.popup.visible && v.popup.selectedFeature).then(() => true), new Promise((res) => setTimeout(() => res(false), 6000))]);
     if (!got) { try { v.closePopup(); } catch (e) { /* none open */ } toast(S.nothingAtCentre, 5000); return; }      // something was there, with nothing to say

@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.70";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.70";
-import { state } from "./state.js?v=5.0.0-beta.70";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.70";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.70";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.70";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.70";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.70";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.70";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.70";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.71";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.71";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.71";
+import { state } from "./state.js?v=5.0.0-beta.71";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.71";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.71";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.71";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.71";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.71";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.71";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.71";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.70";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.70";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.70";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.70";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.70";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.70";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.70";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.71";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.71";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.71";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.71";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.71";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.71";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.71";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -101,11 +101,36 @@ async function drapeElement(g, mods) {
   x.clip("evenodd"); x.fillStyle = x.createPattern(tile, "repeat"); x.fillRect(0, 0, size.w, size.h);
   return new ImageElement({ image: c, georeference: new Georeference({ extent: ext }) });
 }
+// Pop-ups on a fill laid on the ground (5.0.0-beta.71; 2D to 3D 1.6). The picture is a layer of its own on top, and the
+// 3D view's hit test finds only it there (not the sketch beneath, which 3D draws as an outline, nor a near-invisible fill
+// above it), so a click inside the area opened nothing. Inside such an area the click is taken here: the pop-up opens on
+// whatever else is there (found with the picture left out) and the sketched areas, the one drawn last first.
+let drapedNow = [], fillClick = null;
+function drapedFeaturesAt(v, mapPoint, screenPoint) {
+  if (!fillMedia || v !== state.sceneView || !mapPoint) return null;
+  const inside = drapedNow.filter((g) => { try { return g.visible !== false && g.geometry.contains(mapPoint); } catch (e) { return false; } }).reverse();
+  if (!inside.length) return null;
+  return v.hitTest(screenPoint, { exclude: [fillMedia] }).then((r) => {
+    const others = r.results.filter((h) => h.type === "graphic" && h.graphic && h.layer && !sketchLayers.includes(h.layer) && h.layer.popupEnabled !== false && (h.graphic.popupTemplate || h.layer.popupTemplate)).map((h) => h.graphic);
+    return [...new Set(others)].concat(inside);
+  }).catch(() => inside);
+}
+state.drapedPopup = drapedFeaturesAt;   // for Enter at the centre of the map (popups.js)
+function watchFillClicks(v) {
+  if (fillClick) return;
+  fillClick = v.on("click", (e) => {
+    if (state.view !== v || !v.popupEnabled) return;
+    const got = drapedFeaturesAt(v, e.mapPoint, { x: e.x, y: e.y });
+    if (!got) return;
+    e.stopPropagation();      // the view's own pop-up would find only the picture
+    got.then((features) => { if (features.length && state.view === v && v.popupEnabled) v.openPopup({ features, location: e.mapPoint, updateLocationEnabled: false }).catch(() => {}); });
+  });
+}
 async function syncFills3d() {
   const v = state.sceneView, seq = ++fillSeq;
   if (v && fills3d.length) v.graphics.removeMany(fills3d);
   fills3d = [];
-  const dropMedia = () => { if (fillMedia) { try { if (fillMedia.parent) fillMedia.parent.remove(fillMedia); fillMedia.destroy(); } catch (e) { /* already gone */ } fillMedia = null; } };
+  const dropMedia = () => { drapedNow = []; if (fillMedia) { try { if (fillMedia.parent) fillMedia.parent.remove(fillMedia); fillMedia.destroy(); } catch (e) { /* already gone */ } fillMedia = null; } };
   if (!v || state.mode !== "3d" || !v.map) { dropMedia(); if (fillWatch) { fillWatch.remove(); fillWatch = null; } return; }
   // drawn again a moment after a sketch is added, changed, moved, hidden or taken away
   if (!fillWatch) fillWatch = reactiveUtils.watch(() => [v.map, v.map && v.map.layers.length, sketchLayers.map((l) => [l.visible, l.graphics.length, l.graphics.map((g) => [g.geometry, g.symbol, g.visible]).toArray()])], () => { clearTimeout(fillTimer); fillTimer = setTimeout(syncFills3d, 350); });
@@ -117,7 +142,7 @@ async function syncFills3d() {
       for (const g of areas.slice(0, FILL3D.most)) { try { const el = await drapeElement(g, mods); if (el) { els.push(el); draped.add(g); } } catch (e) { console.warn("Couldn't lay a fill on the ground", e); } }
       if (seq !== fillSeq) return;
       dropMedia();
-      if (els.length) { fillMedia = new mods[1]({ id: FILL3D_ID, source: els, listMode: "hide", title: "" }); v.map.add(fillMedia); }
+      if (els.length) { fillMedia = new mods[1]({ id: FILL3D_ID, source: els, listMode: "hide", title: "" }); v.map.add(fillMedia); drapedNow = areas.filter((g) => draped.has(g)); watchFillClicks(v); }
     } catch (e) { drapeCode = null; draped.clear(); console.warn("Couldn't lay fills on the ground", e); }
   } else dropMedia();
   if (seq !== fillSeq || state.mode !== "3d") return;
@@ -169,11 +194,19 @@ function popupToCarry(v) {
   const location = p.location || (g.geometry.type === "point" ? g.geometry : g.geometry.extent && g.geometry.extent.center);
   return { features, index: features.indexOf(g), location };
 }
-function carryPopup(c, from, to) {
+// Docked or not goes across too (5.0.0-beta.71), pop-up open or not: each view has a pop-up of its own, made the first
+// time it is used, so a pop-up docked in 2D came up floating in 3D.
+function keepDock(dock, to) {
+  if (typeof dock !== "boolean") return;
+  if (to.popup) to.popup.dockEnabled = dock;
+  else reactiveUtils.whenOnce(() => to.popup).then((p) => { p.dockEnabled = dock; }).catch(() => {});
+}
+function carryPopup(c, from, to, dock) {
   try { from.closePopup(); } catch (e) { /* no pop-up */ }
+  keepDock(dock, to);
   if (!c || !to.popupEnabled) return;
   to.openPopup({ features: c.features, location: c.location, updateLocationEnabled: false })
-    .then(() => { if (to.popup && c.index > 0 && c.index < to.popup.features.length) to.popup.selectedFeatureIndex = c.index; })
+    .then(() => { keepDock(dock, to); if (to.popup && c.index > 0 && c.index < to.popup.features.length) to.popup.selectedFeatureIndex = c.index; })
     .catch(() => { /* closed or replaced meanwhile */ });
 }
 // 2D to 3D 1.4 (5.0.0-beta.69): a 3D view made earlier, hidden while the 2D map was on screen, is given the place to look
@@ -194,7 +227,7 @@ export async function setMode(m, opts) {
   if (openPanelName === "filter") closePanels(false);   // the filter preview belongs to this view's copy of the layer
   switching = true;
   const from = state.view, vp = !opts.map && from.viewpoint ? from.viewpoint.clone() : null, curMap = opts.map || from.map;
-  const popup = !opts.map ? popupToCarry(from) : null;
+  const popup = !opts.map ? popupToCarry(from) : null, dock = from.popup ? from.popup.dockEnabled : null;
   stopMeasuring();
   endSketchOps();
   try {
@@ -254,7 +287,7 @@ export async function setMode(m, opts) {
   if (table && table.widget) { if (table.kind === "chart") { try { const src = state.view.selectionManager && state.view.selectionManager.sources; if (src && !src.includes(table.layer)) src.add(table.layer); } catch (e) { /* no selection on this view */ } } table.widget.view = state.view; }
   if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
   updatePopupEnabled();
-  if (state.view !== from) { const to = state.view; Promise.resolve(m === "3d" ? state.viewSettled : null).then(() => { if (state.view === to) carryPopup(popup, from, to); }); }
+  if (state.view !== from) { const to = state.view; Promise.resolve(m === "3d" ? state.viewSettled : null).then(() => { if (state.view === to) carryPopup(popup, from, to, dock); }); }
   watchBottom(0);
   if (m === "3d" && dataLayers.some((l) => l.renderer && l.renderer.type === "pie-chart")) toast(S.pieIn3d);
   else if (m === "3d") tellDiffers3d(state.sceneView.map);

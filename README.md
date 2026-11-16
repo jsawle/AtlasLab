@@ -106,6 +106,10 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Pop-ups on fills laid on the ground in 3D; docked pop-ups stay docked (5.0.0-beta.71)
+
+Reported. A sketched area with a pencil (or hatch or land-use) fill, given a pop-up, opened nothing when clicked in 3D: the fill's picture is a layer of its own on top, and the 3D view's hit test finds only it there (tried: a near-invisible fill above it isn't found either). Inside such an area the click is now taken by the app: the pop-up opens on whatever else is at that spot (found with the picture left out) and the sketched areas, the one drawn last first. Enter at the centre of the map does the same. And a pop-up docked in one view came up floating in the other (each view has its own pop-up); docked or not now goes across, whether a pop-up is open or not. 2D to 3D 1.6. Tests: `tests/live-fills-3d.py`, `tests/live-3d-switch.py`.
+
 ## Pop-ups follow into the other view; opening a map ends Add data (5.0.0-beta.70)
 
 From a review of workflows like the 3D bug above (13 tried in Chromium; the rest behaved). A pop-up open when 2D or 3D is chosen was left behind in the hidden view and came back on returning; now it is closed there and opened again in the view switched to, on the same feature, at the same place (2D to 3D 1.5). Not when a map's 2D and 3D versions are swapped (different layers), and not for a cluster's summary. And opening a map while Add data or Change style was open left the panel open with nothing behind it (a style button then gave a script error); it now closes, as Measure does. Test: `tests/live-3d-switch.py`.
