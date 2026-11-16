@@ -106,9 +106,9 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
-## Lab: rows placed by country in Add data (5.0.0-beta.67)
+## Rows placed by country in Add data (lab 5.0.0-beta.67, the main app since beta.68)
 
-Lab config only (`?config=lab`, `features.countryData`; Countries 1.0, CSV 3.7). A CSV file with no latitude and longitude but a column of countries is placed by country.
+`features.countryData`, on by default (Countries 1.0, CSV 3.7); `config/classic.json` turns it off. A CSV file with no latitude and longitude but a column of countries is placed by country.
 
 - **Which column:** one headed Country (or Nation, ISO, País…) with at least one country in it, otherwise the column where 70% or more of the cells are countries. If none is found, the column picker offers "Country column" as well as latitude and longitude. A file that has coordinates is placed by them, as before.
 - **Which country:** `lib/countries.js` compares names without case, accents, dots or "the" ("D.R.C." = "drc"), reads names written round a comma or with brackets ("Congo, Dem. Rep.", "Bolivia (Plurinational State of)"), and takes two- and three-letter codes. The list, `lib/countries-data.js`, is made by `tools/countries.mjs`: the countries, codes and names shown are those of Esri's World Countries (Generalized) layer; names in English, Spanish, French, German, Portuguese and Arabic come from the i18n-iso-countries package (MIT, ISO 3166-1); everyday and data-table spellings are added by hand in the tool. A name two countries share ("Korea", "Virgin Islands") is not matched. Plain "Congo" is the Republic of the Congo, its ISO name, and the panel says so. The layer has no outline for Taiwan, Hong Kong, Macao, Kosovo, Western Sahara or Åland, so those are not matched.

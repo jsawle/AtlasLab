@@ -1,4 +1,4 @@
-"""Rows placed by country in Add data (lab, features.countryData; Countries 1.0, CSV 3.7), in Chromium against the
+"""Rows placed by country in Add data (features.countryData, in the main app since 5.0.0-beta.68; Countries 1.0, CSV 3.7), in Chromium against the
 real services: the ArcGIS Maps SDK and Esri's World Countries (Generalized) layer.
 
 Run:  python3 tests/live-countries.py [--shots DIR] [--proxy URL] [--axe FILE]
@@ -8,7 +8,7 @@ country (DRC, U.K., USA, Côte d'Ivoire); what wasn't found is listed, and plain
 at a place inside each country; Its outline makes areas, with their own styles (Areas, By type, By number), shaded by the
 number column; the areas go on the map as a polygon layer of a sensible size; Change style opens it as areas; it is
 kept in a saved file and comes back; the 3D view takes it; a file with latitude and longitude is placed as before; a
-file with neither offers a country column to choose; and the main app, where this is off, doesn't.
+file with neither offers a country column to choose; and config/classic.json, where this is off, doesn't.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, sys, threading
 from playwright.sync_api import sync_playwright
@@ -60,8 +60,8 @@ def main():
         PREVIEW = "(() => { const v = document.querySelector('arcgis-map').view; const l = v.map.layers.find(x => x.type === 'feature'); if (!l) return null; const g = l.source.getItemAt(0); return { type: l.geometryType, n: l.source.length, renderer: l.renderer.type, sym: (l.renderer.symbol || l.renderer.defaultSymbol || {}).type, vv: (l.renderer.visualVariables || []).map(x => x.type + ':' + x.field), size: JSON.stringify(l._srcDef).length, first: g.attributes, at: g.geometry.type === 'point' ? [g.geometry.longitude, g.geometry.latitude] : null }; })()"
         CSV = "Country,Population (millions),Region,Capital\nNigeria,223.8,West,Abuja\nEthiopia,126.5,East,Addis Ababa\nEgypt,112.7,North,Cairo\nDRC,102.3,Central,Kinshasa\nTanzania,67.4,East,Dodoma\nSouth Africa,60.4,Southern,Pretoria\nKenya,55.1,East,Nairobi\nCongo,6.1,Central,Brazzaville\nCôte d'Ivoire,28.9,West,Yamoussoukro\nU.K.,67.7,Europe,London\nUSA,334.9,Americas,Washington\nNarnia,1,Nowhere,Cair Paravel\nKorea,51,Asia,Seoul\n"
 
-        print("== a file of countries, in the lab")
-        start("lab")
+        print("== a file of countries")
+        start("mapmaker")
         check("country names" in page.evaluate("document.querySelector('[data-i18n=\"yourDataHint\"]').textContent"), "Add layer says a file can have a column of country names")
         drop("africa.csv", CSV)
         wv("#dataPanel:not([hidden]) #countryBox:not([hidden])", timeout=120000); wf(PREVIEW + " !== null"); page.wait_for_timeout(1500)
@@ -115,14 +115,14 @@ def main():
         js("#tg3d"); wf("(() => { const s = document.querySelector('arcgis-scene'); return !!(s && s.view && s.view.ready); })()", timeout=180000); page.wait_for_timeout(6000)
         check(page.evaluate("(() => { const v = document.querySelector('arcgis-scene').view; const l = v.map.layers.find(x => x.type === 'feature'); return !!l && l.geometryType === 'polygon' && v.layerViews.some(lv => lv.layer === l); })()"), "the 3D view takes the areas")
         page.screenshot(path=str(shots / "countries-3d.png"))
-        start("lab")
+        start("mapmaker")
         drop("countries.amap", text, "application/json")
         wf("document.querySelector('#toast').textContent.includes('countries')", timeout=120000); wf(PREVIEW + " !== null"); page.wait_for_timeout(1500)
         pv = page.evaluate(PREVIEW)
         check(pv["type"] == "polygon" and pv["n"] == 11 and pv["vv"] == ["color:Population__millions"] and pv["first"]["Country"] == "Nigeria", "opened again, the areas are back, shaded as before")
 
         print("== other files")
-        start("lab")
+        start("mapmaker")
         drop("towns.csv", "Name,Latitude,Longitude,Country\nLagos,6.45,3.39,Nigeria\nCairo,30.04,31.24,Egypt\n")
         wv("#dataPanel:not([hidden]) #dataControls:not([hidden])"); wf(PREVIEW + " !== null"); page.wait_for_timeout(800)
         pv = page.evaluate(PREVIEW)
@@ -142,8 +142,8 @@ def main():
         check(page.inner_text("#countrySummary").startswith("Placed 1 of 3 rows") and "Not found: Narnia, Oz." in page.inner_text("#countrySummary"), "the chosen column places what it can: " + page.inner_text("#countrySummary")[:70])
         page.click("#dataCancel"); page.wait_for_timeout(600)
 
-        print("== the main app: off")
-        start("mapmaker")
+        print("== config/classic.json: off")
+        start("classic")
         check("country" not in page.evaluate("document.querySelector('[data-i18n=\"yourDataHint\"]').textContent"), "Add layer doesn't mention countries")
         drop("africa.csv", CSV)
         wv("#llPicker:not([hidden])")
