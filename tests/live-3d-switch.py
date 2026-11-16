@@ -11,6 +11,7 @@ import csp_shim   # waits that work under the app's Content Security Policy; col
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
+QUAKES = "95188602f74c4197a39c8f7205589c8c"   # MapMaker's Real-Time Earthquakes, a world map
 OKAVANGO, ISLAM = "ff18c77b178f4c9e9241a0039c12a6ec", "2008733e277c4335a0393df9c2b6fbb6"
 MV, SV = "document.querySelector('arcgis-map').view", "document.querySelector('arcgis-scene').view"
 READY = "() => { const m = document.querySelector('arcgis-map'); return !!(m && m.view && m.view.ready && m.view.map && m.view.map.portalItem); }"
@@ -65,6 +66,24 @@ def main():
         b = page.evaluate("(" + AT + ")(" + MV + ")")
         check(abs(b["scale"] / m2["scale"] - 1) < 0.03 and abs(b["lat"] - m2["lat"]) < 0.2, "back in 2D the map is at the scale it started at: 1:%s" % format(round(b["scale"]), ","))
         check(page.evaluate("document.querySelectorAll('#layersPanel .lyr-3d').length") == 0, "and Map layers no longer says anything about 3D")
+        page.close()
+
+        print("== a map opened after 3D has been used (5.0.0-beta.69)")
+        page = browser.new_page(viewport={"width": 1280, "height": 760}); page.on("dialog", lambda d: d.accept())
+        page.goto(f"{base}/index.html"); page.wait_for_function("() => { const m = document.querySelector('arcgis-map'); return !!(m && m.view && m.view.ready); }", timeout=120000); page.wait_for_timeout(3000)
+        page.evaluate("document.querySelector('#tool-measure').click()"); page.wait_for_timeout(500)
+        if page.is_hidden("#measurePanel"): page.evaluate("document.querySelector('#menuMeasure').click()")
+        page.wait_for_selector("#measurePanel:not([hidden])"); page.click("#mDist"); page.wait_for_timeout(1500)
+        to3d(page); page.click("#tg2d"); page.wait_for_function("() => document.getElementById('tg2d').getAttribute('aria-pressed') === 'true'", timeout=60000); page.wait_for_timeout(2500)
+        opened = page.evaluate("(async () => { const v = document.querySelector('script[src*=\"app.js\"]').src.split('?v=')[1]; const m = await import(new URL('./src/maps.js?v=' + v, location.href).href); return await m.openWebMapItem('" + QUAKES + "', { skipConfirm: true }); })()")
+        page.wait_for_timeout(6000)
+        check(opened and page.is_hidden("#measurePanel") and "active" not in (page.get_attribute("#tool-measure", "class") or ""), "opening a map ends Measure: the panel closes")
+        m2 = page.evaluate("(" + AT + ")(" + MV + ")")
+        to3d(page); page.wait_for_timeout(3000)
+        s = page.evaluate("(() => { const v = " + SV + "; return { lon: v.center.longitude, lat: v.center.latitude, scale: v.viewpoint.scale, z: v.camera.position.z }; })()")
+        want = m2["scale"] * math.cos(math.radians(m2["lat"]))
+        check(abs(s["scale"] / want - 1) < 0.1 and abs(s["lon"] - m2["lon"]) < 1, "then 3D shows the same place at the same size, not a thousand times closer: 1:%s (camera %s km up), wanted 1:%s" % (format(round(s["scale"]), ","), format(round(s["z"] / 1000), ","), format(round(want), ",")))
+        page.screenshot(path=str(shots / "3d-switch-after-open.png"))
         page.close()
 
         print("== street scale, with a map note: the Expansion of Islam, at Mecca")

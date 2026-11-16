@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.68";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.68";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.68";
-import { state } from "./state.js?v=5.0.0-beta.68";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.68";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.68";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.68";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.68";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.68";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.68";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.68";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.69";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.69";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.69";
+import { state } from "./state.js?v=5.0.0-beta.69";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.69";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.69";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.69";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.69";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.69";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.69";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.69";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.68";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.68";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.68";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.68";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.68";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.68";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.68";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.69";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.69";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.69";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.69";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.69";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.69";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.69";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -156,6 +156,15 @@ export function syncViewLocks() {
   const lock = (id, on, why) => { const b = $(id); if (on) { b.setAttribute("aria-disabled", "true"); b.title = why; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); } };
   lock("tg2d", state.sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", state.twoDOnly, S.only2d);
 }
+// 2D to 3D 1.4 (5.0.0-beta.69): a 3D view made earlier, hidden while the 2D map was on screen, is given the place to look
+// at only after two frames have been drawn since it was shown again. Given it straight away, the SDK worked the camera out
+// as if the view were tiny: after a map was opened in 2D, the 3D view came down about a thousand times too close (1:59,000
+// for a world map at 1:70 million). Measured in Chromium: two frames later the same place gives the right camera. (A
+// frame is at most 100 ms here, so a hidden browser tab, which draws no frames, doesn't stop the switch.)
+function shownAgain() {
+  const frame = () => new Promise((r) => { const t = setTimeout(r, 100); requestAnimationFrame(() => { clearTimeout(t); r(); }); });
+  return frame().then(frame);
+}
 export async function setMode(m, opts) {
   opts = opts || {};
   if ((m === state.mode && !opts.force) || switching) return;
@@ -175,6 +184,7 @@ export async function setMode(m, opts) {
       const wantMode = isScene(curMap) && curMap.initialViewProperties && curMap.initialViewProperties.viewingMode;
       if (state.sceneView && wantMode && state.sceneView.viewingMode !== wantMode) { const oldEl = viewEls.get(state.sceneView); viewEls.delete(state.sceneView); try { oldEl.destroy(); } catch (e) { /* gone */ } oldEl.remove(); state.sceneView = null; }
       if (!quality3d) { quality3d = pick3dQuality(); console.info("3D quality", quality3d.quality, "(" + quality3d.why + ")"); document.documentElement.dataset.quality3d = quality3d.quality; }
+      const reused = !!state.sceneView;
       if (!state.sceneView) { state.sceneView = await componentView("arcgis-scene", "sceneDiv", { map: curMap, qualityProfile: quality3d.quality }); tune3d(state.sceneView); addViewUI(state.sceneView, true);
         { const sv = state.sceneView; reactiveUtils.watch(() => [hazeOn(sv.scale), sv.map], () => haze(sv)); reactiveUtils.watch(() => sv.map, () => { if (state.mode === "3d") { syncNotes3d(); syncFills3d(); } }); }
         // the layer count and the basemap gallery now follow the 3D view's map too (see shownMap)
@@ -182,6 +192,7 @@ export async function setMode(m, opts) {
         reactiveUtils.watch(() => { const m = shownMap(), b = m && m.basemap; return b ? ((b.portalItem && b.portalItem.id) || "") + "|" + (b.title || "") : ""; }, syncGallerySelection); viewHandlers.forEach((h) => state.sceneView.on(h[0], h[1])); }
       else if (state.sceneView.map !== curMap) setViewMap(state.sceneView, curMap);
       await state.sceneView.when();
+      if (reused) await shownAgain();
       crossScale(vp, from === mapView ? "2d" : "3d", "3d");
       if (vp) state.sceneView.viewpoint = vp;
       haze(state.sceneView);
