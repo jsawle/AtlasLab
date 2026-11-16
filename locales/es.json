@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Español",
-  "version": "1.19",
+  "version": "1.20",
   "dir": "ltr",
   "strings": {
     "skipToTools": "Ir a las herramientas del mapa",
@@ -74,6 +74,7 @@
     "discardChanges": "Descartar cambios",
     "addLayerIntro": "Agrega una capa para explorarla en el mapa.",
     "yourData": "Tus propios datos",
+    "yourDataHintCountry": "Suelta un archivo CSV en cualquier lugar del mapa, o elige uno. Necesita columnas de latitud y longitud, o una columna con nombres de países.", "pickCountry": "O, si cada fila es un país, elige la columna que lo nombra.", "countryColumn": "Columna de país", "useCountryColumn": "Usar esta columna", "pickCountryNone": "Ninguna fila de esa columna es un país que conozcamos. Prueba con otra columna.", "csvNoCountries": "Ninguna fila nombra un país que conozcamos. Usa el nombre del país (o su código de dos o tres letras).", "countriesFinding": "Buscando los países…", "countriesFailed": "No se pudieron cargar los contornos de los países. Comprueba la conexión y prueba el archivo otra vez.", "countryShowAs": "Mostrar cada país como", "countryAsPoint": "Un punto", "countryAsArea": "Su contorno", "countryMatched": "Se situaron {n} de {total} filas por el país de «{column}».", "countryMissed": "No encontrados: {names}.", "countryMissedMore": "No encontrados: {names} y {n} más.", "countryEmpty": "{n} fila(s) no tienen país.", "countryCongo": "«Congo» se lee como la República del Congo (Brazzaville). Para la República Democrática, escribe RDC o RD Congo.", "dataSummaryAreas": "Se encontraron {n} áreas · {num} columnas numéricas, {cat} columnas de categoría.", "areas": "Áreas", "addedAreas": "Se añadieron {n} área(s). Guardar las conserva en tu archivo de mapa.", "styleAreaSimple": "Áreas", "styleAreaSimpleHint": "Cada área de un color", "styleAreaType": "Por tipo", "styleAreaTypeHint": "Un color para cada tipo, p. ej. continente o grupo de ingresos", "styleAreaColor": "Por número", "styleAreaColorHint": "Sombrea cada área según un número: más oscuro para más", "colorByArea": "Colorear las áreas por", "shadeByArea": "Sombrear las áreas por", "labelByArea": "Etiquetar las áreas con", "sumAreaSimple": "Cada área de un color.", "sumAreaType": "Cada área coloreada por {color}.", "sumAreaShade": "Cada área sombreada por {color}.",
     "yourDataHint": "Suelta en el mapa un archivo CSV con columnas de latitud y longitud, o elige uno.",
     "chooseCsv": "Elegir un archivo CSV…",
     "layersFrom": "Capas de {app}",

@@ -111,6 +111,7 @@ jobs:
           - live-filter-plain.py
           - live-3d-data.py
           - live-columns.py
+          - live-countries.py
           - live-touch.py
           - live-touch.py --3d
           - live-pinch.py

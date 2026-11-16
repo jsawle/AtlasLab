@@ -445,6 +445,8 @@
     .s-name{ font-size:11.5px; font-weight:600; line-height:1.25; color:var(--ink); display:block; }
     .style-desc{ font-size:12px; color:var(--ink2); background:var(--brand-soft); border-left:3px solid var(--brand); padding:6px 10px; border-radius:0 4px 4px 0; line-height:1.45; }
     .sym-row{ display:flex; align-items:center; gap:10px; padding:4px 0; }
+    .seg-btn[aria-pressed="true"]{ background:var(--brand); border-color:var(--brand); color:#fff; font-weight:700; }   /* the choice made, of two */
+
     .sym-label{ flex:0 0 56px; font-size:13px; color:#555; }
     .shape-btn{ width:34px; height:30px; border:2px solid #ddd; border-radius:6px; background:#fff; cursor:pointer; font-size:15px; color:#444; padding:0; }
     .shape-btn[aria-pressed="true"]{ border-color:var(--brand); background:var(--brand-soft); }
@@ -815,21 +817,31 @@
             <label class="lbl" for="latSel" data-i18n="latitude">Latitude</label><select class="field" id="latSel"></select>
             <label class="lbl" for="lonSel" data-i18n="longitude">Longitude</label><select class="field" id="lonSel"></select>
             <div class="row" style="margin-top:12px"><button class="btn primary" type="button" id="llUse" data-i18n="useColumns">Use these columns</button></div>
+            <div id="countryPick" hidden>
+              <p class="note" style="margin-top:16px" data-i18n="pickCountry">Or, if each row is a country, choose the column that names it.</p>
+              <label class="lbl" for="countrySel" data-i18n="countryColumn">Country column</label><select class="field" id="countrySel"></select>
+              <div class="row" style="margin-top:12px"><button class="btn" type="button" id="countryUse" data-i18n="useCountryColumn">Use this column</button></div>
+            </div>
           </div>
           <div id="dataControls">
             <p class="data-summary" id="dataSummary"></p>
+            <div id="countryBox" hidden>
+              <p class="data-summary" id="countrySummary" role="status"></p>
+              <div role="group" aria-labelledby="countryShowAs" style="margin:-2px 0 12px"><span class="lbl" id="countryShowAs" data-i18n="countryShowAs">Show each country as</span>
+                <div class="row" style="margin-top:4px"><button class="btn seg-btn" type="button" id="countryAsPoint" aria-pressed="true" data-i18n="countryAsPoint">A point</button><button class="btn seg-btn" type="button" id="countryAsArea" aria-pressed="false" data-i18n="countryAsArea">Its outline</button></div></div>
+            </div>
             <div class="row" id="swapRow" style="margin:-2px 0 10px"><button class="btn" type="button" id="dataSwap" data-i18n="swapLatLon">Swap latitude and longitude</button></div>
             <h3 class="cfg-h" data-i18n="mapStyle">Map style</h3>
             <div class="style-grid" id="styleList"></div>
             <div class="style-desc" id="styleDesc"></div>
             <h3 class="cfg-h" data-i18n="fields">Columns</h3>
             <div id="fieldRows"></div>
-            <h3 class="cfg-h" data-i18n="points">Points</h3>
+            <h3 class="cfg-h" id="symH" data-i18n="points">Points</h3>
             <div class="sym-row" id="shapeRow"><span class="sym-label" data-i18n="shape">Shape</span><div class="row" id="shapeOptions"></div></div>
             <div class="sym-row" id="colorRow"><span class="sym-label" data-i18n="colour">Colour</span><div class="swatches" id="dataSwatches"></div></div>
             <div class="sym-row" id="rampRow"><span class="sym-label" data-i18n="ramp">Colours</span><div class="row" id="rampList"></div></div>
             <div class="sym-row pie-col" id="rampRevRow" hidden><span class="sym-label" aria-hidden="true"></span><input type="checkbox" id="rampReverse" /><label for="rampReverse" data-i18n="rampReverse">Reverse colours</label></div>
-            <div class="sym-row"><label class="sym-label" for="dataSize" data-i18n="size">Size</label><input type="range" id="dataSize" min="6" max="28" value="12" style="flex:1" /><span class="slider-val" id="dataSizeVal">12 px</span></div>
+            <div class="sym-row" id="sizeRow"><label class="sym-label" for="dataSize" data-i18n="size">Size</label><input type="range" id="dataSize" min="6" max="28" value="12" style="flex:1" /><span class="slider-val" id="dataSizeVal">12 px</span></div>
             <div class="cfg-summary" id="cfgSummary" aria-live="polite"></div>
             <p class="hint" style="margin-top:8px" data-i18n="livePreview">Live preview: the map updates as you change options.</p>
           </div>
@@ -1177,6 +1189,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.66"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.67"></script>
 </body>
 </html>

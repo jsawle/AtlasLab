@@ -1,12 +1,12 @@
 // ============================================================ Print (in the browser; nothing is sent to a print service)
-import "./saved-maps.js?v=5.0.0-beta.66";   // first: keeps the files running in the order they were written in (see app.js)
-import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.66";
-import { state } from "./state.js?v=5.0.0-beta.66";
-import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.66";
-import { isSketch } from "./views.js?v=5.0.0-beta.66";
-import { currentTitle } from "./session.js?v=5.0.0-beta.66";
-import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.66";
-import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.66";
+import "./saved-maps.js?v=5.0.0-beta.67";   // first: keeps the files running in the order they were written in (see app.js)
+import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.67";
+import { state } from "./state.js?v=5.0.0-beta.67";
+import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.67";
+import { isSketch } from "./views.js?v=5.0.0-beta.67";
+import { currentTitle } from "./session.js?v=5.0.0-beta.67";
+import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.67";
+import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.67";
 
 $("printTile").addEventListener("click", async () => {
   try {

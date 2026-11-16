@@ -1,20 +1,25 @@
 // ============================================================ CSV import (configure panel with live preview)
-import "./item-info.js?v=5.0.0-beta.66";   // first: keeps the files running in the order they were written in (see app.js)
+import "./item-info.js?v=5.0.0-beta.67";   // first: keeps the files running in the order they were written in (see app.js)
 import { PALETTE_HEX, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable, pickAutoStyle, pickAutoFields, aliasOf,
-  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX } from "../lib/csv.js?v=5.0.0-beta.66";
-import { state } from "./state.js?v=5.0.0-beta.66";
-import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.66";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.66";
-import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.66";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.66";
-import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.66";
-import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.66";
-import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.66";
-import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.66";
-import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.66";
-import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.66";
+  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX, isAreas } from "../lib/csv.js?v=5.0.0-beta.67";
+import { countryIndex, detectCountryColumn, matchRows, normCountry, simplifyRings, insidePoint } from "../lib/countries.js?v=5.0.0-beta.67";
+import { COUNTRIES } from "../lib/countries-data.js?v=5.0.0-beta.67";
+import { FeatureLayer } from "./sdk.js?v=5.0.0-beta.67";
+import { state } from "./state.js?v=5.0.0-beta.67";
+import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.67";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.67";
+import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.67";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.67";
+import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.67";
+import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.67";
+import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.67";
+import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.67";
+import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.67";
+import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.67";
 
 export let previewLayer = null, previewTimer = 0, prePreviewCam = null, dataLayerSeq = 0;
+const STYLE_TEXT_AREAS = { simple: ["styleAreaSimple", "styleAreaSimpleHint"], categorical: ["styleAreaType", "styleAreaTypeHint"], area_color: ["styleAreaColor", "styleAreaColorHint"] };
+const styleText = (id) => (isAreas(state.addState) && STYLE_TEXT_AREAS[id]) || STYLE_TEXT[id] || STYLE_TEXT_AREAS[id];
 const STYLE_TEXT = { simple: ["styleSimple", "styleSimpleHint"], categorical: ["styleCategorical", "styleCategoricalHint"], graduated: ["styleGraduated", "styleGraduatedHint"],
   numeric_color_size: ["styleNumericColorSize", "styleNumericColorSizeHint"], categorical_size: ["styleCategoricalSize", "styleCategoricalSizeHint"], pie_chart: ["stylePie", "stylePieHint"] };
 const FIELD_LABEL = { color: "colorBy", size: "sizeBy", label: "labelBy" };
@@ -47,9 +52,77 @@ async function loadHemisphereLetters() {
 export async function handleCsvText(name, text) {
   const parsed = readCsv(text, Number(cfg.csvMaxRows) || 1000, await loadHemisphereLetters());
   if (!parsed.ok) { showDataError(t(parsed.code, parsed.params)); return; }
-  if (parsed.latIdx < 0 || parsed.lonIdx < 0) { showLatLonPicker(name, parsed); return; }
+  if (parsed.latIdx < 0 || parsed.lonIdx < 0) {
+    // no coordinates: are the rows countries? (lab)
+    if (F.countryData) { const d = detectCountryColumn(parsed.header, parsed.rows, cIndex()); if (d.idx >= 0) { await continueCountry(name, parsed, d.idx, "point"); return; } }
+    showLatLonPicker(name, parsed); return;
+  }
   continueCsv(name, parsed, parsed.latIdx, parsed.lonIdx);
 }
+// ---- Rows placed by country (lab, features.countryData; Countries 1.0). A file with no coordinates but a column of
+// countries: each row is put at its country, as a point inside it or as its outline. The names are matched by
+// lib/countries.js ("DRC", "D.R.C.", "Congo, Dem. Rep." are one country); the outlines come, when a file needs them, from
+// Esri's World Countries (Generalized) layer, are thinned (lib/countries.js) and are kept for the rest of the visit.
+const COUNTRY_LAYER = "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Countries_(Generalized)/FeatureServer/0";
+let countryIx = null, countrySeq = 0;
+const countryGeoms = new Map();   // two-letter code -> { rings, point }
+const cIndex = () => countryIx || (countryIx = countryIndex(COUNTRIES));
+async function loadCountryGeoms(codes) {
+  const need = codes.filter((k) => /^[A-Z]{2}$/.test(k) && !countryGeoms.has(k));
+  if (!need.length) return;
+  const r = await new FeatureLayer({ url: COUNTRY_LAYER }).queryFeatures({ where: "ISO IN (" + need.map((k) => "'" + k + "'").join(",") + ")", outFields: ["ISO"], returnGeometry: true, outSpatialReference: { wkid: 102100 } });
+  const rings = new Map();   // a country can be several features (Spain and the Canaries)
+  for (const f of r.features) { const k = f.attributes.ISO; if (!f.geometry || !f.geometry.rings) continue; if (!rings.has(k)) rings.set(k, []); rings.get(k).push(...f.geometry.rings); }
+  for (const [k, list] of rings) { const s = simplifyRings(list), p = insidePoint(s); if (s.length && p) countryGeoms.set(k, { rings: s, point: p }); }
+}
+async function continueCountry(name, parsed, idx, shape) {
+  const match = matchRows(parsed.rows, idx, cIndex());
+  if (!match.matched) return false;
+  const seq = ++countrySeq;
+  toast(S.countriesFinding, 2500);
+  try { await loadCountryGeoms(match.countries.map((c) => c.iso2)); }
+  catch (e) { console.error(e); if (seq === countrySeq) showDataError(S.countriesFailed); return true; }
+  if (seq !== countrySeq) return true;   // another file was dropped meanwhile
+  placeCountries({ name, parsed, idx, match, shape }, true);
+  return true;
+}
+function placeCountries(country, first) {
+  const { name, parsed, match, shape } = country;
+  const geometryOf = (r) => { const g = match.isoOf[r] ? countryGeoms.get(match.isoOf[r]) : null; return !g ? null : shape === "area" ? { rings: g.rings } : { x: g.point[0], y: g.point[1] }; };
+  const data = buildLayerData(name, parsed, -1, -1, { geometryOf, keyIdx: country.idx });
+  if (!data.ok) { showDataError(t(data.code, data.params)); return; }
+  const keep = !first && state.addState ? state.addState.symbolChoices : null;
+  restoreEditedLayer();
+  state.addState = data;
+  state.addState.country = country;
+  state.addState.symbolChoices = keep || { shape: "esriSMSCircle", color: hexToRgb(PALETTE_HEX[0]), size: 12, ramp: "blue" };
+  state.addState.style = pickAutoStyle(state.addState);
+  state.addState.fieldChoices = pickAutoFields(state.addState.style, state.addState);
+  removePreview(false);
+  if (!prePreviewCam) { try { prePreviewCam = { center: [state.view.center.longitude, state.view.center.latitude], zoom: state.view.zoom, camera: state.mode === "3d" && state.view.camera ? state.view.camera.clone() : null }; } catch (e) { prePreviewCam = null; } }
+  openPanel("data", first ? undefined : { focus: false });
+  renderDataPanel();
+  updatePreview(true);
+}
+function countrySummary(country) {
+  const m = country.match, parts = [t("countryMatched", { n: m.matched, total: country.parsed.rows.length, column: country.parsed.header[country.idx] })];
+  if (m.missed.length) parts.push(m.missed.length > 6 ? t("countryMissedMore", { names: m.missed.slice(0, 6).join(", "), n: m.missed.length - 6 }) : t("countryMissed", { names: m.missed.join(", ") }));
+  if (m.empty) parts.push(t("countryEmpty", { n: m.empty }));
+  if (country.parsed.rows.some((r) => normCountry(r[country.idx]) === "congo")) parts.push(S.countryCongo);
+  return parts.join(" ");
+}
+for (const [id, shape] of [["countryAsPoint", "point"], ["countryAsArea", "area"]]) $(id).addEventListener("click", () => {
+  const c = state.addState && state.addState.country;
+  if (!c || c.shape === shape) return;
+  placeCountries({ ...c, shape }, false); $(id).focus();
+});
+if (F.countryData) { const h = document.querySelector('[data-i18n="yourDataHint"]'); if (h) h.textContent = S.yourDataHintCountry; }
+$("countryUse").addEventListener("click", async () => {
+  if (!state.pendingParse) return;
+  const p = state.pendingParse, idx = parseInt($("countrySel").value, 10);
+  if (!(await continueCountry(p.name, p.parsed, idx, "point"))) { toast(S.pickCountryNone, 7000); return; }
+  state.pendingParse = null;
+});
 function showLatLonPicker(name, parsed) {
   restoreEditedLayer(); state.addState = null; removePreview(true);
   state.pendingParse = { name, parsed };
@@ -61,6 +134,8 @@ function showLatLonPicker(name, parsed) {
     parsed.header.forEach((h, i) => { const o = document.createElement("option"); o.value = String(i); o.textContent = h; sel.appendChild(o); });
     sel.value = String(guess >= 0 ? guess : (id === "lonSel" && parsed.header.length > 1 ? 1 : 0));
   }
+  $("countryPick").hidden = !F.countryData;
+  if (F.countryData) { const sel = $("countrySel"); sel.innerHTML = ""; parsed.header.forEach((h, i) => { const o = document.createElement("option"); o.value = String(i); o.textContent = h; sel.appendChild(o); }); }
 }
 $("llUse").addEventListener("click", () => {
   if (!state.pendingParse) return;
@@ -112,8 +187,12 @@ function renderDataPanel() {
   $("swapRow").hidden = editing || !state.addState.src || state.addState.swappable === false;   // in Change style the points are already placed
   $("dataError").hidden = true; $("llPicker").hidden = true; $("dataControls").hidden = false; $("dataSubmit").disabled = false;
   // categories counted as text columns only: number codes are offered under "By type" but are counted as numbers
-  let s = t("dataSummary", { n: state.addState.features.length, num: state.addState.numeric.length, cat: (state.addState.categoricalText || state.addState.categorical).length });
-  if (state.addState.dropped) s += " " + t("dataSkipped", { n: state.addState.dropped });
+  const areas = isAreas(state.addState), country = !editing && state.addState.country;
+  $("countryBox").hidden = !country;
+  if (country) { $("countrySummary").textContent = countrySummary(country); $("countryAsPoint").setAttribute("aria-pressed", String(country.shape !== "area")); $("countryAsArea").setAttribute("aria-pressed", String(country.shape === "area")); }
+  $("symH").textContent = areas ? S.areas : S.points; $("sizeRow").hidden = areas;
+  let s = t(areas ? "dataSummaryAreas" : "dataSummary", { n: state.addState.features.length, num: state.addState.numeric.length, cat: (state.addState.categoricalText || state.addState.categorical).length });
+  if (state.addState.dropped && !country) s += " " + t("dataSkipped", { n: state.addState.dropped });
   $("dataSummary").textContent = s;
   $("dataSize").value = state.addState.symbolChoices.size; $("dataSizeVal").textContent = state.addState.symbolChoices.size + " px";
   renderStyleList(); renderFieldRows(); renderSymbolBlocks();
@@ -121,29 +200,30 @@ function renderDataPanel() {
 export function renderStyleList() {
   const wrap = $("styleList"); wrap.innerHTML = "";
   for (const style of DATA_STYLES) {
+    if (isAreas(state.addState) ? !STYLE_TEXT_AREAS[style.id] : !!style.areas) continue;   // areas and points each have their own styles
     // Pie charts only draw in 2D, so in the 3D view they aren't offered (a layer that is already pie charts keeps its choice).
     const not3d = style.id === "pie_chart" && state.mode === "3d" && state.addState.style.id !== "pie_chart";
     const ok = styleAvailable(style, state.addState) && !not3d;
     const b = document.createElement("button"); b.type = "button"; b.className = "style-card"; b.disabled = !ok;
     b.setAttribute("aria-pressed", String(state.addState.style.id === style.id));
-    b.title = ok ? S[STYLE_TEXT[style.id][1]] : (not3d && styleAvailable(style, state.addState) ? S.pieOnly2d : S.styleNeeds);
+    b.title = ok ? S[styleText(style.id)[1]] : (not3d && styleAvailable(style, state.addState) ? S.pieOnly2d : S.styleNeeds);
     b.innerHTML = '<span class="s-ico" aria-hidden="true">' + style.icon + '</span><span class="s-name"></span>';
-    b.querySelector(".s-name").textContent = S[STYLE_TEXT[style.id][0]];
+    b.querySelector(".s-name").textContent = S[styleText(style.id)[0]];
     if (ok) b.addEventListener("click", () => { state.addState.style = style; state.addState.fieldChoices = pickAutoFields(style, state.addState); renderStyleList(); renderFieldRows(); renderSymbolBlocks(); });
     wrap.appendChild(b);
   }
-  $("styleDesc").textContent = S[STYLE_TEXT[state.addState.style.id][0]] + " — " + S[STYLE_TEXT[state.addState.style.id][1]];
+  $("styleDesc").textContent = S[styleText(state.addState.style.id)[0]] + " — " + S[styleText(state.addState.style.id)[1]];
 }
 function fieldOptions(key) {
   if (key === "size") return state.addState.numeric;
-  if (key === "color") return state.addState.style.id === "numeric_color_size" ? state.addState.numeric : state.addState.categorical;
+  if (key === "color") return state.addState.style.id === "numeric_color_size" || state.addState.style.id === "area_color" ? state.addState.numeric : state.addState.categorical;
   return state.addState.fields.filter((f) => f.type !== "esriFieldTypeOID" && !state.addState.coordNames.includes(f.name)).map((f) => f.name);
 }
 export function renderFieldRows() {
   const wrap = $("fieldRows"); wrap.innerHTML = "";
   state.addState.style.fields.forEach((key, i) => {
     const id = "fld-" + key + "-" + i;
-    const lbl = document.createElement("label"); lbl.className = "lbl"; lbl.htmlFor = id; lbl.textContent = S[FIELD_LABEL[key]];
+    const lbl = document.createElement("label"); lbl.className = "lbl"; lbl.htmlFor = id; lbl.textContent = isAreas(state.addState) ? (key === "label" ? S.labelByArea : state.addState.style.id === "area_color" ? S.shadeByArea : S.colorByArea) : S[FIELD_LABEL[key]];
     const sel = document.createElement("select"); sel.className = "field"; sel.id = id;
     if (key === "label") { const o = document.createElement("option"); o.value = NONE; o.textContent = S.none; sel.appendChild(o); }
     for (const name of fieldOptions(key)) { const o = document.createElement("option"); o.value = name; o.textContent = aliasOf(state.addState, name); sel.appendChild(o); }
@@ -210,8 +290,8 @@ $("dataSwap").addEventListener("click", () => {
 function renderSymbolBlocks() {
   const c = state.addState.symbolChoices, isPie = state.addState.style.id === "pie_chart";
   const single = state.addState.style.id === "simple" || state.addState.style.id === "graduated";
-  const ramp = state.addState.style.id === "numeric_color_size" && !!state.addState.fieldChoices.color;
-  $("shapeRow").hidden = isPie; $("colorRow").hidden = isPie || !single; $("rampRow").hidden = !ramp;
+  const ramp = (state.addState.style.id === "numeric_color_size" || state.addState.style.id === "area_color") && !!state.addState.fieldChoices.color;
+  $("shapeRow").hidden = isPie || isAreas(state.addState); $("colorRow").hidden = isPie || !single; $("rampRow").hidden = !ramp;
   const sw = $("shapeOptions"); sw.innerHTML = "";
   for (const s of SHAPES) {
     const b = document.createElement("button"); b.type = "button"; b.className = "shape-btn"; b.textContent = s.glyph;
@@ -247,8 +327,10 @@ function updateConfigSummary() {
     case "categorical_size": s = t(numColor ? "sumColorSize" : "sumTypeSize", { color: A(c.color), size: A(c.size) }); break;
     case "categorical": s = t(numColor ? "sumShade" : "sumType", { color: A(c.color) }); break;
     case "graduated": s = t("sumSize", { size: A(c.size) }); break;
+    case "area_color": s = t("sumAreaShade", { color: A(c.color) }); break;
     default: s = S.sumSimple;
   }
+  if (isAreas(state.addState)) { if (state.addState.style.id === "simple") s = S.sumAreaSimple; else if (state.addState.style.id === "categorical") s = t("sumAreaType", { color: A(c.color) }); }
   if (c.label) s += t("sumLabels", { label: A(c.label) });
   $("cfgSummary").textContent = s;
 }
@@ -282,7 +364,7 @@ function submitData() {
   state.addState = null;
   closePanels();
   fl.when().then(() => fl.queryExtent()).then((r) => { if (r && r.extent) goToSafe(frameTarget(r.extent.expand(1.2)), { animate: false }); }).catch(() => {});
-  toast(t("addedPoints", { n }));
+  toast(t(def.geometryType === "polygon" ? "addedAreas" : "addedPoints", { n }));
 }
 function applyStyleEdit() {
   const { layer: old, wasVisible } = state.addState.editing, src = old._srcDef;
