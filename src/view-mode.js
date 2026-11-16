@@ -1,23 +1,23 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.69";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.69";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.69";
-import { state } from "./state.js?v=5.0.0-beta.69";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.69";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.69";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.69";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.69";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.69";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.69";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.69";
+import "./legend-basemaps-measure.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.70";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.70";
+import { state } from "./state.js?v=5.0.0-beta.70";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.70";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.70";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.70";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.70";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.70";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.70";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.70";
 import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.69";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.69";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.69";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.69";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.69";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.69";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.69";
+  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.70";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.70";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.70";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.70";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.70";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.70";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.70";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -156,6 +156,26 @@ export function syncViewLocks() {
   const lock = (id, on, why) => { const b = $(id); if (on) { b.setAttribute("aria-disabled", "true"); b.title = why; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); } };
   lock("tg2d", state.sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", state.twoDOnly, S.only2d);
 }
+// Pop-ups follow into the other view (5.0.0-beta.70; 2D to 3D 1.5). A pop-up open in 2D was left behind, hidden with
+// the 2D map, and came back on returning; the 3D view had none. Now it is closed where it was and opened again in the view
+// being switched to, on the same features and the same one chosen, at the same place. Only when both views show the
+// same map (not when a map's 2D and 3D versions are swapped), and not for a cluster's summary (3D draws no clusters).
+function popupToCarry(v) {
+  const p = v && v.popup;
+  if (!p || !p.visible) return null;
+  const features = (p.features || []).filter((g) => g && g.geometry && !g.isAggregate);
+  if (!features.length) return null;
+  const g = features.includes(p.selectedFeature) ? p.selectedFeature : features[0];
+  const location = p.location || (g.geometry.type === "point" ? g.geometry : g.geometry.extent && g.geometry.extent.center);
+  return { features, index: features.indexOf(g), location };
+}
+function carryPopup(c, from, to) {
+  try { from.closePopup(); } catch (e) { /* no pop-up */ }
+  if (!c || !to.popupEnabled) return;
+  to.openPopup({ features: c.features, location: c.location, updateLocationEnabled: false })
+    .then(() => { if (to.popup && c.index > 0 && c.index < to.popup.features.length) to.popup.selectedFeatureIndex = c.index; })
+    .catch(() => { /* closed or replaced meanwhile */ });
+}
 // 2D to 3D 1.4 (5.0.0-beta.69): a 3D view made earlier, hidden while the 2D map was on screen, is given the place to look
 // at only after two frames have been drawn since it was shown again. Given it straight away, the SDK worked the camera out
 // as if the view were tiny: after a map was opened in 2D, the 3D view came down about a thousand times too close (1:59,000
@@ -174,6 +194,7 @@ export async function setMode(m, opts) {
   if (openPanelName === "filter") closePanels(false);   // the filter preview belongs to this view's copy of the layer
   switching = true;
   const from = state.view, vp = !opts.map && from.viewpoint ? from.viewpoint.clone() : null, curMap = opts.map || from.map;
+  const popup = !opts.map ? popupToCarry(from) : null;
   stopMeasuring();
   endSketchOps();
   try {
@@ -233,6 +254,7 @@ export async function setMode(m, opts) {
   if (table && table.widget) { if (table.kind === "chart") { try { const src = state.view.selectionManager && state.view.selectionManager.sources; if (src && !src.includes(table.layer)) src.add(table.layer); } catch (e) { /* no selection on this view */ } } table.widget.view = state.view; }
   if (!$("layersPanel").hidden) renderLayers({ keepFocus: true });
   updatePopupEnabled();
+  if (state.view !== from) { const to = state.view; Promise.resolve(m === "3d" ? state.viewSettled : null).then(() => { if (state.view === to) carryPopup(popup, from, to); }); }
   watchBottom(0);
   if (m === "3d" && dataLayers.some((l) => l.renderer && l.renderer.type === "pie-chart")) toast(S.pieIn3d);
   else if (m === "3d") tellDiffers3d(state.sceneView.map);

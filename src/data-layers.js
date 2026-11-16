@@ -1,13 +1,13 @@
 // ============================================================ Data layers (CSV) — client-side FeatureLayers
-import "./maps.js?v=5.0.0-beta.69";   // first: keeps the files running in the order they were written in (see app.js)
-import { columnScale } from "../lib/csv.js?v=5.0.0-beta.69";
-import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.69";
-import { state } from "./state.js?v=5.0.0-beta.69";
-import { F } from "./config.js?v=5.0.0-beta.69";
-import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.69";
-import { activeMap } from "./views.js?v=5.0.0-beta.69";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.69";
-import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.69";
+import "./maps.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
+import { columnScale } from "../lib/csv.js?v=5.0.0-beta.70";
+import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.70";
+import { state } from "./state.js?v=5.0.0-beta.70";
+import { F } from "./config.js?v=5.0.0-beta.70";
+import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.70";
+import { activeMap } from "./views.js?v=5.0.0-beta.70";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.70";
+import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.70";
 
 export function buildDataLayer(ld) {
   const gtype = ld.geometryType || "point";
