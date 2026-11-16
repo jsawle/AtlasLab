@@ -1,16 +1,16 @@
 // ============================================================ Start-up
 // The Map layers count follows the map on screen: layers added or removed, another map opened.
-import "./versions.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
-import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.70";
-import { state } from "./state.js?v=5.0.0-beta.70";
-import { APP_VERSION, authStash, cfgName, cfgItem, keepConfig, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.70";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.70";
-import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.70";
-import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.70";
-import { toast } from "./ui.js?v=5.0.0-beta.70";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.70";
-import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.70";
-import { loadDocument } from "./local-files.js?v=5.0.0-beta.70";
+import "./versions.js?v=5.0.0-beta.71";   // first: keeps the files running in the order they were written in (see app.js)
+import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.71";
+import { state } from "./state.js?v=5.0.0-beta.71";
+import { APP_VERSION, authStash, cfgName, cfgItem, keepConfig, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.71";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.71";
+import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.71";
+import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.71";
+import { toast } from "./ui.js?v=5.0.0-beta.71";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.71";
+import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.71";
+import { loadDocument } from "./local-files.js?v=5.0.0-beta.71";
 
 reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
 state.view.when(() => {

@@ -1,13 +1,13 @@
 // ============================================================ Bookmarks
-import "./filter-panel.js?v=5.0.0-beta.70";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.70";
-import { $, S, t } from "./config.js?v=5.0.0-beta.70";
-import { Extent } from "./sdk.js?v=5.0.0-beta.70";
-import { isSketch, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.70";
-import { markDirty } from "./session.js?v=5.0.0-beta.70";
-import { updateToolBadges, layersDeep } from "./maps.js?v=5.0.0-beta.70";
-import { eachToggleableLayer, renderLayers } from "./layers-panel.js?v=5.0.0-beta.70";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.70";
+import "./filter-panel.js?v=5.0.0-beta.71";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.71";
+import { $, S, t } from "./config.js?v=5.0.0-beta.71";
+import { Extent } from "./sdk.js?v=5.0.0-beta.71";
+import { isSketch, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.71";
+import { markDirty } from "./session.js?v=5.0.0-beta.71";
+import { updateToolBadges, layersDeep } from "./maps.js?v=5.0.0-beta.71";
+import { eachToggleableLayer, renderLayers } from "./layers-panel.js?v=5.0.0-beta.71";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.71";
 
 let bmEditIndex = -1;
 function layerSnapshot() { const s = []; eachToggleableLayer((l, id, title) => s.push({ id, title, visible: l.visible !== false })); return s; }
