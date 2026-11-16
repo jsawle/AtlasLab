@@ -75,7 +75,12 @@ def main():
         if page.is_hidden("#measurePanel"): page.evaluate("document.querySelector('#menuMeasure').click()")
         page.wait_for_selector("#measurePanel:not([hidden])"); page.click("#mDist"); page.wait_for_timeout(1500)
         to3d(page); page.click("#tg2d"); page.wait_for_function("() => document.getElementById('tg2d').getAttribute('aria-pressed') === 'true'", timeout=60000); page.wait_for_timeout(2500)
-        opened = page.evaluate("(async () => { const v = document.querySelector('script[src*=\"app.js\"]').src.split('?v=')[1]; const m = await import(new URL('./src/maps.js?v=' + v, location.href).href); return await m.openWebMapItem('" + QUAKES + "', { skipConfirm: true }); })()")
+        # the way a student opens it: Open map, search, Open map on its card
+        page.click("#tool-open"); page.wait_for_selector("#omList .cat-card", timeout=120000); page.wait_for_timeout(1500)
+        page.fill("#omSearch", "Real-Time Earthquakes"); page.wait_for_timeout(1500)
+        opened = page.evaluate("(() => { const c = [...document.querySelectorAll('#omList .cat-card')].find((x) => x.querySelector('.cat-title, h3, h4') ? /^Real-Time Earthquakes$/.test(x.querySelector('.cat-title, h3, h4').textContent.trim()) : /^Real-Time Earthquakes(?! with)/.test(x.textContent.trim())); if (!c) return false; [...c.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Open map').click(); return true; })()")
+        try: page.wait_for_function("() => { const m = document.querySelector('arcgis-map').view.map; return !!(m.portalItem && m.portalItem.id === '" + QUAKES + "'); }", timeout=120000)
+        except Exception: opened = False
         page.wait_for_timeout(6000)
         check(opened and page.is_hidden("#measurePanel") and "active" not in (page.get_attribute("#tool-measure", "class") or ""), "opening a map ends Measure: the panel closes")
         m2 = page.evaluate("(" + AT + ")(" + MV + ")")
