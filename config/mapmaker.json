@@ -1,5 +1,5 @@
 {
-  "configVersion": 8,
+  "configVersion": 9,
   "appName": "National Geographic MapMaker",
   "showAppName": false,
   "headerLinks": [
@@ -45,6 +45,11 @@
     "ramp": "Colors",
     "rampReverse": "Reverse colors",
     "colorBy": "Color points by",
+    "colorByArea": "Color areas by",
+    "styleAreaSimpleHint": "Each area in one color",
+    "styleAreaTypeHint": "A color for each type, e.g. continent or income group",
+    "sumAreaSimple": "Each area in one color.",
+    "sumAreaType": "Each area colored by {color}.",
     "styleNumericColorSize": "Color & size",
     "styleNumericColorSizeHint": "two numbers together, e.g. depth as color, magnitude as size",
     "styleCategoricalSizeHint": "e.g. species as color, height as size",
