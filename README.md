@@ -106,6 +106,10 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
 
+## Link preview says Atlas (5.0.0-beta.72)
+
+The page description in `index.html`, which Teams, Slack and similar apps show when the link is pasted, said "version of the MapMaker classroom map app"; it now says "Atlas". Apps keep their own copy of a preview for a while, so the old text can show until theirs refreshes.
+
 ## Pop-ups on fills laid on the ground in 3D; docked pop-ups stay docked (5.0.0-beta.71)
 
 Reported. A sketched area with a pencil (or hatch or land-use) fill, given a pop-up, opened nothing when clicked in 3D: the fill's picture is a layer of its own on top, and the 3D view's hit test finds only it there (tried: a near-invisible fill above it isn't found either). Inside such an area the click is now taken by the app: the pop-up opens on whatever else is at that spot (found with the picture left out) and the sketched areas, the one drawn last first. Enter at the centre of the map does the same. And a pop-up docked in one view came up floating in the other (each view has its own pop-up); docked or not now goes across, whether a pop-up is open or not. 2D to 3D 1.6. Tests: `tests/live-fills-3d.py`, `tests/live-3d-switch.py`.
