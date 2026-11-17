@@ -4,25 +4,25 @@
 // spreadsheets and added layers back. Between 2D and 3D, and between the two versions of a paired map, the sketch layers
 // go across (setActiveMap). Also the order of the map's layers, the time slider, the toolbar badges, and adding or
 // removing a layer from the collection.
-import "./view-mode.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.74";
-import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.74";
-import { state } from "./state.js?v=5.0.0-beta.74";
-import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.74";
-import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.74";
+import "./view-mode.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.75";
+import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.75";
+import { state } from "./state.js?v=5.0.0-beta.75";
+import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.75";
+import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.75";
 import { graphicsLayer, defaultBasemap, sketchLayers, isSketch, sketchLayerByKey, sketchCount, localMap, takePreloaded, startCenter, setViewMap,
-  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.74";
-import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.74";
-import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.74";
+  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.75";
+import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.75";
+import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.75";
 import { addSketchGraphic, syncSketchLayerPicker, newSketchLayer, nextSketchLayerName, setActiveSketch, removeSketchLayer, updatePinned,
-  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.74";
-import { legend } from "./legend-basemaps.js?v=5.0.0-beta.74";
-import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.74";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.74";
-import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.74";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.74";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.74";
-import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.74";
+  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.75";
+import { legend } from "./legend-basemaps.js?v=5.0.0-beta.75";
+import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.75";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.75";
+import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.75";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.75";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.75";
+import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.75";
 
 /**
  * Shows a map in the views, bringing the sketch layers along on top, and brings the toolbar badges, time slider and

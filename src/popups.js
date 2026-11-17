@@ -2,12 +2,12 @@
 // Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after. With the map focused,
 // Enter opens the pop-up of what is at the centre of the map, as a click there would, and a cross marks the centre
 // while the keyboard is in use (Keyboard on the map 1.1).
-import "./ui.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.74";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.74";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.74";
-import { $, S } from "./config.js?v=5.0.0-beta.74";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.74";
+import "./ui.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.75";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.75";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.75";
+import { $, S } from "./config.js?v=5.0.0-beta.75";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
 
 /**
  * Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after, in both views.
@@ -50,6 +50,31 @@ function markMap() {
 }
 document.addEventListener("keydown", (e) => { if (MODIFIER_KEYS.has(e.key) || e.metaKey || e.ctrlKey) return; byKeyboard = true; markMap(); }, true);
 document.addEventListener("pointerdown", () => { byKeyboard = false; markMap(); }, true);
+
+// Tap or click (5.0.0-beta.75): what the app tells a student to do with the map says "tap" when the last pointer on the
+// page was a finger or a pen, and "click" for a mouse or trackpad. Before any pointer has been used, a device whose main
+// pointer can't hover (an iPad, a phone) counts as touch. The wording is the key with "Touch" on the end, where there is one.
+let touchLast = (() => { try { return matchMedia("(hover: none)").matches; } catch (e) { return false; } })();
+const wordWatchers = [];
+document.addEventListener("pointerdown", (e) => {
+  const touch = e.pointerType === "touch" || e.pointerType === "pen";
+  if (touch === touchLast) return;
+  touchLast = touch;
+  for (const f of wordWatchers) try { f(); } catch (err) { /* one part's wording failed: the others still change */ }
+}, true);
+/** Whether the last pointer used was a finger or a pen (or, before any, whether the device can't hover). @returns {boolean} */
+export const usesTouch = () => touchLast;
+/**
+ * The wording for a key, in the words for the hand in use: S[key + "Touch"] after a finger or pen, where there is one.
+ * @param {string} key a key of S
+ * @returns {string}
+ */
+export function handWords(key) { return (touchLast && S[key + "Touch"]) || S[key]; }
+/**
+ * Runs fn whenever the hand in use changes between touch and a mouse, so wording on screen can follow.
+ * @param {function} fn
+ */
+export function onHandChange(fn) { wordWatchers.push(fn); }
 $("mapWrap").addEventListener("focusin", markMap);
 $("mapWrap").addEventListener("focusout", () => { if (marked) { marked = false; showCentre(false); $("mapRing").hidden = true; } });
 async function popupAtCentre() {

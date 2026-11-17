@@ -3,11 +3,11 @@
 // map and the first sketch layer, and puts the app's controls on each view: search, home, zoom, the compass rose, the
 // scale bar. Starts downloading the map named in the link early. Holds what the rest of the app uses to work with
 // whichever view is on screen: activeMap, onViews, goToSafe, frameTarget.
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.74";
-import { state, late } from "./state.js?v=5.0.0-beta.74";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.74";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.74";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.74";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.75";
+import { state, late } from "./state.js?v=5.0.0-beta.75";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.75";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -126,6 +126,30 @@ export function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt,
 export function activeMap() { return state.view.map; }
 export let startDone = null;
 const started = new Promise((res) => { startDone = res; });   // the app has started, and a map opened from a link is in
+// Bigger buttons for fingers (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). On a device with a touch screen at
+// least 641 pixels wide the map library's own buttons (Search, Home, Zoom, the 3D navigation toggle, the Sketch tools)
+// are made 44 pixels, from 32, with the components' visualScale "l" (SDK 5.0; the Sketch tools in sketch.js, as far as
+// they fit); the app's own are made bigger in
+// index.html, and its Calcite controls by growControls. Phones come later. Versions: Tablets 1.0.
+const TOUCH_WIDE = (() => { try { return matchMedia("(any-pointer: coarse) and (min-width: 641px)"); } catch (e) { return null; } })();
+/** Whether controls are drawn big, for fingers, now. @returns {boolean} */
+export const bigTargets = () => !!(F.tabletLayout && TOUCH_WIDE && TOUCH_WIDE.matches);
+const SCALED = "arcgis-zoom, arcgis-home, arcgis-expand, arcgis-search, arcgis-navigation-toggle";   // the Sketch tools: sketch.js (as far as they fit)
+/** Sets the map library's controls on the page to the size for the device (big for fingers on a tablet). */
+export function scaleControls() {
+  if (!F.tabletLayout) return;
+  const s = bigTargets() ? "l" : "m";
+  document.querySelectorAll(SCALED).forEach((c) => { c.setAttribute("visual-scale", s); c.visualScale = s; });
+}
+/**
+ * Makes the app's Calcite controls inside an element big for fingers on a tablet (scale "l", 44 pixels).
+ * @param {HTMLElement} root
+ */
+export function growControls(root) {
+  if (!bigTargets() || !root) return;
+  root.querySelectorAll("calcite-button, calcite-select, calcite-combobox, calcite-input-number, calcite-input-text").forEach((c) => c.setAttribute("scale", "l"));
+}
+if (TOUCH_WIDE && F.tabletLayout) TOUCH_WIDE.addEventListener("change", scaleControls);
 /**
  * Puts the app's controls on a view: search, home, zoom, the compass rose, scale bar and the corner buttons, as SDK
  * components in the view's slots.
@@ -143,7 +167,7 @@ export function addViewUI(v, is3d) {
   v.when(() => { const s = v.container && v.container.querySelector(".esri-view-surface"); if (s) s.setAttribute("aria-label", S.mapKeys); }).catch(() => {});      // what the keys do, for a screen reader (5.0.0-beta.57)
   const zoom = slot("arcgis-zoom", "top-left");
   const home = document.createElement("arcgis-home"); home.slot = "top-left";
-  started.then(() => reactiveUtils.whenOnce(() => v.ready && !!v.viewpoint && !!v.viewpoint.targetGeometry)).then(() => el.insertBefore(home, zoom)).catch(() => {});
+  started.then(() => reactiveUtils.whenOnce(() => v.ready && !!v.viewpoint && !!v.viewpoint.targetGeometry)).then(() => { el.insertBefore(home, zoom); scaleControls(); }).catch(() => {});
   if (is3d) slot("arcgis-navigation-toggle", "top-left");
   const stack = document.createElement("div"); stack.className = "ll-stack";
   if (F.compass !== false) stack.appendChild(makeCompass(v, is3d));
@@ -163,6 +187,7 @@ export function addViewUI(v, is3d) {
   if (!F.hideToolbar) stack.appendChild(tt);
   else if (!$("toolsBtn")) { const c = document.querySelector(".corner"); c.insertBefore(tt, c.firstChild); }
   stack.slot = "bottom-left"; el.appendChild(stack);
+  scaleControls();
   // Map layers greys a layer outside its scale range: check again whenever this view stops moving
   reactiveUtils.watch(() => v.stationary, (st) => { if (st && v === state.view && !$("layersPanel").hidden) late.updateScaleStates(); });
   syncToolsToggles();

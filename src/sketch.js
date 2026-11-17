@@ -5,21 +5,22 @@
 // (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text (and, in the
 // lab, for a point's symbol: features.pointRotation). Also the
 // sketch layers: the first always exists, and a student can make more (features.sketchLayers).
-import "./popups.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.74";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.74";
-import { state } from "./state.js?v=5.0.0-beta.74";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.74";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.74";
+import "./popups.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.75";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.75";
+import { state } from "./state.js?v=5.0.0-beta.75";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.75";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.74";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.74";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.74";
-import { toast } from "./ui.js?v=5.0.0-beta.74";
-import { sketchUnits } from "./measure.js?v=5.0.0-beta.74";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.74";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.74";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.74";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.75";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap, bigTargets } from "./views.js?v=5.0.0-beta.75";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.75";
+import { toast } from "./ui.js?v=5.0.0-beta.75";
+import { handWords, onHandChange } from "./popups.js?v=5.0.0-beta.75";
+import { sketchUnits } from "./measure.js?v=5.0.0-beta.75";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.75";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.75";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.75";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
@@ -36,8 +37,19 @@ let sketchPlaced = null;
 const sketchOnPage = new Promise((res) => { sketchPlaced = res; });
 function placeSketch() { if (!sketch.isConnected) { $("sketchBar").appendChild(sketch); sketchPlaced(); } }
 // Settings go on once the component is ready: set earlier, some are lost when it starts up.
-const sketchScale = () => (window.innerHeight < 820 ? "s" : "m");
-window.addEventListener("resize", () => { if (sketch.isConnected && sketch.scale && sketch.scale !== sketchScale()) sketch.scale = sketchScale(); });
+// For fingers on a tablet (lab: features.tabletLayout, 5.0.0-beta.75) the tools are the biggest size whose whole column
+// fits between the top of the map and the toolbar: 44 pixels on an upright iPad, 32 on its side (24 there before). The
+// column's heights, every tool shown, measured in SDK 5.0: 692 pixels at "l", 516 at "m".
+const SKETCH_COLUMN = { l: 692, m: 516 };
+const sketchScale = () => {
+  if (!bigTargets()) return window.innerHeight < 820 ? "s" : "m";
+  if (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) return "m";   // the tools run across the top there
+  const tb = $("toolbar").getBoundingClientRect(), bar = $("sketchBar").getBoundingClientRect();
+  const room = (tb.height ? tb.top : window.innerHeight) - (bar.top || 80) - 12;
+  return room >= SKETCH_COLUMN.l ? "l" : room >= SKETCH_COLUMN.m ? "m" : "s";
+};
+function sizeSketch() { const s = sketchScale(); if (sketch.isConnected && (sketch.scale !== s || (F.tabletLayout && sketch.visualScale !== s))) { sketch.scale = s; if (F.tabletLayout) sketch.visualScale = s; } }
+window.addEventListener("resize", () => { if (sketch.isConnected && sketch.scale) sizeSketch(); });
 export const sketchReady = (async () => {
   await sketchOnPage;
   await customElements.whenDefined("arcgis-sketch");
@@ -390,6 +402,7 @@ function chooseSymbol(shape, title) {
   populateSketchPanel();
   if (skView === "symbols") pressOne("symbolGrid", "shape", shape);
 }
+onHandChange(() => { if (!$("sketchPanel").hidden) populateSketchPanel(); });   // the hint follows the hand in use
 function populateSketchPanel() {
   const many = selectedGraphics.length > 1, sel = selectedFeature, a = sel ? sel.attributes : null;
   const kind = sketchContext(), tool = sketch.activeTool || null;
@@ -398,7 +411,7 @@ function populateSketchPanel() {
   if (skView === "symbols" && kind !== "point" && kind !== "polygon") showSketchView("main");
   if (skView === "popup" && !sel) showSketchView("main");
   // what the tool in hand does (Map Viewer: "Click the map to add point.")
-  const hint = selectedGraphics.length ? (many ? fmt(S.manySelected, { n: selectedGraphics.length }) : S.sketchHintSelected) : S["sketchHint_" + (TOOL_KIND[tool] ? (tool === "rectangle" || tool === "circle" ? "drag" : /^freehand/.test(tool) ? "freehand" : TOOL_KIND[tool]) : "none")];
+  const hint = selectedGraphics.length ? (many ? fmt(S.manySelected, { n: selectedGraphics.length }) : S.sketchHintSelected) : handWords("sketchHint_" + (TOOL_KIND[tool] ? (tool === "rectangle" || tool === "circle" ? "drag" : /^freehand/.test(tool) ? "freehand" : TOOL_KIND[tool]) : "none"));   // "tap" after a finger or pen (5.0.0-beta.75)
   $("sketchHint").textContent = hint || "";
   $("skKind").hidden = !kind; $("skKind").textContent = kind ? S["sketchKind_" + kind] || "" : "";
   $("secFeature").hidden = !selectedGraphics.length;
@@ -673,7 +686,7 @@ let toolWatch = 0, toolSeen = null;
  * @param {boolean} on
  */
 export function sketchToolsOn(on) {
-  if (on) { placeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }
+  if (on) { placeSketch(); sizeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }   // sizeSketch: big tools for fingers on a tablet (lab), as far as they fit
   // the panel follows the tool chosen on the toolbar
   clearInterval(toolWatch); toolWatch = 0;
   if (on) toolWatch = setInterval(() => {

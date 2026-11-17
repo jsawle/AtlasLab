@@ -418,6 +418,7 @@
     .q-lead{ margin:0 0 10px; font-size:17px; font-weight:600; line-height:1.35; }
     .q-list{ margin:0 0 12px; padding-left:24px; font-size:16px; line-height:1.45; } .q-list li{ margin-bottom:8px; }
     .tile-tip{ position:fixed; z-index:1000; max-width:270px; background:#2b2b2b; color:#fff; font-size:13px; line-height:1.4; padding:8px 11px; border-radius:6px; box-shadow:0 3px 12px rgba(0,0,0,.25); }
+    .tile-tip .tip-name{ font-weight:700; }   /* a tool's name, when a tip is shown by press and hold (tablets, lab) */
     .tile-tip::after{ content:""; position:absolute; left:var(--arrow-x,50%); width:10px; height:10px; background:#2b2b2b; transform:translateX(-50%) rotate(45deg); }
     .tile-tip[data-side="below"]::after{ top:-5px; } .tile-tip[data-side="above"]::after{ bottom:-5px; }
     .note{ font-size:13px; line-height:1.55; color:var(--ink2); margin:0 0 10px; }
@@ -736,6 +737,34 @@
       .modal-card, .modal .card{ max-height:100%; overflow-y:auto; }
       .dock{ height:62vh; height:62dvh; }
     }
+    /* Tablets (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). #app.tablet is set where the config turns it on.
+       1. Tool names under the icons on an upright iPad (641 to 1024 pixels wide). They were hidden at these widths, leaving
+          icons only, and the tips that name a tool need a mouse resting on it. At 12px every name fits on one or two lines
+          and the whole toolbar fits on an iPad mini (744 wide), a word only broken where one is too long for a tool. Not on a short screen: a phone on its side keeps its icons. */
+    @media (min-width:641px) and (max-width:1024px) and (min-height:600px){
+      #app.tablet{ --tb-h:66px; }
+      #app.tablet .tool{ width:64px; gap:4px; padding:5px 1px; }   /* 64: "Bookmarks" is 61 pixels at 12px */
+      #app.tablet .tool .tl{ position:static; width:auto; height:auto; overflow:visible; clip:auto; white-space:normal; overflow-wrap:break-word; font-size:12px; line-height:1.15; text-align:center; }
+    }
+    /* 2. Bigger buttons for fingers, on a device with a touch screen (any-pointer: coarse, so a Chromebook with a touch
+          screen too). The app's own small buttons go to 44 pixels, the size Apple asks for and WCAG's enhanced target size
+          (2.5.5, AAA); they were 32. The map library's buttons are made bigger in views.js (visualScale "l"). Phones come later. */
+    @media (any-pointer: coarse) and (min-width:641px){
+      #app.tablet .lyr-drag, #app.tablet .lyr-open, #app.tablet .lyr-toggle, #app.tablet .lt{ width:44px; height:44px; }
+      #app.tablet .lyr-drag-sp{ flex-basis:44px; }
+      #app.tablet .lyr-tools{ gap:2px; }   /* the 44-pixel buttons hold their own space: a layer's usual eight tools stay on one row */
+      #app.tablet .lyr-head input[type=checkbox]{ width:24px; height:24px; }
+      #app.tablet .lyr-note{ margin-left:48px; }
+      #app.tablet .panel-head .x-btn{ width:44px; height:44px; }
+      #app.tablet .icon-btn{ width:44px; height:44px; }
+      #app.tablet .btn{ min-height:44px; }
+      #app.tablet .units-seg button{ min-height:44px; }
+      #app.tablet .hdr .ver-btn{ min-height:32px; }
+      #app.tablet .tools-toggle.labelled{ min-height:44px; }
+      /* 3. Press and hold a tool to see its name and what it does (arcgis-online.js): the press must not select text or
+            bring up the system's menu */
+      #app.tablet [data-tip-key]{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
+    }
     /* the toolbar scrolls sideways when it does not fit: its edge fades where there are more tools that way */
     .toolbar.more-right{ -webkit-mask-image:linear-gradient(to left, transparent 0, #000 34px); mask-image:linear-gradient(to left, transparent 0, #000 34px); }
     .toolbar.more-left{ -webkit-mask-image:linear-gradient(to right, transparent 0, #000 34px); mask-image:linear-gradient(to right, transparent 0, #000 34px); }
@@ -898,7 +927,7 @@
             <button class="btn" type="button" id="mClear" data-i18n="clear">Clear</button>
           </div>
           <div class="units-row"><span class="units-label" aria-hidden="true" data-i18n="units">Units</span><div class="units-seg" role="group" data-i18n-aria="units" aria-label="Units"><button type="button" data-units="metric" aria-pressed="false" data-i18n-aria="unitsMetric" aria-label="km: kilometres and metres">km</button><button type="button" data-units="imperial" aria-pressed="false" data-i18n-aria="unitsImperial" aria-label="mi: miles and feet">mi</button></div></div>
-          <p class="hint" data-i18n="measureHint">Choose a tool, then click on the map. Double-click to finish.</p>
+          <p class="hint" id="measureHint" data-i18n="measureHint">Choose a tool, then click on the map. Double-click to finish.</p>
           <div id="measureBody"></div>
           <div id="coordWrap" hidden><div id="coordBody"></div>
             <div class="coord-copy"><button class="btn" type="button" id="coordCopy" disabled data-i18n="copyCoords">Copy coordinates</button><span class="hint" id="coordCopied" role="status" aria-live="polite"></span></div></div>
@@ -1189,6 +1218,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.74"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.75"></script>
 </body>
 </html>

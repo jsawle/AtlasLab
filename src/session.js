@@ -7,10 +7,10 @@
 // Chrome empties a file as soon as it's picked in the save dialog (File System Access spec), before the app sees which
 // file it was. So the text of each locked file opened is kept: if it's picked, it's written straight back, unchanged.
 // (A locked file that wasn't opened in this session can't be put back: see README, Known limits.)
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.74";
-import { state, late } from "./state.js?v=5.0.0-beta.74";
-import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.74";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.74";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.75";
+import { state, late } from "./state.js?v=5.0.0-beta.75";
+import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.75";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.75";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)
@@ -104,7 +104,10 @@ function layoutCorner() {
 }
 // Keep the toolbar clear of the attribution bar (it grows when the disclaimer wraps on phones), and lift the
 // compass and scale bar above the toolbar when the toolbar would cover them (phones, narrower laptops).
-const uiBottom = new WeakMap(), uiBase = new WeakMap();
+// The compass and scale bar of a view. They are in the map or scene component's bottom-left slot, outside the view's own
+// container (which is inside the component), so they are looked for in the component (5.0.0-beta.75: looked for in the
+// container, they were never found, and nothing was ever lifted above the toolbar).
+const stackOf = (root) => { const host = root && root.getRootNode && root.getRootNode().host; return ((host || root) && (host || root).querySelector(".ll-stack")) || null; };
 // The toolbar scrolls sideways when the screen is too narrow for it; its edges show where there is more (index.html).
 function toolbarEdges() { const tb = $("toolbar"); if (!tb) return; tb.classList.toggle("more-left", tb.scrollLeft > 4); tb.classList.toggle("more-right", tb.scrollLeft + tb.clientWidth < tb.scrollWidth - 4); }
 $("toolbar").addEventListener("scroll", toolbarEdges, { passive: true });
@@ -119,15 +122,16 @@ export function layoutBottom() {
   const attr = root && root.querySelector(".esri-attribution");
   if (attr) $("mapWrap").style.setProperty("--attr-h", Math.ceil(attr.getBoundingClientRect().height || 16) + "px");
   layoutCorner();
-  const tb = $("toolbar").getBoundingClientRect(), stack = root && root.querySelector(".ll-stack");
-  if (!v || !v.ui || !stack) return;
-  if (!uiBase.has(v)) { const p = v.ui.padding || {}; uiBase.set(v, { top: p.top ?? 15, left: p.left ?? 15, right: p.right ?? 15, bottom: p.bottom ?? 30 }); }
-  const base = uiBase.get(v), s = stack.getBoundingClientRect(), wrap = $("mapWrap").getBoundingClientRect();
-  const covered = tb.width > 0 && s.width > 0 && s.left < tb.right && s.right > tb.left;
-  const bottom = covered ? Math.round(wrap.bottom - tb.top) + 8 : base.bottom;   // the SDK's own padding already allows for the attribution
-  if (uiBottom.get(v) === bottom) return;
-  uiBottom.set(v, bottom);
-  try { v.ui.padding = { ...base, bottom }; } catch (e) { /* keep the SDK default */ }
+  const tb = $("toolbar").getBoundingClientRect(), stack = stackOf(root);
+  if (!v || !stack) return;
+  // Lift the compass and scale bar above the toolbar where the toolbar runs into them (5.0.0-beta.75). The view's
+  // padding was meant to do it (until 5.0.0-beta.74), but it never found them in the map component's slot (see stackOf):
+  // on an upright iPad the scale bar sat under the toolbar's left end and the compass touched it. Phones (640 pixels
+  // wide or less) are left as they are for now: their layout is to be reworked.
+  stack.style.translate = "";
+  const own = stack.getBoundingClientRect(), under = tb.width > 0 && own.width > 0 && window.innerWidth > 640
+    && Math.min(own.right, tb.right) - Math.max(own.left, tb.left) > 4 && own.bottom > tb.top - 6;
+  stack.style.translate = under ? "0 " + -Math.ceil(own.bottom - tb.top + 8) + "px" : "";
 }
 const bottomObserver = window.ResizeObserver ? new ResizeObserver(() => layoutBottom()) : null;
 /**
@@ -136,7 +140,7 @@ const bottomObserver = window.ResizeObserver ? new ResizeObserver(() => layoutBo
  * @param {number} tries how many times it has tried; leave out
  */
 export function watchBottom(tries) {
-  const root = state.view && state.view.container, attr = root && root.querySelector(".esri-attribution"), stack = root && root.querySelector(".ll-stack");
+  const root = state.view && state.view.container, attr = root && root.querySelector(".esri-attribution"), stack = stackOf(root);
   if (bottomObserver) { bottomObserver.disconnect(); bottomObserver.observe($("toolbar")); if (attr) bottomObserver.observe(attr); if (stack) bottomObserver.observe(stack); }
   layoutBottom();
   if ((!attr || !stack) && (tries || 0) < 20) setTimeout(() => watchBottom((tries || 0) + 1), 500);
