@@ -2,17 +2,17 @@
 // The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate
 // components. And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed
 // with the units switch, and followed by the Sketch tools and the Elevation profile too.
-import "./legend-basemaps.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.73";
-import { state, late } from "./state.js?v=5.0.0-beta.73";
-import { $, params, cfg, S } from "./config.js?v=5.0.0-beta.73";
-import { Portal, reactiveUtils, toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.73";
-import { mapView } from "./views.js?v=5.0.0-beta.73";
-import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.73";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.73";
-import { sketch } from "./sketch.js?v=5.0.0-beta.73";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.73";
-import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.73";
+import "./legend-basemaps.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.74";
+import { state, late } from "./state.js?v=5.0.0-beta.74";
+import { $, params, cfg, S } from "./config.js?v=5.0.0-beta.74";
+import { Portal, reactiveUtils, toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.74";
+import { mapView } from "./views.js?v=5.0.0-beta.74";
+import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.74";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.74";
+import { sketch } from "./sketch.js?v=5.0.0-beta.74";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.74";
+import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.74";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let coordWidget = null;

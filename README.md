@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.73**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.74**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -8,13 +8,23 @@
 | `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
 | `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
 | `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile, and a Rotation slider for a point's symbol |
 | `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 | `…/AtlasLab/?appid=<item ID>` | A partner's version, its config kept in an ArcGIS Online item of the education team's (5.0.0-beta.58) |
 
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Lab: turn a point's symbol, for arrows (5.0.0-beta.74)
+
+In the lab (`?config=lab`, `features.pointRotation`), a point drawn with a symbol other than the plain circle has a **Rotation** slider under Size, 0° to 360°. An arrow turns clockwise, as a text does: 90° points east on an unturned map, 180° south. A circle has no slider, as it looks the same however it is turned.
+
+- With nothing selected, the slider sets the turn of the next point; with a point selected, it turns that one. A point's turn is kept apart from a text's, so turning a text doesn't turn the next arrow.
+- Fixed on the way: after drawing a point with a picture symbol, picking the point tool again left the first one selected, so Colour, Size (and now Rotation) went on changing it rather than the next point. Picking a drawing tool now ends the selection.
+- The turn is saved in the file and in a web map (the symbol Map Viewer reads carries it), and shows in the 3D view. A map with a turned arrow opened in the main app shows it turned; only the slider is lab-only.
+- The turn is from north on the map, and a turned symbol keeps its direction on the map: turning the 2D map, or the camera in 3D, turns the arrow with it. Before, a picture symbol in 2D kept pointing the same way on the screen while the map turned under it, but turned with the map in 3D, so the two views disagreed. In the lab every picture symbol now follows the map, so an arrow left at 0° agrees with one turned to 90°; in the main app only a turned one does, and the rest are as before.
+- Sketch 2.3. Tests: `python3 tests/live-point-rotate.py` (21 checks).
 
 ## The code described: every file and function, and an index made from the code (5.0.0-beta.73)
 

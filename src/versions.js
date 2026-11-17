@@ -1,26 +1,26 @@
 // ============================================================ Versions
 // The Versions table in About: the app's version and the version of each part of it, with what changed, and where the
 // config came from (a file in config/, an ArcGIS Online item, or the manager app's preview).
-import "./arcgis-online.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.73";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.73";
-import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.73";
-import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.73";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.73";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.73";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.73";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.73";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.73";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.73";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.73";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.73";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.73";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.73";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.73";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.73";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.73";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.73";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.73";
+import "./arcgis-online.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.74";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.74";
+import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.74";
+import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.74";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.74";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.74";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.74";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.74";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.74";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.74";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.74";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.74";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.74";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.74";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.74";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.74";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.74";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.74";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.74";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -69,7 +69,7 @@ export function renderVersions() {
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
     ["CSV import", CSV_VERSION, "3.7: rows can be placed by country; a layer of areas has its own styles (one colour, by type, shaded by a number). Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
     ["Filter", FILTER_VERSION, "1.5: the panel in plain words is now the main app's Filter panel. 1.4 (plain panel, lab): is greater than and is less than join the short list of number conditions; the numbers are on their own line at the right and say how many are shown and hidden. 1.3 (lab config only, features.plainFilter): the panel in plain words for students: the heading names the layer, a label above each box, a short list of conditions with More, the histogram called Chart of values with a caption and the average marked, and the filter said back as a sentence with its count. A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],
-    ["Sketch", SKETCH_VERSION, "Points, lines, areas, circles and text, with pop-ups, images, colour, size and rotation; move, reshape and delete."],
+    ["Sketch", SKETCH_VERSION, "Points, lines, areas, circles and text, with pop-ups, images, colour, size and rotation; move, reshape and delete. 2.3: a point's symbol, such as an arrow, can be turned with a Rotation slider (lab)."],
     [S.configLabel, String(cfg.configVersion || 1), configSource() + " (schema " + CONFIG_SCHEMA + ")" + (localeFile ? "; language file locales/" + localeFile.name + ".json " + (localeFile.version || "1.0") : "")],
     ["Configs and language files", CONFIG_VERSION, "A config lists only what differs from the app's defaults and can start from another config (extends). The app's wording in a language comes from one shared file per language. 2.1: a partner's config can be kept in an ArcGIS Online item of the education team's (?appid=), set up in the manager app, which can also show a config before it is published."],
     ["ArcGIS Maps SDK for JavaScript", SDK_VERSION, "Esri mapping library"]

@@ -2,15 +2,15 @@
 // The Legend panel (the SDK's legend component, made the first time it opens) and the Basemaps panel: the basemap
 // group's maps as a grid of cards in the group's own order (lib/basemaps.js), with the map's basemap marked; the arrow
 // keys move between the cards.
-import "./sketch.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
-import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.73";
-import { state } from "./state.js?v=5.0.0-beta.73";
-import { $, cfg, S, PORTAL } from "./config.js?v=5.0.0-beta.73";
-import { Basemap, reactiveUtils, toolEl, restGet } from "./sdk.js?v=5.0.0-beta.73";
-import { activeMap } from "./views.js?v=5.0.0-beta.73";
-import { markDirty } from "./session.js?v=5.0.0-beta.73";
-import { toast } from "./ui.js?v=5.0.0-beta.73";
-import { shownMap } from "./maps.js?v=5.0.0-beta.73";
+import "./sketch.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
+import { groupSort, basemapItems, thumbnailUrl, selectedId, needsDataTitles, gridMove } from "../lib/basemaps.js?v=5.0.0-beta.74";
+import { state } from "./state.js?v=5.0.0-beta.74";
+import { $, cfg, S, PORTAL } from "./config.js?v=5.0.0-beta.74";
+import { Basemap, reactiveUtils, toolEl, restGet } from "./sdk.js?v=5.0.0-beta.74";
+import { activeMap } from "./views.js?v=5.0.0-beta.74";
+import { markDirty } from "./session.js?v=5.0.0-beta.74";
+import { toast } from "./ui.js?v=5.0.0-beta.74";
+import { shownMap } from "./maps.js?v=5.0.0-beta.74";
 
 export let legend = null, legendMaking = null;
 /**

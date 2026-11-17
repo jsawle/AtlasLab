@@ -2,28 +2,29 @@
 // Drawing uses the SDK's Sketch component: the same toolbar Map Viewer uses (select, point, line with straight,
 // freehand and curved segments, area, rectangle, circle, text, undo/redo, duplicate, delete, snapping). It shows on
 // the map while the Sketch panel is open. The panel keeps what the SDK has no component for: each sketch's pop-up
-// (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text. Also the
+// (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text (and, in the
+// lab, for a point's symbol: features.pointRotation). Also the
 // sketch layers: the first always exists, and a student can make more (features.sketchLayers).
-import "./popups.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.73";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.73";
-import { state } from "./state.js?v=5.0.0-beta.73";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.73";
+import "./popups.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.74";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.74";
+import { state } from "./state.js?v=5.0.0-beta.74";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.74";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.74";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.73";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.73";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.73";
-import { toast } from "./ui.js?v=5.0.0-beta.73";
-import { sketchUnits } from "./measure.js?v=5.0.0-beta.73";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.73";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.73";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.73";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.74";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.74";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.74";
+import { toast } from "./ui.js?v=5.0.0-beta.74";
+import { sketchUnits } from "./measure.js?v=5.0.0-beta.74";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.74";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.74";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.74";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
 // areaShape: an area's styled fill (a point's symbol and an area's are chosen separately; on a sketch both are its "shape")
-const pendingStyle = { color: PALETTE_HEX[0], size: 12, rotation: 0, shape: "", areaShape: "", pattern: "solid", arrow: "none", fill: 25, fillColor: "", outlineTransparency: 0, outlineWidth: 2,
+const pendingStyle = { color: PALETTE_HEX[0], size: 12, rotation: 0, pointRotation: 0, shape: "", areaShape: "", pattern: "solid", arrow: "none", fill: 25, fillColor: "", outlineTransparency: 0, outlineWidth: 2,
   font: "", bold: 1, italic: 0, haloColor: "#ffffff", haloSize: 1.5 };   // text: its font, bold and italic, and its halo (size 0 = no halo)
 const newUid = () => "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 // Freehand is a segment option inside the line and area tools (as in Map Viewer), not a button of its own.
@@ -115,12 +116,12 @@ function loadVector(shape) {
  * @param {object} o a sketch style: { shape, color, size }
  * @returns {CIMSymbol|null}
  */
-export function vectorSymbol(o) {
+export function vectorSymbol(o) {   // turned clockwise by o.rotation degrees, from north on the map (Sketch 2.3)
   const p = parseShape(o.shape), base = p ? vectorCache.get(p.key) : null;
   if (!base) return null;
   const sym = base.clone(), rgb = hexToRgb(o.color);
   if (p.set.geom === "polygon") return sym;   // a styled fill is used as it is
-  try { if (p.set.tint) cimSymbolUtils.applyCIMSymbolColor(sym, { r: rgb[0], g: rgb[1], b: rgb[2], a: 1 }); cimSymbolUtils.scaleCIMSymbolTo(sym, Math.round((o.size || 12) * 2.5)); } catch (e) { console.warn("Couldn't style a symbol", e); }
+  try { if (p.set.tint) cimSymbolUtils.applyCIMSymbolColor(sym, { r: rgb[0], g: rgb[1], b: rgb[2], a: 1 }); cimSymbolUtils.scaleCIMSymbolTo(sym, Math.round((o.size || 12) * 2.5)); if (o.rotation) cimSymbolUtils.applyCIMSymbolRotation(sym, o.rotation, true); if (o.rotation || F.pointRotation) sym.data.symbol.angleAlignment = "Map"; } catch (e) { console.warn("Couldn't style a symbol", e); }
   return sym;
 }
 // Lines and area outlines: solid, dashed or dotted; a line can carry an arrowhead at either end or both.
@@ -148,6 +149,16 @@ const kindOf = (g) => (g.attributes && g.attributes.kind === "text" ? "text" : (
 export const styleOf = (a) => ({ color: a.color || PALETTE_HEX[0], size: a.size || 12, rotation: a.rotation || 0, text: a.title, shape: a.shape || "", pattern: a.pattern || "solid", arrow: a.arrow || "none", fill: a.fill == null ? 25 : a.fill,
   fillColor: a.fillColor || "", outlineTransparency: a.outlineTransparency || 0, outlineWidth: a.outlineWidth == null ? 2 : a.outlineWidth,
   font: a.font || "", bold: a.bold === 0 ? 0 : 1, italic: a.italic ? 1 : 0, haloColor: a.haloColor || "#ffffff", haloSize: a.haloSize == null ? 1.5 : a.haloSize });
+// Rotation for points (lab: features.pointRotation, Sketch 2.3, 5.0.0-beta.74): a point's symbol turns clockwise, as a
+// text's does, from 0 to 360 degrees; for arrows above all. The turn is from north on the map, and the symbol keeps
+// its direction on the map (the CIM symbol's angleAlignment "Map"): turning the 2D map, or the camera in 3D, turns the
+// symbol with it. Left as it was, a symbol in 2D kept pointing the same way on the screen while the map turned under it,
+// whereas the 3D view turned it with the map, so the two views disagreed. In the lab every picture symbol follows the map
+// (so an arrow left at 0° agrees with one turned to 90°); in the main app a turned one does, and the rest are as before. Only a symbol other than the plain circle is offered the slider (a
+// circle looks the same however it is turned). A point's rotation is kept apart from a text's, so turning a
+// text doesn't turn the next arrow. A rotation already in a saved map is drawn whether or not the slider is on.
+const turnsPoint = (shape) => F.pointRotation && !!shape;
+const pointTurn = () => (turnsPoint(pendingStyle.shape) ? pendingStyle.pointRotation || 0 : 0);
 // what the tools draw an area with next, in a sketch's own terms
 const pendingArea = () => ({ ...pendingStyle, shape: pendingStyle.areaShape });
 function applyStyle(g) {
@@ -163,8 +174,9 @@ function applyStyle(g) {
 async function syncSketchSymbols() {
   await sketchReady;
   const o = pendingStyle, props = (kind, opts) => { const { type, ...rest } = symbolFor(kind, opts); return rest; };   // the class sets the type
-  sketch.pointSymbol = (o.shape && vectorSymbol(o)) || new SimpleMarkerSymbol(props("point", o));
-  if (o.shape && !vectorSymbol(o)) loadVector(o.shape).then(() => { if (pendingStyle.shape === o.shape) syncSketchSymbols(); }).catch(() => {});
+  const pt = { ...o, rotation: pointTurn() };
+  sketch.pointSymbol = (pt.shape && vectorSymbol(pt)) || new SimpleMarkerSymbol(props("point", pt));
+  if (o.shape && !vectorSymbol(pt)) loadVector(o.shape).then(() => { if (pendingStyle.shape === o.shape) syncSketchSymbols(); }).catch(() => {});
   sketch.polylineSymbol = new SimpleLineSymbol(props("polyline", o));
   const ar = pendingArea();
   sketch.polygonSymbol = (ar.shape && vectorSymbol(ar)) || new SimpleFillSymbol(props("polygon", ar));
@@ -408,7 +420,7 @@ function populateSketchPanel() {
     pressSwatch("outlineSwatches", first.outlineWidth === 0 ? "none" : first.color); $("outlineCustom").value = first.color;
     setPair("fFillT", ft); setPair("fOutlineT", first.outlineTransparency || 0); setPair("fOutlineW", first.outlineWidth == null ? 2 : first.outlineWidth);
   }
-  $("rotSection").hidden = kind !== "text";
+  $("rotSection").hidden = !(kind === "text" || (kind === "point" && turnsPoint(first.shape)));
   for (const id of ["secFont", "secHalo"]) $(id).hidden = kind !== "text";
   $("secPlain").hidden = !styledArea;
   if (kind === "text") {
@@ -430,7 +442,8 @@ function populateSketchPanel() {
   $("skPopupState").textContent = a && (a.description || a.imageUrl) ? S.popupHasContent : "";
   highlightSwatch(first.color || PALETTE_HEX[0]);
   $("fSize").value = first.size || 12; $("sizeVal").textContent = first.size || 12;
-  $("fRot").value = first.rotation || 0; $("rotVal").textContent = (first.rotation || 0) + "°";
+  const rot = kind === "point" && !selectedGraphics.length ? pointTurn() : first.rotation || 0;
+  $("fRot").value = rot; $("rotVal").textContent = rot + "°"; $("fRot").setAttribute("aria-valuetext", rot + "°");
   pressOne("patternRow", "pattern", first.pattern || "solid"); pressOne("arrowRow", "arrow", first.arrow || "none");
   if (kind === "point" || kind === "polygon") {
     const shape = first.shape || "";
@@ -448,7 +461,7 @@ function populateSketchPanel() {
   }
 }
 // What a style control may change on a sketch of each kind
-const STYLE_KINDS = { shape: ["point"], areaShape: ["polygon"], arrow: ["polyline"], pattern: ["polyline", "polygon"], fill: ["polygon"], fillColor: ["polygon"], outlineTransparency: ["polygon"], outlineWidth: ["polygon"], rotation: ["text"],
+const STYLE_KINDS = { shape: ["point"], areaShape: ["polygon"], arrow: ["polyline"], pattern: ["polyline", "polygon"], fill: ["polygon"], fillColor: ["polygon"], outlineTransparency: ["polygon"], outlineWidth: ["polygon"], rotation: F.pointRotation ? ["text", "point"] : ["text"],
   font: ["text"], bold: ["text"], italic: ["text"], haloColor: ["text"], haloSize: ["text"] };
 // Change symbol: each category is one of the sketch styles; its list (names, titles, small pictures) is fetched when first chosen.
 const symbolLists = new Map(), symbolTitles = new Map();
@@ -501,13 +514,13 @@ export function setSelection(graphics) {
  */
 export function selectForEdit(g) { setSelection(g ? [g] : []); }
 // Colour, size and rotation change every selected sketch, or (with none selected) what the tools draw next.
-function restyleSelection(key, value) {
+function restyleSelection(key, value, pendingKey = key) {
   if (selectedGraphics.length) {
     for (const g of selectedGraphics) { if (STYLE_KINDS[key] && !STYLE_KINDS[key].includes(kindOf(g))) continue; g.attributes[key === "areaShape" ? "shape" : key] = value; applyStyle(g); }
     markDirty();
   }
   // the choice is also what the tools draw with next (as in Map Viewer, where a style carries on to the next sketch)
-  pendingStyle[key] = value; syncSketchSymbols();
+  pendingStyle[pendingKey] = value; syncSketchSymbols();
 }
 PALETTE_HEX.forEach((hex, i) => {
   const b = document.createElement("button");
@@ -548,7 +561,11 @@ $("fImageFile").addEventListener("change", () => {
 });
 $("imgRemove").addEventListener("click", () => { if (!selectedFeature) return; selectedFeature.attributes.imageUrl = ""; setImagePreview(""); markDirty(); });
 $("fSize").addEventListener("input", () => { const v = parseInt($("fSize").value, 10); $("sizeVal").textContent = v; restyleSelection("size", v); });
-$("fRot").addEventListener("input", () => { const v = parseInt($("fRot").value, 10); $("rotVal").textContent = v + "°"; restyleSelection("rotation", v); });
+$("fRot").addEventListener("input", () => {
+  const v = parseInt($("fRot").value, 10); $("rotVal").textContent = v + "°"; $("fRot").setAttribute("aria-valuetext", v + "°");
+  if (sketchContext() === "point") { restyleSelection("rotation", v, "pointRotation"); return; }
+  restyleSelection("rotation", v);
+});
 // Areas: fill and outline colours (the palette, a colour of your own, or none), transparencies and width, each a slider with its number box
 function pressSwatch(hostId, value) { [...$(hostId).querySelectorAll("button")].forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.color === value))); }
 function setPair(id, v) { $(id).value = v; $(id + "N").value = v; }
@@ -659,7 +676,15 @@ export function sketchToolsOn(on) {
   if (on) { placeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }
   // the panel follows the tool chosen on the toolbar
   clearInterval(toolWatch); toolWatch = 0;
-  if (on) toolWatch = setInterval(() => { const t = sketch.activeTool || null; if (t !== toolSeen) { toolSeen = t; populateSketchPanel(); } }, 250);
+  if (on) toolWatch = setInterval(() => {
+    const t = sketch.activeTool || null;
+    if (t === toolSeen) return;
+    toolSeen = t;
+    // A drawing tool picked ends the edit of what was selected (the SDK ends it too), so the panel's colour, size and
+    // rotation are for the next sketch. A vector point symbol doesn't say when its edit ends (see arcgisCreate), so
+    // without this its selection stayed, and those controls went on changing it (5.0.0-beta.74).
+    if (TOOL_KIND[t] && selectedGraphics.length) setSelection([]); else populateSketchPanel();
+  }, 250);
   if (!on) endSketchOps();
   $("sketchBar").hidden = !on;
   sketchReady.then(() => { sketch.updateOnGraphicClickDisabled = $("sketchBar").hidden; });
@@ -674,7 +699,7 @@ sketch.addEventListener("arcgisCreate", (e) => {
   const typed = isText && graphic.symbol && graphic.symbol.text;
   graphic.attributes = { uid: newUid(), kind: isText ? "text" : (graphic.geometry && graphic.geometry.type) || "point",
     title: isText ? (typed && typed !== "hello world" ? typed : S.textDefault) : "", description: "", imageUrl: "",
-    color: pendingStyle.color, size: isText ? Math.max(14, pendingStyle.size) : pendingStyle.size, rotation: isText ? pendingStyle.rotation : 0,
+    color: pendingStyle.color, size: isText ? Math.max(14, pendingStyle.size) : pendingStyle.size, rotation: isText ? pendingStyle.rotation : graphic.geometry && graphic.geometry.type === "point" ? pointTurn() : 0,
     shape: isText ? "" : graphic.geometry && graphic.geometry.type === "polygon" ? pendingStyle.areaShape : graphic.geometry && graphic.geometry.type === "point" ? pendingStyle.shape : "",
     pattern: pendingStyle.pattern, arrow: pendingStyle.arrow, fill: pendingStyle.fill, fillColor: pendingStyle.fillColor, outlineTransparency: pendingStyle.outlineTransparency, outlineWidth: pendingStyle.outlineWidth,
     font: pendingStyle.font, bold: pendingStyle.bold, italic: pendingStyle.italic, haloColor: pendingStyle.haloColor, haloSize: pendingStyle.haloSize };
