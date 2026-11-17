@@ -1,19 +1,22 @@
 // ============================================================ ArcGIS Online: sign in, save, update
-import "./print.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.72";
-import { state, late } from "./state.js?v=5.0.0-beta.72";
-import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.72";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.72";
-import { activeMap } from "./views.js?v=5.0.0-beta.72";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.72";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.72";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.72";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.72";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.72";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.72";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.72";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.72";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.72";
+// Signing in to ArcGIS Online (the map being worked on is kept across the sign-in page and put back), the signed-in
+// student's menu, and saving the map as a web map item: Save overwrites the student's own item, Save as makes a new
+// one, with a picture of the map as its thumbnail. Also the tips on the sign-in tiles and each tool's tooltip.
+import "./print.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.73";
+import { state, late } from "./state.js?v=5.0.0-beta.73";
+import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.73";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.73";
+import { activeMap } from "./views.js?v=5.0.0-beta.73";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.73";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.73";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.73";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.73";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.73";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.73";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.73";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.73";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -61,6 +64,10 @@ function renderUser() {
   renderAgol();
   applySaveMode();
 }
+/**
+ * Shows the Sign in tile or the signed-in details in the Open panel's ArcGIS Online tab, as the student is signed in or
+ * not.
+ */
 export function renderAgol() {
   const on = !!state.portalUser;
   $("signInTile").hidden = on || F.signIn === false; $("agolSignedIn").hidden = !on;
@@ -138,7 +145,7 @@ for (const id of Object.keys(TILE_TIPS)) {
   tile.addEventListener("blur", () => hideTileTip(true));
   tile.addEventListener("click", () => hideTileTip(true));
 }
-// What each tool does, in its tooltip (lab: features.toolTips; 1.0 the toolbar, 1.1 every tool of the app's own). The tip
+// What each tool does, in its tooltip (features.toolTips, on by default; 1.0 the toolbar, 1.1 every tool of the app's own). The tip
 // shows when the pointer rests on a tool for about a second, or when the tool is reached by keyboard: a quick click
 // never sees it. The Tips switch beside the version button turns them off (and back on), remembered in this browser.
 // Off, a tool's tooltip is its name, as before. A tool is marked with data-tip-key, the name of its tip in the wording:
@@ -191,6 +198,10 @@ window.addEventListener("scroll", () => hideTileTip(true), true);
 applySaveMode();   // which Save tiles are offered, and their tips (5.0.0-beta.43: at start-up too, not only after signing in or out)
 
 $("signInGo").addEventListener("click", doSignIn);
+/**
+ * Closes the signed-in user's menu in the header.
+ * @param {boolean} focusBtn true puts the keyboard's focus back on the user button
+ */
 export function closeUserMenu(focusBtn) { $("userMenu").hidden = true; $("userBtn").setAttribute("aria-expanded", "false"); if (focusBtn) $("userBtn").focus(); }
 $("userBtn").addEventListener("click", () => {
   const open = $("userMenu").hidden;
@@ -230,6 +241,12 @@ function patchOpJson(op, l) {
   }
   return filterJson(out, l);
 }
+/**
+ * A layer added from the collection as an operational layer of the saved web map (its own JSON, with its visibility,
+ * opacity, labels and filter as they are now).
+ * @param {Layer} l
+ * @returns {object|null} null when the layer can't be written
+ */
 export function layerToJson(l) {
   const visibility = l.visible !== false, opacity = typeof l.opacity === "number" ? l.opacity : 1;
   if (l.__opJson) return { ...patchOpJson(l.__opJson, l), id: l.id, title: l.title || l.__opJson.title };
@@ -246,6 +263,11 @@ export function layerToJson(l) {
   else if (l.url) out.url = l.url;
   return out.url || out.styleUrl || out.templateUrl || out.itemId ? filterJson(out, l) : null;
 }
+/**
+ * The map's basemap as the saved web map's baseMap.
+ * @param {boolean} toFile true for a file: a private map's own basemap is left out, so the file uses the default one
+ * @returns {Promise<object|null>}
+ */
 export async function currentBaseMapJson(toFile) {
   const b = activeMap().basemap;
   const id = b && b.portalItem && b.portalItem.id;
@@ -256,7 +278,11 @@ export async function currentBaseMapJson(toFile) {
   try { const d = await restGet(`/sharing/rest/content/items/${cfg.defaultBasemap}/data`); if (d && d.baseMap) return d.baseMap; } catch (e) { /* offline */ }
   return null;   // the file still opens: the app's default basemap is used
 }
-// The opened map's own layers as they are now, in map order; layers removed in Map layers are left out.
+/**
+ * The opened map's own layers as they are now, in map order; layers removed in Map layers are left out.
+ * @param {boolean} toFile true for a file: a private map's layers are left out (and counted in state.privateLeftOut)
+ * @returns {object[]} operational layers
+ */
 export function sourceLayersJson(toFile) {
   if (!state.currentSource || !state.currentSource.data) return [];
   const ops = (state.currentSource.data.operationalLayers || []).filter((op) => !isOwnLayerJson(op));
@@ -317,8 +343,12 @@ async function saveToArcGIS(update) {
     const s = document.createElement("span"); s.textContent = t("arcgisFailed", { msg: e.message || e.name || "" }); agolStatus(s);
   }
 }
-// Signed in: Save overwrites the map's own ArcGIS Online item (a map with none yet, or one that isn't the user's, asks for a name like Save as).
-// Save as always opens the dialog and makes a new item.
+/**
+ * Signed in: Save overwrites the map's own ArcGIS Online item (a map with none yet, or one that isn't the user's, asks
+ * for a name like Save as).
+ * Save as always opens the dialog and makes a new item.
+ * @param {boolean} asNew true for Save as
+ */
 export function saveToAgol(asNew) {
   if (!asNew && state.currentAgolItem && state.currentAgolItem.owner === state.portalUser.username) { saveToArcGIS(true); return; }
   $("agolTitle").value = currentTitle(); $("agolSummary").value = ""; openModal("agolModal", $("agolTitle"));

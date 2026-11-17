@@ -2,22 +2,23 @@
 // Drawing uses the SDK's Sketch component: the same toolbar Map Viewer uses (select, point, line with straight,
 // freehand and curved segments, area, rectangle, circle, text, undo/redo, duplicate, delete, snapping). It shows on
 // the map while the Sketch panel is open. The panel keeps what the SDK has no component for: each sketch's pop-up
-// (title, description, picture), colour and size, and rotation for text.
-import "./popups.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.72";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.72";
+// (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text. Also the
+// sketch layers: the first always exists, and a student can make more (features.sketchLayers).
+import "./popups.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.73";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.73";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.72";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.72";
-import { toast } from "./ui.js?v=5.0.0-beta.72";
-import { sketchUnits } from "./legend-basemaps-measure.js?v=5.0.0-beta.72";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.72";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.72";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.72";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.73";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.73";
+import { toast } from "./ui.js?v=5.0.0-beta.73";
+import { sketchUnits } from "./measure.js?v=5.0.0-beta.73";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.73";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.73";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.73";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
@@ -108,6 +109,12 @@ function loadVector(shape) {
     .catch((e) => { vectorLoading.delete(p.key); throw e; }));
   return vectorLoading.get(p.key);
 }
+/**
+ * The picture symbol (CIM) for a point or styled fill, coloured and sized as the style says; null until that picture
+ * has been loaded (loadVector).
+ * @param {object} o a sketch style: { shape, color, size }
+ * @returns {CIMSymbol|null}
+ */
 export function vectorSymbol(o) {
   const p = parseShape(o.shape), base = p ? vectorCache.get(p.key) : null;
   if (!base) return null;
@@ -174,8 +181,11 @@ function popupContent(event) {
   return wrap;
 }
 const popupTemplate = () => ({ title: "{title}", content: popupContent });
-// The line tools can draw true curves (arcs and Bezier curves). The 3D view can't draw those, and other apps may not
-// read them, so a finished curve becomes a line through many close points (within 2° of the curve).
+/**
+ * The line tools can draw true curves (arcs and Bezier curves). The 3D view can't draw those, and other apps may not
+ * read them, so a finished curve becomes a line through many close points (within 2° of the curve).
+ * @param {Graphic} g a finished sketch; changed in place
+ */
 export function straighten(g) {
   if (!g || !g.geometry || !/^(polyline|polygon)$/.test(g.geometry.type)) return;
   const j = g.geometry.toJSON();
@@ -183,6 +193,11 @@ export function straighten(g) {
   if (!densifyOperator) { need("curves").then(() => straighten(g)).catch(() => {}); return; }   // (loaded when Sketch opens; this is for a curve finished before it arrived)
   try { g.geometry = densifyOperator.execute(g.geometry, 0, { maxAngleInDegrees: 2 }); } catch (e) { console.warn("Couldn't straighten a curve", e); }
 }
+/**
+ * Puts a saved sketch back on its sketch layer, styled from its attributes.
+ * @param {object} gj the sketch as saved: { geometry, attributes }, geometry as ArcGIS JSON
+ * @returns {Graphic}
+ */
 export function addSketchGraphic(gj) {
   const g = Graphic.fromJSON({ geometry: gj.geometry, attributes: gj.attributes });
   g.attributes = { ...gj.attributes };
@@ -192,12 +207,15 @@ export function addSketchGraphic(gj) {
   return g;
 }
 // Duplicate (and undo of a delete) bring graphics back with their attributes: give a copy its own id.
-// More than one sketch layer (lab: features.sketchLayers). Off, the app has its one sketch layer, as before; a saved
+// More than one sketch layer (features.sketchLayers, on by default). Off, the app has its one sketch layer, as before; a saved
 // map that holds several still opens with them all.
 export const SKETCH_LAYERS_ON = F.sketchLayers === true;
 export const SKETCH_LAYERS_VERSION = "1.0";
 const NEW_SKETCH_LAYER = "__new";
-// "Drawing on" in the Sketch panel: shown when the feature is on, or when the map already has more than one sketch layer.
+/**
+ * "Drawing on" in the Sketch panel: shown when the feature is on, or when the map already has more than one sketch
+ * layer.
+ */
 export function syncSketchLayerPicker() {
   const row = $("skLayerRow"), sel = $("skLayerPick");
   if (!row || !sel) return;
@@ -207,6 +225,11 @@ export function syncSketchLayerPicker() {
   if (SKETCH_LAYERS_ON) { const o = document.createElement("option"); o.value = NEW_SKETCH_LAYER; o.textContent = S.newSketchLayerMore; sel.appendChild(o); }
   sel.value = state.activeSketch.id;
 }
+/**
+ * Makes a new sketch layer from the Sketch panel and starts drawing on it.
+ * @param {string} name its name; the next "Sketch layer N" when empty
+ * @returns {GraphicsLayer}
+ */
 export function createSketchLayer(name) {
   const l = newSketchLayer(name);
   setActiveSketch(l); markDirty();
@@ -244,7 +267,12 @@ function watchSketchLayer(layer) {
 }
 watchSketchLayer(graphicsLayer);
 function newSketchKey() { let k; do { k = "L" + Math.random().toString(36).slice(2, 8).padEnd(6, "0"); } while (sketchLayerByKey(k)); return k; }
-/** A further sketch layer, on top of the map. */
+/**
+ * A further sketch layer, on top of the map.
+ * @param {string} title its name; the next "Sketch layer N" when empty
+ * @param {string} key its saved key, when it comes from a saved map; a new key when missing or already used
+ * @returns {GraphicsLayer}
+ */
 export function newSketchLayer(title, key) {
   key = isSketchKey(key) && !sketchLayerByKey(key) ? key : newSketchKey();
   const l = new GraphicsLayer({ id: SKETCH_LAYER_PREFIX + key, title: String(title || "").trim().slice(0, 200) || nextSketchLayerName(), elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
@@ -252,16 +280,27 @@ export function newSketchLayer(title, key) {
   activeMap().add(l); updatePinned();
   return l;
 }
+/**
+ * The first "Sketch layer N" (in the app's language) that no sketch layer has yet.
+ * @returns {string}
+ */
 export function nextSketchLayerName() {
   const names = new Set(sketchLayers.map((l) => l.title));
   for (let n = sketchLayers.length + 1; ; n++) { const name = t("sketchLayerN", { n }); if (!names.has(name)) return name; }
 }
-/** The layer the Sketch tools draw on, and whose sketches a click selects. */
+/**
+ * The layer the Sketch tools draw on, and whose sketches a click selects.
+ * @param {GraphicsLayer} l a sketch layer; anything else means the first one
+ */
 export function setActiveSketch(l) {
   if (!isSketch(l)) l = graphicsLayer;
   if (l !== state.activeSketch) { endSketchOps(); setSelection([]); state.activeSketch = l; sketchReady.then(() => { sketch.layer = state.activeSketch; }); }
   syncSketchLayerPicker();
 }
+/**
+ * Takes a sketch layer (not the first) off every map, drawing on the first one if it was being drawn on.
+ * @param {GraphicsLayer} l
+ */
 export function removeSketchLayer(l) {
   if (l === graphicsLayer || !isSketch(l)) return;
   if (state.activeSketch === l) setActiveSketch(graphicsLayer);
@@ -270,8 +309,10 @@ export function removeSketchLayer(l) {
   removeFromMaps(l); updatePinned();
   syncSketchLayerPicker(); sketchReady.then(syncSnapSources);
 }
-// The sketch layers at the very top of the map, bottom first. A layer added later goes under them (keepSketchOnTop);
-// a sketch layer that has been moved below another layer is not among them and stays where it was put.
+/**
+ * The sketch layers at the very top of the map, bottom first. A layer added later goes under them (keepSketchOnTop);
+ * a sketch layer that has been moved below another layer is not among them and stays where it was put.
+ */
 export function updatePinned() {
   const arr = activeMap().layers.toArray(); state.pinnedSketch = [];
   for (let i = arr.length - 1; i >= 0 && (isSketch(arr[i]) || arr[i] === previewLayer); i--) if (isSketch(arr[i])) state.pinnedSketch.unshift(arr[i]);
@@ -445,11 +486,19 @@ async function ensureSymbolSet() {
   $("symbolStatus").textContent = q ? t("symbolsFound", { n: grid.children.length }) : "";
   pressOne("symbolGrid", "shape", currentShape());
 }
+/**
+ * Selects these sketches for editing (only ones on sketch layers are kept) and shows their style in the Sketch panel.
+ * @param {Graphic[]} graphics none clears the selection
+ */
 export function setSelection(graphics) {
   selectedGraphics = (graphics || []).filter((g) => g && isSketch(g.layer));
   selectedFeature = selectedGraphics.length === 1 ? selectedGraphics[0] : null;
   populateSketchPanel();
 }
+/**
+ * Selects one sketch for editing, or none.
+ * @param {Graphic|null} g
+ */
 export function selectForEdit(g) { setSelection(g ? [g] : []); }
 // Colour, size and rotation change every selected sketch, or (with none selected) what the tools draw next.
 function restyleSelection(key, value) {
@@ -581,6 +630,9 @@ pair("fOutlineW", "outlineWidth");
 }
 
 const sketchBusy = () => sketch.state === "active";
+/**
+ * Stops whatever the Sketch tools are doing: a shape being drawn is dropped, a change being made is finished.
+ */
 export function endSketchOps() {
   if (!sketchBusy()) return;
   try { if (sketch.createGraphic) sketch.cancel(); else sketch.complete(); } catch (e) { /* idle */ }
@@ -598,6 +650,11 @@ function syncSnapSources() {
   } catch (e) { console.warn("Snapping layers not set", e); }
 }
 let toolWatch = 0, toolSeen = null;
+/**
+ * Shows or hides the Sketch tools on the map, as the Sketch panel opens or closes; closing ends what they were doing
+ * and clears the selection.
+ * @param {boolean} on
+ */
 export function sketchToolsOn(on) {
   if (on) { placeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }
   // the panel follows the tool chosen on the toolbar

@@ -1,11 +1,17 @@
-// ============================================================ Pop-ups
-import "./ui.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.72";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.72";
-import { $, S } from "./config.js?v=5.0.0-beta.72";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.72";
+// ============================================================ Pop-ups and the map by keyboard
+// Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after. With the map focused,
+// Enter opens the pop-up of what is at the centre of the map, as a click there would, and a cross marks the centre
+// while the keyboard is in use (Keyboard on the map 1.1).
+import "./ui.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.73";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.73";
+import { $, S } from "./config.js?v=5.0.0-beta.73";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.73";
 
+/**
+ * Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after, in both views.
+ */
 export function updatePopupEnabled() {
   const on = !state.sketchPanelOpen && !state.measureActive && openPanelName !== "profile";
   for (const v of [mapView, state.sceneView]) {
@@ -20,6 +26,10 @@ export function updatePopupEnabled() {
 // Pop-ups needed a mouse. With the map focused, the arrow keys move it and + and - zoom (the SDK's own); now Enter opens
 // what is at the centre of the map, as a click there would. A cross marks the centre while the map has the keyboard's
 // focus, so it is plain which place Enter (and, in Elevation, Space) means.
+/**
+ * Shows or hides the cross at the centre of the map, which marks what Enter will open.
+ * @param {boolean} on
+ */
 export function showCentre(on) { const m = $("centreMark"); if (m) m.hidden = !on; }
 // The map's own surface is inside the map component (its shadow tree), where this page's styles do not reach: the ring
 // and the cross are drawn over the map by the page, when the surface has the focus and the keyboard was the last thing used.

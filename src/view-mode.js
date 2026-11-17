@@ -1,23 +1,28 @@
 // ============================================================ 2D / 3D
-import "./legend-basemaps-measure.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.72";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.72";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.72";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.72";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.72";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.72";
-import { legend, coordWidget, gallery, syncGallerySelection, renderGallery, stopMeasuring, PROF_KEYS, profActive, profShow, ensureProfile,
-  syncDraftButtons } from "./legend-basemaps-measure.js?v=5.0.0-beta.72";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.72";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.72";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.72";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.72";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.72";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.72";
+// Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation
+// profile's line go across (Measure stops), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its
+// quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which
+// views a map allows, and paired 2D and 3D maps (features.pairs).
+import "./profile.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.73";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.73";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.73";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.73";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.73";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.73";
+import { legend, gallery, syncGallerySelection, renderGallery } from "./legend-basemaps.js?v=5.0.0-beta.73";
+import { coordWidget, stopMeasuring } from "./measure.js?v=5.0.0-beta.73";
+import { PROF_KEYS, profActive, profShow, ensureProfile, syncDraftButtons } from "./profile.js?v=5.0.0-beta.73";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.73";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.73";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.73";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.73";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.73";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.73";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -80,7 +85,7 @@ function syncNotes3d() {
 // ---- Sketched areas with a styled fill (hatch, land use, pencil), in 3D (5.0.0-beta.63; 2D to 3D 1.2). The 3D view
 // draws such a fill as a thin outline only, which is easy to miss. So in 3D each one gets a helper drawing that is the
 // view's own (nothing is added to the sketch, the layer list or a saved file): a thicker outline and a light tint.
-// Lab (features.drapeFills): the fill itself is also drawn into a picture, cut to the shape and laid on the ground (a
+// features.drapeFills (on by default): the fill itself is also drawn into a picture, cut to the shape and laid on the ground (a
 // MediaLayer the list doesn't show); where that works the tint is left off. The pattern in the picture is fixed to the
 // ground, where 2D keeps it the same size on screen.
 const DRAPE = !!F.drapeFills, FILL3D_ID = "__fills3d", DRAPE_TRIM = 0.04;
@@ -162,7 +167,7 @@ function tellDiffers3d(map) {
 //  - a web scene is 3D only (sceneOnly): it can hold layers and a camera that have no 2D form
 //  - a web map tagged "atlas-2d-only" on its ArcGIS Online item is 2D only (twoDOnly): its author switched 3D off
 const TAG_2D_ONLY = "atlas-2d-only";
-// Paired 2D and 3D maps (lab, features.pairs; lib/pairs.js): a web map and a web scene their author tagged as the 2D and
+// Paired 2D and 3D maps (features.pairs, on by default; lib/pairs.js): a web map and a web scene their author tagged as the 2D and
 // 3D versions of one map. The 3D button on the web map opens the scene, and the 2D button on the scene opens the web
 // map, in place of drawing the same map in the other view. Sketches, spreadsheet layers and added layers go across,
 // and the view stays on the same place; the author's layers, with their filters and what is switched on, are each
@@ -174,9 +179,18 @@ const pairSides = {};         // "2d" / "3d": { map, source, agol, bookmarks } o
 export const sourceBms = new WeakSet();   // bookmarks that came with a version (its author's), as opposed to ones made here
 let pairBusy = false, pairNoteShown = false;
 export const partnerFor = (m) => (pairOn && mapPair && !state.twoDOnly && (m === "3d" ? !state.sceneOnly : state.sceneOnly) ? (m === "3d" ? mapPair.scene : mapPair.webmap) : null);
+/**
+ * Notes which web map and web scene the map on screen pairs with, so 2D and 3D switch between them; none when pairs are
+ * off.
+ * @param {object|null} p { webmap, scene } item IDs
+ */
 export function usePair(p) { mapPair = pairOn && p ? p : null; for (const k of Object.keys(pairSides)) delete pairSides[k]; syncViewLocks(); }
 export const isScene = (m) => !!m && m.declaredClass === "esri.WebScene";
 export const has2dOnlyTag = (item) => !!item && Array.isArray(item.tags) && item.tags.some((tg) => String(tg).trim().toLowerCase() === TAG_2D_ONLY);
+/**
+ * Marks the 2D or 3D button as unavailable (with the reason as its title) when the map on screen can only be shown in
+ * the other view.
+ */
 export function syncViewLocks() {
   const lock = (id, on, why) => { const b = $(id); if (on) { b.setAttribute("aria-disabled", "true"); b.title = why; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); } };
   lock("tg2d", state.sceneOnly && !partnerFor("2d"), S.only3d); lock("tg3d", state.twoDOnly, S.only2d);
@@ -218,6 +232,15 @@ function shownAgain() {
   const frame = () => new Promise((r) => { const t = setTimeout(r, 100); requestAnimationFrame(() => { clearTimeout(t); r(); }); });
   return frame().then(frame);
 }
+/**
+ * Switches between the 2D and 3D views: where the map is looking, the open pop-up (docked or not) and the Elevation
+ * profile's line go across, the Sketch tools move to the view switched to, and Measure stops. The 3D camera tilts when
+ * it arrives close in (lib/threed.js).
+ * @param {string} m "2d" or "3d"
+ * @param {object} opts { force: switch even if already there, map: show this map in the view switched to (a pair's
+ *   partner), keepCamera: no tilt }
+ * @returns {Promise<void>}
+ */
 export async function setMode(m, opts) {
   opts = opts || {};
   if ((m === state.mode && !opts.force) || switching) return;

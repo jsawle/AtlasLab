@@ -1,9 +1,13 @@
 // ============================================================ Map, views and widgets
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.72";
-import { state, late } from "./state.js?v=5.0.0-beta.72";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.72";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.72";
+// Makes the 2D view from the SDK's map component (the 3D view is made by view-mode.js when first needed), the starting
+// map and the first sketch layer, and puts the app's controls on each view: search, home, zoom, the compass rose, the
+// scale bar. Starts downloading the map named in the link early. Holds what the rest of the app uses to work with
+// whichever view is on screen: activeMap, onViews, goToSafe, frameTarget.
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.73";
+import { state, late } from "./state.js?v=5.0.0-beta.73";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.73";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.73";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -29,10 +33,23 @@ if (linkedScene || linkedMap) {
   const m = linkedScene ? new WebScene({ portalItem: { id: linkedScene } }) : new WebMap({ portalItem: { id: linkedMap } });
   preloaded = { id: linkedScene || linkedMap, map: m }; m.load().catch(() => {});
 }
+/**
+ * The web map or scene fetched early for the map in the link, if it is the one asked for and loaded; otherwise a new
+ * one for that item.
+ * @param {string} itemId
+ * @param {function} Type WebMap or WebScene
+ * @returns {WebMap|WebScene}
+ */
 export function takePreloaded(itemId, Type) { const p = preloaded; preloaded = null; return p && p.id === itemId && p.map instanceof Type && p.map.loadStatus !== "failed" ? p.map : new Type({ portalItem: { id: itemId } }); }
 export const startCenter = Array.isArray(cfg.startView.center) ? cfg.startView.center : [0, 20];
-// The views are made by the SDK's map and scene components (arcgis-map, arcgis-scene), the supported way from SDK 5 on;
-// the rest of the app works with the MapView / SceneView each one holds (5.0.0-beta.9).
+/**
+ * The views are made by the SDK's map and scene components (arcgis-map, arcgis-scene), the supported way from SDK 5 on;
+ * the rest of the app works with the MapView / SceneView each one holds (5.0.0-beta.9).
+ * @param {string} tag "arcgis-map" or "arcgis-scene"
+ * @param {string} hostId the id of the element it goes in
+ * @param {object} props the component's settings
+ * @returns {Promise<MapView|SceneView>} the view the component holds, once ready
+ */
 export async function componentView(tag, hostId, props) {
   const el = document.createElement(tag); el.className = "view-el";
   Object.assign(el, props);
@@ -73,10 +90,21 @@ function roundMeasurements(el) {
 }
 // A view's map is set on its component, which owns the view: set on the view alone, the component can put its own back.
 export const viewEls = new Map();
+/**
+ * Shows a map in a view (through its component), and sets that map's portal to the app's units, so the SDK's tools
+ * measure in them.
+ * @param {MapView|SceneView} v
+ * @param {Map|WebMap|WebScene} m
+ */
 export function setViewMap(v, m) { const el = viewEls.get(v); if (el) el.map = m; if (v.map !== m) v.map = m; try { late.portalUnits(); } catch (e) { /* at start-up, before the units are worked out */ } }
-// The zoom the app opens at (5.0.0-beta.41): the config's, or closer when that would leave the world narrower than the map.
-// The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map had
-// white bands either side. A config's own closer zoom (example-es: 7) is kept.
+/**
+ * The zoom the app opens at (5.0.0-beta.41): the config's, or closer when that would leave the world narrower than the
+ * map.
+ * The map library does not repeat the world sideways when zoomed out, so at zoom 2 (a world 1,024 px wide) a wider map
+ * had
+ * white bands either side. A config's own closer zoom (example-es: 7) is kept.
+ * @returns {number}
+ */
 export function startZoom() {
   const w = ($("viewDiv") && $("viewDiv").clientWidth) || window.innerWidth || 1024;
   const fill = Math.ceil(Math.log2(Math.max(256, w) / 256) - 1e-9);   // the world is 256 px wide at zoom 0, twice that at each zoom
@@ -85,10 +113,25 @@ export function startZoom() {
 export const mapView = await componentView("arcgis-map", "viewDiv", { map: localMap, center: startCenter, zoom: startZoom() });
 state.view = mapView;
 export const viewHandlers = [];
+/**
+ * Listens for a view event on the 2D view and on the 3D view, including a 3D view made later.
+ * @param {string} evt an SDK view event, e.g. "click"
+ * @param {function} fn the handler
+ */
 export function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt, fn); if (state.sceneView) state.sceneView.on(evt, fn); }
+/**
+ * The map shown in the view on screen.
+ * @returns {Map}
+ */
 export function activeMap() { return state.view.map; }
 export let startDone = null;
 const started = new Promise((res) => { startDone = res; });   // the app has started, and a map opened from a link is in
+/**
+ * Puts the app's controls on a view: search, home, zoom, the compass rose, scale bar and the corner buttons, as SDK
+ * components in the view's slots.
+ * @param {MapView|SceneView} v
+ * @param {boolean} is3d
+ */
 export function addViewUI(v, is3d) {
   // The controls on the view are SDK components placed in the map / scene component's slots (5.0.0-beta.2; they were
   // widgets added to view.ui, which SDK 6 removes). The 3D compass is left out: the rose replaces it.
@@ -111,7 +154,7 @@ export function addViewUI(v, is3d) {
   // While Elevation profile is docked under the map the toolbar is tucked away; this button brings it back.
   const tt = document.createElement("button"); tt.type = "button"; tt.className = "tools-toggle"; tt.setAttribute("aria-controls", "toolbar");
   tt.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>';
-  // Lab (features.hideToolbar, 5.0.0-beta.46): the button is always there, with the word "Tools", so the row of tools can be
+  // features.hideToolbar (5.0.0-beta.46; on by default): the button is always there, with the word "Tools", so the row of tools can be
   // hidden at any time to give the map the whole screen. Hidden, the toolbar stays hidden until the button is used again.
   // 5.0.0-beta.49 (Hide the toolbar 1.1): one button for both views, at the bottom right beside the version, and its words say
   // what pressing it will do: "Hide tools" or "Show tools".
@@ -124,6 +167,9 @@ export function addViewUI(v, is3d) {
   reactiveUtils.watch(() => v.stationary, (st) => { if (st && v === state.view && !$("layersPanel").hidden) late.updateScaleStates(); });
   syncToolsToggles();
 }
+/**
+ * Makes the Hide tools / Show tools buttons say and show what the toolbar is doing now.
+ */
 export function syncToolsToggles() {
   const app = $("app"), shown = app.classList.contains("docked") || !app.classList.contains("tools-always") ? app.classList.contains("tools-shown") : !app.classList.contains("tools-off");
   document.querySelectorAll(".tools-toggle").forEach((b) => {
@@ -167,10 +213,23 @@ upgradeIcons();
 // Where to look to see new data. In 2D, its extent. In 3D a view from straight above hides height (columns, terrain),
 // so a view that isn't tilted yet is tilted to 55°; a tilt the user has already set is kept.
 const FRAME_TILT = 55;
+/**
+ * What to go to so an extent fills the view: in 3D, looking at it from a tilt when the camera is nearly flat; otherwise
+ * the extent as it is.
+ * @param {Extent} extent
+ * @returns {Extent|object} a goTo target
+ */
 export function frameTarget(extent) {
   if (state.mode !== "3d" || !state.view.camera) return extent;
   return state.view.camera.tilt < 20 ? { target: extent, tilt: FRAME_TILT, heading: state.view.camera.heading } : extent;
 }
+/**
+ * Moves the view on screen to a target, after any 3D tilt in progress has ended and the view is ready. Retries up to
+ * three times if the view is between maps; a move cut short by another move is not an error.
+ * @param {object} target anything view.goTo takes
+ * @param {object} opts goTo options; animation is off for people who ask for less motion
+ * @returns {Promise<void>}
+ */
 export function goToSafe(target, opts) {
   const o = { animate: !reduceMotion, ...(opts || {}) };
   let tries = 0;

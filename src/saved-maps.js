@@ -2,13 +2,13 @@
 // Every save adds the map to a list kept in this browser (lib/recent.js), newest first. In Chrome and Edge the list keeps
 // a handle to the file, so Open reads the file itself and Save goes on writing to it; browsers that can only download
 // (Safari, Firefox) keep a copy of the saved map instead, as they can't open a file again by themselves.
-import "./local-files.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { makeEntry, openRecentStore } from "../lib/recent.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { APP_VERSION, $, cfgName, cfg, S, t } from "./config.js?v=5.0.0-beta.72";
-import { bindOpened, confirmDiscard, currentTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.72";
-import { toast } from "./ui.js?v=5.0.0-beta.72";
-import { openDocText } from "./local-files.js?v=5.0.0-beta.72";
+import "./local-files.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { makeEntry, openRecentStore } from "../lib/recent.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { APP_VERSION, $, cfgName, cfg, S, t } from "./config.js?v=5.0.0-beta.73";
+import { bindOpened, confirmDiscard, currentTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.73";
+import { toast } from "./ui.js?v=5.0.0-beta.73";
+import { openDocText } from "./local-files.js?v=5.0.0-beta.73";
 
 let recentStore = null, recentFailed = false, savedSeq = 0;
 async function recentDb() {
@@ -20,6 +20,13 @@ async function recentDb() {
 async function mapPicture() {
   try { return (await state.view.takeScreenshot({ width: 300, height: 200, format: "jpg", quality: 72 })).dataUrl; } catch (e) { return null; }
 }
+/**
+ * Adds a map just saved to the Saved maps list on this device (or brings its entry up to date), with a picture of the
+ * map.
+ * @param {object} o { fileName, handle: the file, where the browser gives one, json: the map, where there is no file to
+ *   open again }
+ * @returns {Promise<void>}
+ */
 export async function recordSave(o) {
   try {
     const db = await recentDb();
@@ -62,6 +69,11 @@ function savedCard(r) {
   li.appendChild(top);
   return li;
 }
+/**
+ * Draws the Saved maps list in the Open dialog from the list kept in the browser.
+ * @param {number} focusAfter the card to put the focus on afterwards (its place in the list), if any
+ * @returns {Promise<void>}
+ */
 export async function renderSavedMaps(focusAfter) {
   const seq = ++savedSeq, list = $("savedList"), status = $("savedStatus"), note = $("savedNote");
   const db = await recentDb();

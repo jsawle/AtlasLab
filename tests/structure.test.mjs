@@ -3,9 +3,13 @@
 //  1. one version on every address, so a new release never runs beside a cached older file;
 //  2. the start-up files (loaded one at a time by app.js) never import a file that loads after them;
 //  3. the other files run in one fixed order: each one's first import is the file before it.
+// And a fourth (5.0.0-beta.73): the code is described (tools/modules.mjs):
+//  4. every file in src/ and lib/ says what it does at the top, every exported function has a description with its
+//     parameters, and the module index in DEVELOPING.md is the one the code makes now.
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import { srcFiles } from "./app-source.mjs";
+import { buildIndex, withIndex } from "../tools/modules.mjs";
 const root = new URL("../", import.meta.url), read = (p) => fs.readFileSync(new URL(p, root), "utf8");
 let passed = 0; const ok = (c, m) => { assert.ok(c, m); passed++; console.log("  ok   " + m); };
 const app = read("app.js"), html = read("index.html"), files = srcFiles(), libs = fs.readdirSync(new URL("lib/", root)).filter((f) => f.endsWith(".js")).sort();
@@ -39,4 +43,9 @@ for (;;) { const first = (read("src/" + chain[0]).match(/^import "\.\/([^"?]+)\?
 ok(chain.length === rest.length && rest.every((f) => chain.includes(f)), "following each file's first import from " + entry + " reaches every other file once: " + chain.map((f) => f.replace(".js", "")).join(" > "));
 const notFirst = chain.slice(1).filter((f) => { const t = read("src/" + f), m = t.match(/^import [^\n]*$/m); return !m || !/^import "\.\//.test(m[0]); });
 ok(notFirst.length === 0, "and that import is the first in its file" + (notFirst.length ? ": " + notFirst.join(", ") : ""));
+// 4. described
+const { markdown, problems } = buildIndex(), described = problems.filter((p) => !p.startsWith("DEVELOPING.md"));
+ok(described.length === 0, "every file says what it does, and every exported function is described with its parameters" + (described.length ? ":\n    " + described.join("\n    ") : ""));
+const devDoc = read("DEVELOPING.md");
+ok(withIndex(devDoc, markdown) === devDoc, "the module index in DEVELOPING.md is up to date (if not: node tools/modules.mjs)");
 console.log(passed + " checks passed");

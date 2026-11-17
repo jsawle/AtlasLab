@@ -1,10 +1,20 @@
-// ============================================================ Topics (the content group's categories; shared by Open map and Add layer)
-import "./bookmarks.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.72";
-import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.72";
-import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.72";
+// ============================================================ Topics and card pictures
+// The content group's categories as a tree of topics (fetched once), shared by Open map and Add layer; and the pictures
+// on the cards.
+// A card's picture (5.0.0-beta.41). A public item's is loaded by its address. An item only the signed-in person can see
+// needs their token: it used to go on the end of the address as a query parameter, written into the page as the card's
+// background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
+// in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.
+import "./bookmarks.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.73";
+import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.73";
+import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.73";
 
 let topicTreePromise = null;
+/**
+ * The collection's topics, from the content group's category schema, fetched once; none if the group has no categories.
+ * @returns {Promise<object[]>}
+ */
 export function getTopicTree() {
   if (!topicTreePromise) topicTreePromise = restGet(`/sharing/rest/community/groups/${cfg.contentGroup}/categorySchema`)
     .then(buildTopicTree).catch((e) => { console.warn("No category schema", e); return []; });
@@ -16,6 +26,12 @@ export const cleanQuery = (s) => String(s || "").replace(/["':()\\[\]{}^~*?]/g, 
 // background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
 // in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.
 const thumbBlobs = new Map();   // item id and thumbnail name -> a promise of the blob address (or null)
+/**
+ * Shows an item's thumbnail as the background of an element; a private item's thumbnail is fetched with the student's
+ * token.
+ * @param {HTMLElement} el
+ * @param {object} item the item: { id, thumbnail, access }
+ */
 export function setThumb(el, item) {
   if (!el || !item || !item.thumbnail) return;
   const u = `${PORTAL}/sharing/rest/content/items/${item.id}/info/${item.thumbnail}`;
@@ -29,5 +45,8 @@ export function setThumb(el, item) {
   const pr = thumbBlobs.get(key);
   pr.then((url) => { if (url && thumbBlobs.get(key) === pr) show(url); });
 }
+/**
+ * Lets go of the private thumbnails fetched for this sign-in (on signing out).
+ */
 export function forgetThumbs() { for (const pr of thumbBlobs.values()) pr.then((url) => { if (url) URL.revokeObjectURL(url); }); thumbBlobs.clear(); }
 

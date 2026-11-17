@@ -1,21 +1,24 @@
-// ============================================================ CSV import (configure panel with live preview)
-import "./item-info.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
+// ============================================================ Add data and Change style
+// Add data: a spreadsheet saved as CSV is read (lib/csv.js), placed by its coordinates or by the countries it names
+// (features.countryData; lib/countries.js), shown on the map as a preview while it is styled, and added. Change style
+// opens the same panel for a spreadsheet layer already on the map. Leaving with data not yet added asks first.
+import "./item-info.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
 import { PALETTE_HEX, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable, pickAutoStyle, pickAutoFields, aliasOf,
-  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX, isAreas } from "../lib/csv.js?v=5.0.0-beta.72";
-import { countryIndex, detectCountryColumn, matchRows, normCountry, simplifyRings, insidePoint } from "../lib/countries.js?v=5.0.0-beta.72";
-import { COUNTRIES } from "../lib/countries-data.js?v=5.0.0-beta.72";
-import { FeatureLayer } from "./sdk.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.72";
-import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.72";
-import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.72";
-import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.72";
-import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.72";
-import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.72";
-import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.72";
-import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.72";
+  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX, isAreas } from "../lib/csv.js?v=5.0.0-beta.73";
+import { countryIndex, detectCountryColumn, matchRows, normCountry, simplifyRings, insidePoint } from "../lib/countries.js?v=5.0.0-beta.73";
+import { COUNTRIES } from "../lib/countries-data.js?v=5.0.0-beta.73";
+import { FeatureLayer } from "./sdk.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.73";
+import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.73";
+import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
+import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.73";
+import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.73";
+import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.73";
+import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.73";
+import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.73";
 
 export let previewLayer = null, previewTimer = 0, prePreviewCam = null, dataLayerSeq = 0;
 const STYLE_TEXT_AREAS = { simple: ["styleAreaSimple", "styleAreaSimpleHint"], categorical: ["styleAreaType", "styleAreaTypeHint"], area_color: ["styleAreaColor", "styleAreaColorHint"] };
@@ -49,17 +52,25 @@ async function loadHemisphereLetters() {
   }
   return hemisphereLetters;
 }
+/**
+ * Reads a spreadsheet's text and goes on to the next step of Add data: style it when it has latitude and longitude,
+ * place it by country when it has a column of countries (features.countryData), or ask which columns hold the
+ * coordinates.
+ * @param {string} name the file's name
+ * @param {string} text the file's text
+ * @returns {Promise<void>}
+ */
 export async function handleCsvText(name, text) {
   const parsed = readCsv(text, Number(cfg.csvMaxRows) || 1000, await loadHemisphereLetters());
   if (!parsed.ok) { showDataError(t(parsed.code, parsed.params)); return; }
   if (parsed.latIdx < 0 || parsed.lonIdx < 0) {
-    // no coordinates: are the rows countries? (lab)
+    // no coordinates: are the rows countries? (features.countryData)
     if (F.countryData) { const d = detectCountryColumn(parsed.header, parsed.rows, cIndex()); if (d.idx >= 0) { await continueCountry(name, parsed, d.idx, "point"); return; } }
     showLatLonPicker(name, parsed); return;
   }
   continueCsv(name, parsed, parsed.latIdx, parsed.lonIdx);
 }
-// ---- Rows placed by country (lab, features.countryData; Countries 1.0). A file with no coordinates but a column of
+// ---- Rows placed by country (features.countryData, on by default; Countries 1.0). A file with no coordinates but a column of
 // countries: each row is put at its country, as a point inside it or as its outline. The names are matched by
 // lib/countries.js ("DRC", "D.R.C.", "Congo, Dem. Rep." are one country); the outlines come, when a file needs them, from
 // Esri's World Countries (Generalized) layer, are thinned (lib/countries.js) and are kept for the rest of the visit.
@@ -160,8 +171,12 @@ function continueCsv(name, parsed, latIdx, lonIdx) {
   renderDataPanel();
   updatePreview(true);
 }
-// Change the style of a spreadsheet layer already on the map: the same panel, filled in from the layer's definition.
-// The layer is hidden while the preview shows; Cancel puts it back, Apply replaces it in the same place with the same id.
+/**
+ * Change the style of a spreadsheet layer already on the map: the same panel, filled in from the layer's definition.
+ * The layer is hidden while the preview shows; Cancel puts it back, Apply replaces it in the same place with the same
+ * id.
+ * @param {FeatureLayer} layer a spreadsheet layer (one with _srcDef)
+ */
 export function editDataLayer(layer) {
   if (openPanelName === "data") closePanels(false);
   const st = stateFromLayerDef(layer._srcDef);
@@ -175,6 +190,10 @@ export function editDataLayer(layer) {
   styleAtStart = styleDef();   // so leaving without changing anything doesn't ask
 }
 function restoreEditedLayer() { if (state.addState && state.addState.editing) state.addState.editing.layer.visible = state.addState.editing.wasVisible; }
+/**
+ * Opens Map layers again after Change style, with the focus back on that layer's style button.
+ * @param {string} layerId
+ */
 export function backToLayers(layerId) {
   openPanel("layers", { focus: false });
   const b = [...$("layersList").querySelectorAll("[data-style-for]")].find((x) => x.dataset.styleFor === layerId);
@@ -197,6 +216,9 @@ function renderDataPanel() {
   $("dataSize").value = state.addState.symbolChoices.size; $("dataSizeVal").textContent = state.addState.symbolChoices.size + " px";
   renderStyleList(); renderFieldRows(); renderSymbolBlocks();
 }
+/**
+ * Draws the list of styles in Add data: the area styles for countries placed as outlines, the point styles otherwise.
+ */
 export function renderStyleList() {
   const wrap = $("styleList"); wrap.innerHTML = "";
   for (const style of DATA_STYLES) {
@@ -219,6 +241,9 @@ function fieldOptions(key) {
   if (key === "color") return state.addState.style.id === "numeric_color_size" || state.addState.style.id === "area_color" ? state.addState.numeric : state.addState.categorical;
   return state.addState.fields.filter((f) => f.type !== "esriFieldTypeOID" && !state.addState.coordNames.includes(f.name)).map((f) => f.name);
 }
+/**
+ * Draws the rows of the columns chosen for the style (one per column, with its own controls).
+ */
 export function renderFieldRows() {
   const wrap = $("fieldRows"); wrap.innerHTML = "";
   state.addState.style.fields.forEach((key, i) => {
@@ -334,6 +359,10 @@ function updateConfigSummary() {
   if (c.label) s += t("sumLabels", { label: A(c.label) });
   $("cfgSummary").textContent = s;
 }
+/**
+ * Takes the preview of the data off the map.
+ * @param {boolean} restoreCam true goes back to where the map was looking before the preview
+ */
 export function removePreview(restoreCam) {
   clearTimeout(previewTimer); previewTimer = 0;
   if (previewLayer) { removeFromMaps(previewLayer); previewLayer = null; }
@@ -396,6 +425,10 @@ function styleDef() {
   try { const ed = state.addState.editing, src = ed.layer._srcDef; return JSON.stringify(buildLayerDef(state.addState, src.id, src.title || ed.layer.title)); }
   catch (e) { return null; }
 }
+/**
+ * What would be lost by leaving Add data now: data not yet on the map, or a style changed but not applied.
+ * @returns {{style: boolean, title: string}|null} null when nothing would be lost
+ */
 export function unfinishedData() {
   if (openPanelName !== "data") return null;
   if (state.addState && state.addState.editing) return styleDef() === styleAtStart ? null : { style: true, title: state.addState.editing.layer.title || "" };
@@ -403,6 +436,11 @@ export function unfinishedData() {
   if (state.pendingParse && !$("llPicker").hidden) return { style: false, title: state.pendingParse.name || "" };
   return null;
 }
+/**
+ * Runs next straight away when nothing in Add data would be lost; otherwise asks first, and runs it only if the student
+ * agrees to lose it.
+ * @param {function} next
+ */
 export function leaveData(next) {
   const u = unfinishedData();
   if (!u) { next(); return; }

@@ -1,29 +1,32 @@
-// ============================================================ Local save and open (.amap; older .mmap files open too)
+// ============================================================ Save and open on this device (.amap; older .mmap files open too)
+// Saves the map as a file: a web map (or, for a web scene, a web scene) with the app's own document inside it
+// (lib/doc.js), written back to the same file where the browser allows it and downloaded where it doesn't. Opens such a
+// file again, or any web map or web scene JSON, from the file picker or from a drop.
 // A sketch drawn in 3D carries a height of 0 on every point (the sketch layer lies on the ground). Saved sketches are
 // flat shapes, as the ones drawn in 2D are: x and y only (Sketch 3D 1.0).
-import "./drag-drop.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
+import "./drag-drop.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
 import { DOC_TYPE, DOC_VERSION, sanitizeDoc, docToWebMap, looksLikeWebMap, LOCK_PROP, isLockedText, TWO_D_ONLY_PROP, VIEW_3D_PROP, looksLikeWebScene,
-  docToWebScene } from "../lib/doc.js?v=5.0.0-beta.72";
-import { PAIR_PROP } from "../lib/pairs.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { APP_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { Extent } from "./sdk.js?v=5.0.0-beta.72";
-import { graphicsLayer, defaultBasemap, sketchLayers, sketchKeyOfLayer, sketchCount, localMap, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.72";
+  docToWebScene } from "../lib/doc.js?v=5.0.0-beta.73";
+import { PAIR_PROP } from "../lib/pairs.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { APP_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { Extent } from "./sdk.js?v=5.0.0-beta.73";
+import { graphicsLayer, defaultBasemap, sketchLayers, sketchKeyOfLayer, sketchCount, localMap, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.73";
 import { dataLayers, portalLayers, bindOpened, lockedBase, copyBase, openedEntry, restoreOpened, markClean, confirmDiscard, currentTitle, setTitle,
-  FILE_EXT, OPEN_EXTS, titleFromFileName, titleSlug } from "./session.js?v=5.0.0-beta.72";
-import { toast, saveNotes, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.72";
-import { vectorSymbol, styleOf, straighten, addSketchGraphic } from "./sketch.js?v=5.0.0-beta.72";
-import { mapPair, setMode } from "./view-mode.js?v=5.0.0-beta.72";
+  FILE_EXT, OPEN_EXTS, titleFromFileName, titleSlug } from "./session.js?v=5.0.0-beta.73";
+import { toast, saveNotes, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
+import { vectorSymbol, styleOf, straighten, addSketchGraphic } from "./sketch.js?v=5.0.0-beta.73";
+import { mapPair, setMode } from "./view-mode.js?v=5.0.0-beta.73";
 import { setActiveMap, timeWidgetsJson, updateToolBadges, keepSketchOnTop, applyLayerOrder, resetWorkspace, sourceLayers, basemapFrom, basemapRef,
-  restoreSketchLayers, openWebMapItem, openWebSceneFile, openWebMapFile, addPortalLayer } from "./maps.js?v=5.0.0-beta.72";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.72";
-import { sketchLayersMeta, layerOrderIds } from "./layers-panel.js?v=5.0.0-beta.72";
-import { filterText, hasFilter } from "./filter-panel.js?v=5.0.0-beta.72";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.72";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.72";
-import { readText } from "./drag-drop.js?v=5.0.0-beta.72";
-import { recordSave } from "./saved-maps.js?v=5.0.0-beta.72";
-import { layerToJson, currentBaseMapJson, sourceLayersJson, saveToAgol } from "./arcgis-online.js?v=5.0.0-beta.72";
+  restoreSketchLayers, openWebMapItem, openWebSceneFile, openWebMapFile, addPortalLayer } from "./maps.js?v=5.0.0-beta.73";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.73";
+import { sketchLayersMeta, layerOrderIds } from "./layers-panel.js?v=5.0.0-beta.73";
+import { filterText, hasFilter } from "./filter-panel.js?v=5.0.0-beta.73";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.73";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.73";
+import { readText } from "./drag-drop.js?v=5.0.0-beta.73";
+import { recordSave } from "./saved-maps.js?v=5.0.0-beta.73";
+import { layerToJson, currentBaseMapJson, sourceLayersJson, saveToAgol } from "./arcgis-online.js?v=5.0.0-beta.73";
 
 function flatGeometryJson(geom) {
   const j = geom.toJSON(), xy = (c) => [c[0], c[1]];
@@ -34,6 +37,11 @@ function flatGeometryJson(geom) {
   return j;
 }
 function currentViewpoint() { return { center: [state.view.center.longitude, state.view.center.latitude], zoom: state.view.zoom }; }
+/**
+ * The map as the app's own saved file (.amap): title, basemap, view, layers, sketches, spreadsheets, bookmarks and
+ * settings.
+ * @returns {object}
+ */
 export function buildDocument() {
   const doc = {
     type: DOC_TYPE, version: DOC_VERSION, app: cfg.appName, appVersion: APP_VERSION, title: currentTitle(), savedAt: new Date().toISOString(),
@@ -50,6 +58,13 @@ export function buildDocument() {
   if (state.bookmarks.length) doc.bookmarks = state.bookmarks.map((b) => ({ title: b.title, viewpoint: b.viewpoint, layers: b.layers || [], thumb: b.thumb || null, camera: b.camera ? b.camera.toJSON() : null }));
   return doc;
 }
+/**
+ * Opens a saved .amap or .mmap document in place of the map on screen: the map it was made from, then its layers,
+ * sketches, spreadsheets, bookmarks and view.
+ * When the map it was made from can't be opened, the rest goes on the app's plain map and the student is told.
+ * @param {object} doc the parsed file, checked by sanitizeDoc
+ * @returns {Promise<void>}
+ */
 export async function loadDocument(doc) {
   closePanels(false);
   resetWorkspace();
@@ -83,6 +98,12 @@ export async function loadDocument(doc) {
   const n = sketchCount() + (doc.layers || []).reduce((a, l) => a + l.features.length, 0);
   toast(t("openedFile", { title: currentTitle(), n }));
 }
+/**
+ * Opens a saved file's text, whichever kind it is: a web scene, a web map or the app's own document.
+ * @param {string} text
+ * @param {string} fileName
+ * @returns {Promise<boolean>} whether it opened
+ */
 export async function openDocText(text, fileName) {
   let raw;
   try { raw = JSON.parse(text); } catch (e) { toast(S.cantRead); return false; }
@@ -95,6 +116,10 @@ export async function openDocText(text, fileName) {
   if (res.skipped) setTimeout(() => toast(t("skippedOnOpen", { n: res.skipped }), 5000), 3500);
   return true;
 }
+/**
+ * Asks the student for a saved map on their device and opens it (after asking about unsaved changes); uses the file
+ * picker that can save back where the browser has one.
+ */
 export function openFromDevice() {
   if (!confirmDiscard()) return;
   if (window.showOpenFilePicker) {
@@ -115,6 +140,12 @@ function pickViaInput() {
 function downloadBlob(blob, filename) { const u = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); }
 // The saved file is an ArcGIS web map (Web Map Specification): the same JSON that Save to ArcGIS Online stores.
 export let unsavedLayers = 0;
+/**
+ * The map as a web map (or, for a web scene, a web scene) to save to a file or to ArcGIS Online, with the app's own
+ * document inside it so the app can open everything again.
+ * @param {boolean} toFile true for a file: a private map's own layers and basemap are left out
+ * @returns {Promise<object>}
+ */
 export async function buildWebMapJson(toFile) {
   state.privateLeftOut = 0;
   const doc = buildDocument();

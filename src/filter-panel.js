@@ -1,21 +1,21 @@
-// ============================================================ Filter (lab)
+// ============================================================ Filter
 // A Filter panel for one layer, laid out like Map Viewer's: "Show features where", then conditions (field, condition,
 // value), a histogram with a slider for number fields, Add new, and Apply / Cancel. It is built from Esri's Calcite
 // components and the SDK's Histogram and Slider components; Map Viewer's filter panel itself isn't published as a component.
 // The filter is saved as the layer's definitionExpression (lib/filter.js), which is how Map Viewer saves one.
 // While the panel is open the map previews the conditions through the layer view (no data is fetched again as a
 // slider moves), and the layer itself shows everything, so the histogram, value lists and counts cover all the data.
-import "./layers-panel.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.72";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.72";
-import { isSketch } from "./views.js?v=5.0.0-beta.72";
-import { markDirty } from "./session.js?v=5.0.0-beta.72";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.72";
-import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.72";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.72";
+import "./layers-panel.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.73";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.73";
+import { isSketch } from "./views.js?v=5.0.0-beta.73";
+import { markDirty } from "./session.js?v=5.0.0-beta.73";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.73";
+import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.73";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.73";
 
 const FILTER_ON = F.filter !== false;
 let filterState = null;
@@ -35,6 +35,12 @@ function newCondition() {
   const f = filterState.fields[0], kind = fieldKind(f);
   return { field: f.name, op: DEFAULT_OPERATOR[kind], value: "", value2: "", values: [] };
 }
+/**
+ * Opens the Filter panel for a layer, once the layer has loaded its fields; a layer with nothing to filter by gets a
+ * message instead.
+ * @param {FeatureLayer} l
+ * @returns {Promise<void>}
+ */
 export async function openFilter(l) {
   if (openPanelName === "filter") closePanels(false);
   try { await l.load(); } catch (e) { console.error(e); toast(S.filterCantOpen); return; }
@@ -91,7 +97,7 @@ async function updateFilterCount() {
     else $("filterCount").textContent = filtered ? t("filterCount", { n: fmtNum(n), total: fmtNum(st.total) }) : PLAIN ? t("filterSaidAll", { total: fmtNum(st.total) }) : t("filterCountAll", { total: fmtNum(st.total) });
   } catch (e) { if (filterState === st) $("filterCount").textContent = ""; }
 }
-// ---- The plain panel (lab, features.plainFilter; Filter 1.3). Written for students: the layer is named ("Show Earthquakes
+// ---- The plain panel (features.plainFilter, on by default; Filter 1.3). Written for students: the layer is named ("Show Earthquakes
 // where"), each box has a label that can be seen, the conditions offered first are the few most used (More shows the
 // rest), the chart says what its bars are, and the filter is said back as a sentence with its count.
 const PLAIN = !!F.plainFilter;
@@ -285,7 +291,9 @@ function renderFilter(opts) {
   $("filterAdd").disabled = st.conditions.length >= MAX_CONDITIONS;
   if (opts && opts.focus != null) { const card = $("filterConds").children[opts.focus], el = card && card.querySelector('[data-part="field"]'); if (el && el.setFocus) setTimeout(() => el.setFocus(), 0); }
 }
-// Leaving the panel without Apply puts the layer back as it was.
+/**
+ * Leaving the panel without Apply puts the layer back as it was.
+ */
 export function endFilter() {
   const st = filterState; if (!st) return;
   clearTimeout(st.previewTimer);
@@ -317,8 +325,13 @@ $("filterApply").addEventListener("click", applyFilter);
 $("filterCancel").addEventListener("click", () => { const l = filterState && filterState.layer; closePanels(false); if (l) backToLayerTool(l, "filter"); });
 $("filterAdd").addEventListener("click", () => { const st = filterState; if (!st || st.conditions.length >= MAX_CONDITIONS) return; st.conditions.push(newCondition()); renderFilter({ focus: st.conditions.length - 1 }); applyFilterPreview(); });
 $("filterClear").addEventListener("click", () => { const st = filterState; if (!st) return; st.conditions = [newCondition()]; st.match = "all"; renderFilter({ focus: 0 }); applyFilterPreview(); $("layersLive").textContent = S.filterClearedSr; });
-// The layer's filter as the web map stores it: layerDefinition.definitionExpression (Web Map Specification).
-// A layer that came with a filter and has had it cleared is written "1=1", so the filter in its item doesn't come back.
+/**
+ * The layer's filter as the web map stores it: layerDefinition.definitionExpression (Web Map Specification).
+ * A layer that came with a filter and has had it cleared is written "1=1", so the filter in its item doesn't come back.
+ * @param {object} out the layer's operational-layer JSON
+ * @param {Layer} l
+ * @returns {object} the JSON with its filter, a new object
+ */
 export function filterJson(out, l) {
   if (isGroup(l) || !("definitionExpression" in l)) return out;
   const ld = { ...(out.layerDefinition || {}) };
