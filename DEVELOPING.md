@@ -154,7 +154,7 @@ Loads the ArcGIS Maps SDK for JavaScript and hands its modules to the rest of th
 
 Makes the 2D view from the SDK's map component (the 3D view is made by view-mode.js when first needed), the starting map and the first sketch layer, and puts the app's controls on each view: search, home, zoom, the compass rose, the scale bar. Starts downloading the map named in the link early. Holds what the rest of the app uses to work with whichever view is on screen: activeMap, onViews, goToSafe, frameTarget.
 
-- **Exports:** `takePreloaded()`, `componentView()`, `setViewMap()`, `startZoom()`, `onViews()`, `activeMap()`, `addViewUI()`, `syncToolsToggles()`, `frameTarget()`, `goToSafe()`, `graphicsLayer`, `defaultBasemap`, `linkedScene`, `linkedMap`, `sketchLayers`, `isSketch`, `sketchKeyOfLayer`, `sketchLayerByKey`, `sketchCount`, `sketchListed`, `localMap`, `startCenter`, `viewEls`, `mapView`, `viewHandlers`, `startDone`
+- **Exports:** `takePreloaded()`, `componentView()`, `setViewMap()`, `startZoom()`, `onViews()`, `activeMap()`, `scaleControls()`, `growControls()`, `addViewUI()`, `syncToolsToggles()`, `frameTarget()`, `goToSafe()`, `graphicsLayer`, `defaultBasemap`, `linkedScene`, `linkedMap`, `sketchLayers`, `isSketch`, `sketchKeyOfLayer`, `sketchLayerByKey`, `sketchCount`, `sketchListed`, `localMap`, `startCenter`, `viewEls`, `mapView`, `viewHandlers`, `startDone`, `bigTargets`
 - **Uses:** `lib/doc.js`, `state.js`, `config.js`, `branding.js`, `sdk.js`
 - **Used by:** `arcgis-online.js`, `bookmarks.js`, `csv-import.js`, `data-layers.js`, `filter-panel.js`, `layers-panel.js`, `legend-basemaps.js`, `local-files.js`, `maps.js`, `measure.js`, `popups.js`, `print.js`, `profile.js`, `sketch.js`, `startup.js`, `ui.js`, `view-mode.js`
 - **Shared state:** sets `activeSketch`, `pinnedSketch`, `view`, `viewSettled`; reads `mode`, `sceneView`
@@ -181,9 +181,9 @@ How every tool talks to the student and opens its controls: short messages at th
 
 Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after. With the map focused, Enter opens the pop-up of what is at the centre of the map, as a click there would, and a cross marks the centre while the keyboard is in use (Keyboard on the map 1.1).
 
-- **Exports:** `updatePopupEnabled()`, `showCentre()`
+- **Exports:** `updatePopupEnabled()`, `showCentre()`, `handWords()`, `onHandChange()`, `usesTouch`
 - **Uses:** `state.js`, `views.js`, `ui.js`, `config.js`, `sdk.js`
-- **Used by:** `measure.js`, `profile.js`, `startup.js`, `ui.js`, `view-mode.js`
+- **Used by:** `arcgis-online.js`, `measure.js`, `profile.js`, `sketch.js`, `startup.js`, `ui.js`, `view-mode.js`
 - **Shared state:** reads `drapedPopup`, `measureActive`, `sceneView`, `sketchPanelOpen`, `view`
 
 ### `src/sketch.js`: Sketch
@@ -191,7 +191,7 @@ Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and 
 Drawing uses the SDK's Sketch component: the same toolbar Map Viewer uses (select, point, line with straight, freehand and curved segments, area, rectangle, circle, text, undo/redo, duplicate, delete, snapping). It shows on the map while the Sketch panel is open. The panel keeps what the SDK has no component for: each sketch's pop-up (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text (and, in the lab, for a point's symbol: features.pointRotation). Also the sketch layers: the first always exists, and a student can make more (features.sketchLayers).
 
 - **Exports:** `vectorSymbol()`, `straighten()`, `addSketchGraphic()`, `syncSketchLayerPicker()`, `createSketchLayer()`, `newSketchLayer()`, `nextSketchLayerName()`, `setActiveSketch()`, `removeSketchLayer()`, `updatePinned()`, `setSelection()`, `selectForEdit()`, `endSketchOps()`, `sketchToolsOn()`, `COLOUR_NAMES`, `sketch`, `sketchReady`, `styleOf`, `SKETCH_LAYERS_ON`, `SKETCH_LAYERS_VERSION`
-- **Uses:** `lib/csv.js`, `lib/doc.js`, `state.js`, `config.js`, `branding.js`, `sdk.js`, `views.js`, `session.js`, `ui.js`, `measure.js`, `maps.js`, `layers-panel.js`, `csv-import.js`
+- **Uses:** `lib/csv.js`, `lib/doc.js`, `state.js`, `config.js`, `branding.js`, `sdk.js`, `views.js`, `session.js`, `ui.js`, `popups.js`, `measure.js`, `maps.js`, `layers-panel.js`, `csv-import.js`
 - **Used by:** `collection.js`, `csv-import.js`, `layers-panel.js`, `local-files.js`, `maps.js`, `measure.js`, `ui.js`, `versions.js`, `view-mode.js`
 - **Shared state:** sets `activeSketch`, `pinnedSketch`; reads `view`
 
@@ -351,7 +351,7 @@ Printing happens in the browser; nothing is sent to a print service. Print map l
 Signing in to ArcGIS Online (the map being worked on is kept across the sign-in page and put back), the signed-in student's menu, and saving the map as a web map item: Save overwrites the student's own item, Save as makes a new one, with a picture of the map as its thumbnail. Also the tips on the sign-in tiles and each tool's tooltip.
 
 - **Exports:** `renderAgol()`, `closeUserMenu()`, `layerToJson()`, `currentBaseMapJson()`, `sourceLayersJson()`, `saveToAgol()`
-- **Uses:** `lib/doc.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `session.js`, `ui.js`, `maps.js`, `layers-panel.js`, `filter-panel.js`, `topics.js`, `collection.js`, `item-info.js`, `local-files.js`
+- **Uses:** `lib/doc.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `popups.js`, `session.js`, `ui.js`, `maps.js`, `layers-panel.js`, `filter-panel.js`, `topics.js`, `collection.js`, `item-info.js`, `local-files.js`
 - **Used by:** `local-files.js`, `ui.js`
 - **Shared state:** sets `currentAgolItem`, `dirty`, `portalUser`, `privateLeftOut`; reads `currentSource`, `sceneOnly`, `view`
 

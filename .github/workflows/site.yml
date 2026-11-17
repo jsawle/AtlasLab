@@ -107,6 +107,7 @@ jobs:
           - live-sketch-text.py
           - live-sketch3d.py
           - live-point-rotate.py
+          - live-tablet.py
           - live-slides.py
           - live-filter.py
           - live-filter-plain.py

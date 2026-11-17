@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.74**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.75**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -8,13 +8,36 @@
 | `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
 | `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
 | `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile, and a Rotation slider for a point's symbol |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile, a Rotation slider for a point's symbol, and the tablet layout (tool names, bigger buttons for fingers, press and hold) |
 | `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 | `…/AtlasLab/?appid=<item ID>` | A partner's version, its config kept in an ArcGIS Online item of the education team's (5.0.0-beta.58) |
 
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## Tablets: tool names, bigger buttons for fingers, press and hold (5.0.0-beta.75)
+
+The first part of the plan for smaller screens, done for tablets first because more students use iPads than phones. A review at nine screen sizes (iPad mini to iPad Pro, upright and on their side, three phones and a Chromebook) found these on iPads.
+
+**In the lab** (`?config=lab`, `features.tabletLayout`):
+
+- **Tool names on an upright iPad.** Between 641 and 1024 pixels wide the toolbar showed icons only, and the tips that name a tool need a mouse resting on it, so on an iPad there was no way to find out what a tool was called. Each name now shows under its icon at 12px, on one or two lines; the toolbar still fits on an iPad mini (744 wide). An iPad on its side already showed the names.
+- **Bigger buttons for fingers.** On a touch screen the app's own small buttons are 44 pixels, from 32: a layer's tools in Map layers, Close, the ⓘ button, Measure's buttons and units, Filter's buttons and fields, Show tools. So are the map's own buttons (Search, Home, Zoom, the 3D navigation toggle) and the Sketch tools, as far as their column fits above the toolbar (44 on an upright iPad, 32 on its side, where they were 24). 44 pixels is Apple's size for a touch target and WCAG's enhanced target size (2.5.5, AAA). With a mouse nothing changes size.
+- **Press and hold a tool** to see its name and what it does. The tool is not used when the finger lifts; a quick tap uses it, as before; moving the finger, as when scrolling, lets it go. This works for every tool that has a tip, including a layer's icons in Map layers.
+
+**In every config:**
+
+- **Tap, not click.** After a finger or a pen, Measure, the Sketch panel and the tool tips say "tap" and "double-tap"; after a mouse, "click", as before. (The Elevation profile already did this.)
+- **The compass and scale bar are lifted above the toolbar** where the toolbar runs into them. On an upright iPad the scale bar sat under the toolbar's left end, and on an iPad on its side beside it. The code meant to lift them looked for them inside the view, but since the views became the SDK's map and scene components (5.0.0-beta.2) they are in the component's slot, so it never found them. Phones are left as they are until their layout is reworked.
+- A tool losing the keyboard's focus no longer hides a tip shown for a different tool.
+
+**Not done yet, and why:**
+
+- The on-screen keyboard. On an iPad, Safari lays the keyboard over the page rather than making the page shorter, and the panels sit at the top of the screen, so the field being typed in is usually above it. This needs checking on a real iPad.
+- Phones, which are next: the plan's other items (a shorter header with the map's title, a toolbar with a More button, panels as sheets that leave the map visible, pop-ups clear of the toolbar and compass).
+
+Tablets 1.0 in Versions. Tests: `python3 tests/live-tablet.py` (33 checks), in the CI matrix.
 
 ## Lab: turn a point's symbol, for arrows (5.0.0-beta.74)
 

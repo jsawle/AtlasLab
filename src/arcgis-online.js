@@ -2,21 +2,22 @@
 // Signing in to ArcGIS Online (the map being worked on is kept across the sign-in page and put back), the signed-in
 // student's menu, and saving the map as a web map item: Save overwrites the student's own item, Save as makes a new
 // one, with a picture of the map as its thumbnail. Also the tips on the sign-in tiles and each tool's tooltip.
-import "./print.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.74";
-import { state, late } from "./state.js?v=5.0.0-beta.74";
-import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.74";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.74";
-import { activeMap } from "./views.js?v=5.0.0-beta.74";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.74";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.74";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.74";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.74";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.74";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.74";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.74";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.74";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.74";
+import "./print.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.75";
+import { state, late } from "./state.js?v=5.0.0-beta.75";
+import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.75";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.75";
+import { activeMap } from "./views.js?v=5.0.0-beta.75";
+import { handWords, usesTouch } from "./popups.js?v=5.0.0-beta.75";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.75";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.75";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.75";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.75";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.75";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.75";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.75";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.75";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.75";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -125,10 +126,12 @@ function showTileTip(tile) {
   if (!f || tile.hidden) return;
   placeTip(tile, f());
 }
-function placeTip(tile, text) {
+function placeTip(tile, text, name) {   // name: shown first, in bold (a tool's name, for press and hold)
   clearTimeout(tipHide);
   const tip = $("tileTip");
-  tip.textContent = text; tip.hidden = false; tipFor = tile;
+  if (name) { const b = document.createElement("strong"); b.className = "tip-name"; b.textContent = name; tip.replaceChildren(b, document.createTextNode(" " + text)); }
+  else tip.textContent = text;
+  tip.hidden = false; tipFor = tile;
   const r = tile.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, gap = 8;
   const below = r.bottom + gap + h <= window.innerHeight - 4 || r.top - gap - h < 4;
   const left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2));
@@ -169,10 +172,41 @@ if (F.toolTips) {
   for (const [id, k] of Object.entries(TOOL_TIPS)) mark($(id), k);
   for (const [sel, k] of Object.entries(TOOL_TIP_CLASSES)) document.querySelectorAll(sel).forEach((el) => mark(el, k));
   const usable = (el) => tipsOn && el.getBoundingClientRect().width > 0 && el.getAttribute("aria-disabled") !== "true" && !!S[el.dataset.tipKey];      // a tool that is unavailable keeps its own tooltip, which says why
-  const show = (el) => { if (el.isConnected && usable(el)) placeTip(el, S[el.dataset.tipKey]); };
+  const show = (el) => { if (el.isConnected && usable(el)) placeTip(el, handWords(el.dataset.tipKey)); };   // "tap" for a finger or pen (5.0.0-beta.75)
   const stop = (now) => { clearTimeout(wait); if (tipFor && tipFor.dataset && tipFor.dataset.tipKey) hideTileTip(now); };
+  // Press and hold (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). A finger or a pen doesn't rest on a tool the
+  // way a mouse pointer does, so the tips never showed on an iPad, where most tools are icons. Holding a tool for half a
+  // second shows its name and its tip, and the tool is not used when the finger lifts; a quick tap uses it, as before.
+  // Moving the finger, as when scrolling the toolbar, lets it go. The tip stays four seconds, or until the next touch.
+  if (F.tabletLayout) {
+    let hold = 0, held = null, from = null, liftedAt = 0;
+    const nameOf = (el) => el.dataset.tipName || el.title || ((el.querySelector(".tl") || {}).textContent || "").trim() || (el.getAttribute("aria-label") || "").split(":")[0].trim();
+    const letGo = () => { clearTimeout(hold); hold = 0; from = null; };
+    document.addEventListener("pointerdown", (e) => {
+      letGo();
+      if (held) { hideTileTip(true); held = null; }
+      if (e.pointerType !== "touch" && e.pointerType !== "pen") return;
+      const el = e.target.closest ? e.target.closest("[data-tip-key]") : null;
+      if (!el || !usable(el)) return;
+      from = [e.clientX, e.clientY];
+      hold = setTimeout(() => {
+        hold = 0; held = el;
+        if (el.title) { el.dataset.tipName = el.title; el.removeAttribute("title"); }
+        placeTip(el, handWords(el.dataset.tipKey), nameOf(el));
+      }, 500);
+    }, true);
+    document.addEventListener("pointermove", (e) => { if (from && Math.hypot(e.clientX - from[0], e.clientY - from[1]) > 10) letGo(); }, true);
+    document.addEventListener("pointercancel", letGo, true);
+    document.addEventListener("pointerup", () => { letGo(); if (held) { liftedAt = Date.now(); clearTimeout(tipHide); tipHide = setTimeout(() => { hideTileTip(true); held = null; }, 4000); } }, true);
+    // the click that follows the lift: the tool is not used (before the listener below, which would hide the tip)
+    document.addEventListener("click", (e) => {
+      if (held && Date.now() - liftedAt < 1000 && held.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); liftedAt = 0; }
+    }, true);
+    document.addEventListener("contextmenu", (e) => { if (hold || held) e.preventDefault(); }, true);   // Android's menu on a long press
+  }
   document.addEventListener("mouseover", (e) => {
     if (e.target.closest && e.target.closest("#tileTip")) return;
+    if (F.tabletLayout && usesTouch()) return;   // the mouse events a browser makes up after a tap: a finger doesn't rest on a tool
     const el = e.target.closest ? e.target.closest("[data-tip-key]") : null;
     if (el === over) return;
     stop(false); over = el;
@@ -182,7 +216,7 @@ if (F.toolTips) {
   });
   document.documentElement.addEventListener("mouseleave", () => { over = null; stop(false); });
   document.addEventListener("focusin", (e) => { const el = e.target.closest ? e.target.closest("[data-tip-key]") : null; if (el && el.matches(":focus-visible")) show(el); });
-  document.addEventListener("focusout", (e) => { if (e.target.closest && e.target.closest("[data-tip-key]")) stop(true); });
+  document.addEventListener("focusout", (e) => { const el = e.target.closest ? e.target.closest("[data-tip-key]") : null; if (el && (!tipFor || tipFor === el)) stop(true); });   // only its own tip (5.0.0-beta.75: a tool losing focus hid the tip a press and hold had just shown for another)
   document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("[data-tip-key]")) stop(true); }, true);
   const apply = () => {
     btn.hidden = !F.tipsSwitch; btn.textContent = tipsOn ? S.tipsOn : S.tipsOff; btn.setAttribute("aria-pressed", String(tipsOn)); btn.setAttribute("aria-label", S.tipsSwitch); btn.title = S.tipsSwitch;
