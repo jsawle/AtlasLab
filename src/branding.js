@@ -1,7 +1,15 @@
 // ============================================================ Branding and text
-import { late } from "./state.js?v=5.0.0-beta.72";
-import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
+// Dresses the page in the config's brand: its colours (with the text colour on each worked out so it stays readable),
+// the header's logo, name and links, and every piece of wording the page shows. Draws the toolbar's built-in outline
+// icons first, then swaps in Esri's Calcite icons once the SDK has loaded them.
+import { late } from "./state.js?v=5.0.0-beta.73";
+import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
 
+/**
+ * A colour written as #rgb or #rrggbb, as [red, green, blue] from 0 to 255.
+ * @param {string} hex
+ * @returns {number[]}
+ */
 export function hexToRgb(hex) {
   let h = String(hex || "").replace("#", "");
   if (h.length === 3) h = h.split("").map((c) => c + c).join("");
@@ -107,6 +115,11 @@ function paintIcons() {
     el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">' + (ICON_SVG[el.dataset.icon] || "") + "</svg>";
   });
 }
+/**
+ * Swaps the page's placeholder icons (spans with data-icon) for Calcite icons once Calcite has loaded; gives up after
+ * 15 seconds and leaves the placeholders.
+ * @returns {Promise<void>}
+ */
 export async function upgradeIcons() {
   if (!window.customElements) return;
   const ready = await Promise.race([customElements.whenDefined("calcite-icon").then(() => true), new Promise((r) => setTimeout(() => r(false), 15000))]);

@@ -1,12 +1,15 @@
-// ============================================================ Print (in the browser; nothing is sent to a print service)
-import "./saved-maps.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.72";
-import { isSketch } from "./views.js?v=5.0.0-beta.72";
-import { currentTitle } from "./session.js?v=5.0.0-beta.72";
-import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.72";
-import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.72";
+// ============================================================ Print
+// Printing happens in the browser; nothing is sent to a print service. Print map lays out the map as it is on screen,
+// with its title, the layers shown and the map's credits. Print an outline map draws a blank map for a class to label
+// and colour (features.outlinePrint; lib/outline.js).
+import "./saved-maps.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.73";
+import { isSketch } from "./views.js?v=5.0.0-beta.73";
+import { currentTitle } from "./session.js?v=5.0.0-beta.73";
+import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
+import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.73";
 
 $("printTile").addEventListener("click", async () => {
   try {
@@ -28,7 +31,7 @@ $("printTile").addEventListener("click", async () => {
 });
 
 
-// Print an outline map (lab: features.outlinePrint; lib/outline.js, Outline maps 1.0). A blank map for a class to label
+// Print an outline map (features.outlinePrint, on by default; lib/outline.js, Outline maps 1.0). A blank map for a class to label
 // and colour: the world with its continents, a continent with its countries, the United States with its states. It is
 // drawn here as SVG from Esri's public boundary layers, not from the map on screen, so it prints as clean black lines
 // on white at any size. Nothing is sent anywhere; the boundaries are fetched once for each map chosen.

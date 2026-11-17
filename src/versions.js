@@ -1,24 +1,26 @@
 // ============================================================ Versions
-import "./arcgis-online.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.72";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.72";
-import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.72";
-import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.72";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.72";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.72";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.72";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.72";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.72";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.72";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.72";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.72";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.72";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.72";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.72";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.72";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.72";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.72";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.72";
+// The Versions table in About: the app's version and the version of each part of it, with what changed, and where the
+// config came from (a file in config/, an ArcGIS Online item, or the manager app's preview).
+import "./arcgis-online.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.73";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.73";
+import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.73";
+import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.73";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.73";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.73";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.73";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.73";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.73";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.73";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.73";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.73";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.73";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.73";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.73";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.73";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.73";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.73";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.73";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -26,6 +28,9 @@ function configSource() {
   const first = cfgItem ? "ArcGIS Online item " + cfgItem.id : cfgChain[0] === "preview" ? "a preview from the manager app" : files.shift();
   return [first, ...files].join(", on ");
 }
+/**
+ * Fills the Versions table in About: the app's version and each part's.
+ */
 export function renderVersions() {
   const rows = [
     [cfg.appName + " (app)", APP_VERSION, "White-label build of the MapMaker app: every MapMaker tool, local save, CSV data, ArcGIS Online sign-in. Created by Jason Sawle."],
@@ -59,10 +64,10 @@ export function renderVersions() {
     ["Fish in the profile (lab)", FISH_VERSION, "Only where a config turns it on (features.profileFish). A few small fish wander at random in the upper water of an elevation profile that goes below sea level. For fun: they are not to scale and are not data. A Fish button turns them on and off; they start off where the device asks for less motion, and keep still while a place on the line is being read."],
     ["Outline maps", OUTLINE_VERSION, "In the main app since 5.0.0-beta.49. Print an outline map, in the Save panel, prints a blank map for a class to label and colour: the world with its continents, a continent with its countries, or the United States with its states, with or without names. Black lines on white, drawn from Esri's public boundary layers, not from the map on screen. Equal-area projections throughout."],
     ["Views", "2.0", "The 2D and 3D views are the SDK's map and scene components, with Search, Home, Zoom, the navigation toggle and the scale bar as components in their slots."],
-    ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place. 2.0: the code is 27 files, one for each part of the app, in place of one long file. 3.0: for publishing, those files are joined and shrunk into one by a build that runs the tests first; a failed test leaves the published app as it was. Nothing looks or works differently."],
+    ["Code structure", STATE_VERSION, "How the app's own code is arranged. 1.0: the values that more than one part of the app sets (the view in use, the open map, who is signed in) are kept in one shared place. 2.0: the code is 27 files, one for each part of the app, in place of one long file. 3.0: for publishing, those files are joined and shrunk into one by a build that runs the tests first; a failed test leaves the published app as it was. 3.1: every file says what it does and every function shared between files is described, with an index of the files made from the code (DEVELOPING.md). Nothing looks or works differently."],
     ["Time", "2.0", "The SDK's Time Bar on maps saved with time settings: play, step and a slider over the map's own span, steps and speed. 2.0: the slider has one handle, the date the map is showing, with everything up to that date on the map, whatever way the map's author saved; the date is written above the handle; the settings button is left out. A config can have the map's own way back (timeMode)."],
     ["Older .mmap files (open only)", String(DOC_VERSION), "MapMakerLocalDocument versions 2 to 4, from earlier versions of this app, the local-save concept and Map Studio. (.mmap files saved as web maps by versions 1.2 to 1.6 open like .amap files.)"],
-    ["CSV import", CSV_VERSION, "3.7: rows can be placed by country (lab); a layer of areas has its own styles (one colour, by type, shaded by a number). Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
+    ["CSV import", CSV_VERSION, "3.7: rows can be placed by country; a layer of areas has its own styles (one colour, by type, shaded by a number). Comma, semicolon or tab files, decimal commas, column choice; styles incl. pie charts (2D only); live preview. 3.5: in 3D and in 3D maps the features lie on the ground."],
     ["Filter", FILTER_VERSION, "1.5: the panel in plain words is now the main app's Filter panel. 1.4 (plain panel, lab): is greater than and is less than join the short list of number conditions; the numbers are on their own line at the right and say how many are shown and hidden. 1.3 (lab config only, features.plainFilter): the panel in plain words for students: the heading names the layer, a label above each box, a short list of conditions with More, the histogram called Chart of values with a caption and the average marked, and the filter said back as a sentence with its count. A layer's Filter panel, laid out like Map Viewer's: conditions on number and text fields (including 'is one of' a list), a histogram with a slider, a count of what's shown. A filter the map's author set, a list included, opens as ordinary conditions that can be changed. Built from Calcite components and the SDK's Histogram and Slider components; saved as the layer's definitionExpression."],
     ["Sketch", SKETCH_VERSION, "Points, lines, areas, circles and text, with pop-ups, images, colour, size and rotation; move, reshape and delete."],
     [S.configLabel, String(cfg.configVersion || 1), configSource() + " (schema " + CONFIG_SCHEMA + ")" + (localeFile ? "; language file locales/" + localeFile.name + ".json " + (localeFile.version || "1.0") : "")],

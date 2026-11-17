@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.62**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.73**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -8,7 +8,7 @@
 | `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
 | `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
 | `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: columns in 3D, paired 2D and 3D maps, more than one sketch layer |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile |
 | `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 | `…/AtlasLab/?appid=<item ID>` | A partner's version, its config kept in an ArcGIS Online item of the education team's (5.0.0-beta.58) |
 
@@ -16,9 +16,81 @@ Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, an
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
 
+## The code described: every file and function, and an index made from the code (5.0.0-beta.73)
+
+**No visible change.** For whoever works on the code next, inside Esri or outside it:
+
+- **Every file says what it does.** Each of the 45 files in `src/` and `lib/` starts with a title and a few sentences on what it is for; headers that had gone out of date were rewritten (`lib/csv.js` still said it made point layers only; `src/session.js` was titled "State").
+- **Every exported function is described:** what it does or gives back, and each parameter with its type (JSDoc `/** */`), 263 functions in all. Writing them turned up three descriptions that sat apart from their function, so editors did not show them; they are now directly above it.
+- **An index that can't go stale.** `tools/modules.mjs` writes a Modules section at the end of [DEVELOPING.md](DEVELOPING.md#modules): for each file, its description, what it exports, which files it uses and which use it, and which shared values (`state`) it sets and reads. The descriptions come from the files and the rest from the code, so the section is rebuilt, not edited. The table of files in the beta.40 notes below pointed at a file that no longer exists and is replaced by a link to it.
+- **Checked on every pull request.** The structure test fails when a file has no description, an exported function has none or leaves out a parameter, or the index is out of date.
+- **`legend-basemaps-measure.js` split in three:** `legend-basemaps.js` (Legend and Basemaps), `measure.js` (Measure, units, coordinates) and `profile.js` (the Elevation profile, which was half of the old file).
+- Comments that still called features "lab" after they moved to the main app (Filter, outline maps, countries, columns in 3D and others) now say they are on by default. Only the fish in the profile are lab-only.
+- The release notes are back in order, newest first (beta.63 to beta.72 had been put below beta.52), and the first paragraph gives the current version.
+
+## Link preview says Atlas (5.0.0-beta.72)
+
+The page description in `index.html`, which Teams, Slack and similar apps show when the link is pasted, said "version of the MapMaker classroom map app"; it now says "Atlas". Apps keep their own copy of a preview for a while, so the old text can show until theirs refreshes.
+
+## Pop-ups on fills laid on the ground in 3D; docked pop-ups stay docked (5.0.0-beta.71)
+
+Reported. A sketched area with a pencil (or hatch or land-use) fill, given a pop-up, opened nothing when clicked in 3D: the fill's picture is a layer of its own on top, and the 3D view's hit test finds only it there (tried: a near-invisible fill above it isn't found either). Inside such an area the click is now taken by the app: the pop-up opens on whatever else is at that spot (found with the picture left out) and the sketched areas, the one drawn last first. Enter at the centre of the map does the same. And a pop-up docked in one view came up floating in the other (each view has its own pop-up); docked or not now goes across, whether a pop-up is open or not. 2D to 3D 1.6. Tests: `tests/live-fills-3d.py`, `tests/live-3d-switch.py`.
+
+## Pop-ups follow into the other view; opening a map ends Add data (5.0.0-beta.70)
+
+From a review of workflows like the 3D bug above (13 tried in Chromium; the rest behaved). A pop-up open when 2D or 3D is chosen was left behind in the hidden view and came back on returning; now it is closed there and opened again in the view switched to, on the same feature, at the same place (2D to 3D 1.5). Not when a map's 2D and 3D versions are swapped (different layers), and not for a cluster's summary. And opening a map while Add data or Change style was open left the panel open with nothing behind it (a style button then gave a script error); it now closes, as Measure does. Test: `tests/live-3d-switch.py`.
+
+## Fixed: 3D too close after opening a map, and Measure left on (5.0.0-beta.69)
+
+Reported: use Measure in 2D and 3D, go back to 2D, open Real-Time Earthquakes; Measure was still on, and 3D came down at street level over Laos instead of showing the region. The Measure part had nothing to do with it: 3D, then 2D, then opening any map was enough. The 3D view made earlier is hidden while the 2D map is on screen; given the place to look at in the same moment it is shown again, the SDK worked out the camera as if the view were tiny (1:59,000 for a 1:70 million world map). Given the same place two frames later it is right, so it now waits two frames (2D to 3D 1.4). And opening a map now closes Measure, the Elevation profile and Filter, which work on the map that was on screen. Test: `tests/live-3d-switch.py`.
+
+## Rows placed by country in Add data (lab 5.0.0-beta.67, the main app since beta.68)
+
+`features.countryData`, on by default (Countries 1.0, CSV 3.7); `config/classic.json` turns it off. A CSV file with no latitude and longitude but a column of countries is placed by country.
+
+- **Which column:** one headed Country (or Nation, ISO, País…) with at least one country in it, otherwise the column where 70% or more of the cells are countries. If none is found, the column picker offers "Country column" as well as latitude and longitude. A file that has coordinates is placed by them, as before.
+- **Which country:** `lib/countries.js` compares names without case, accents, dots or "the" ("D.R.C." = "drc"), reads names written round a comma or with brackets ("Congo, Dem. Rep.", "Bolivia (Plurinational State of)"), and takes two- and three-letter codes. The list, `lib/countries-data.js`, is made by `tools/countries.mjs`: the countries, codes and names shown are those of Esri's World Countries (Generalized) layer; names in English, Spanish, French, German, Portuguese and Arabic come from the i18n-iso-countries package (MIT, ISO 3166-1); everyday and data-table spellings are added by hand in the tool. A name two countries share ("Korea", "Virgin Islands") is not matched. Plain "Congo" is the Republic of the Congo, its ISO name, and the panel says so. The layer has no outline for Taiwan, Hong Kong, Macao, Kosovo, Western Sahara or Åland, so those are not matched.
+- **What the student is told:** how many rows were placed, and the names that weren't.
+- **Point or outline:** "Show each country as: A point / Its outline". A point is inside the country's largest part. An outline makes a layer of areas, with its own styles: Areas (one colour), By type, and By number (shaded: a choropleth). Change style, the legend, the filter, saving and 3D work as for any spreadsheet layer.
+- **Outlines:** asked of the Esri layer when a file needs them (only the countries in the file), thinned in `simplifyRings` so they are small enough to keep in a map file (11 countries: about 50 KB; the whole world: about 700 KB), and kept for the rest of the visit.
+
+To remake the list: `npm install --no-save i18n-iso-countries && node tools/countries.mjs`. Tests: `tests/countries.test.mjs`, `tests/live-countries.py`.
+
+## Pens on an iPad (5.0.0-beta.66)
+
+Safari reports an Apple Pencil (and a Logitech Crayon, which uses the same technology) as a pen, and the SDK handles pens itself: a pen must move a few pixels before it drags, as a finger must, and its double taps use the mouse's limits. Tried with a simulated pen in Chromium: panning, tapping a feature for its pop-up, the toolbar, Sketch points, areas and freehand, and the Elevation profile all work as with a mouse. One change, Elevation profile 3.5: a pen is now told to tap and double-tap, as a finger is, where it was given the mouse's "Click… Double-click". Test: `tests/live-touch.py`.
+
+## The keyboard's ring and cross on the map: only after the keyboard (5.0.0-beta.65)
+
+Keyboard on the map 1.1. The ring round the map and the cross at its centre (5.0.0-beta.57) were shown whenever the browser said the map had a visible focus (`:focus-visible`). Browsers also say so when code gives the map the focus after a click on something that can't take the focus, and the SDK gives the map the focus when Sketch starts drawing. In Safari a tap on a button counts as such a click, so on an iPad the ring and cross showed after using Sketch, with no keyboard. Now the app keeps track itself: any key (not Shift, Ctrl, Alt or Cmd alone) counts as the keyboard, any press of a pointer or finger as not, and the ring and cross show only when the map has the focus and the keyboard was the last thing used. Seen in Chromium by clicking the header and then starting Sketch; Safari wasn't available to test here. Test: `tests/live-keyboard.py`.
+
+## In the main app since 5.0.0-beta.64: the plain Filter panel and styled fills laid on the ground in 3D
+
+`features.plainFilter` and `features.drapeFills` are on by default (Filter 1.5, 2D to 3D 1.3). `config/classic.json` turns both off; the tests of the Filter panel and of fills as they were use it. Seen with a hatch, a land-use and a pencil fill: the swatch's clear edge and border are now left off each repeat, which showed as seams.
+
+## Sketched areas with a styled fill, in 3D (5.0.0-beta.63)
+
+The 3D view draws a hatch, land-use or pencil fill as a thin outline only. From 2D to 3D 1.2, each such area gets a helper drawing in 3D that is the view's own (`syncFills3d` in `src/view-mode.js`): a thicker outline and a light tint. Nothing is added to the sketch, the layer list or a saved file, and it is taken away on going back to 2D.
+
+**Lab** (`features.drapeFills`): the fill itself is drawn into a picture cut to the area's shape and laid on the ground (a MediaLayer the list doesn't show; sizes from `drapeSize` in `lib/threed.js`). The pattern is fixed to the ground (about six repeats across the area), where 2D keeps it the same size on screen, so it grows and softens as you zoom in. At most 40 areas get a picture.
+
+Test: `tests/live-fills-3d.py`.
+
 ## Partners' config items: GIS 4 Schools only (5.0.0-beta.62)
 
 The partners' config items (`?appid=`) will be kept in GIS 4 Schools (`HNLEA4GfnbCFQZGa`), not the MapMaker organization, so `PARTNER_ORGS` now lists GIS 4 Schools alone. An item in any other organization, the MapMaker one included, opens the default app with the usual message. Tests: `config.test.mjs` (+1, a MapMaker item refused); `tests/live-partner.py` uses a GIS 4 Schools item and refuses a MapMaker one.
+
+## Lab: the Filter panel in plain words (5.0.0-beta.60)
+
+Lab config only (`?config=lab`, `features.plainFilter`, Filter 1.3). The main app keeps the panel it had. For students:
+
+- the heading names the layer ("Show Earthquakes (Major) where"); "Add another condition"; "has a value" / "has no value";
+- a label that can be seen above each box (Look at, Keep where it, Number / Words / Any of these, From, To), and each box's own name starts with those words (WCAG 2.5.3);
+- the conditions offered first are the few most used (number: greater than, less than, at least, at most, between, is; text: is, is one of, includes), with More… for the rest (`SIMPLE_OPERATORS`);
+- "Histogram" is "Chart of values", with a caption that says what the bars are, the average marked on the chart, the value shown over the slider's handle, and the word histogram given at the end;
+- the filter is said back as a sentence ("Showing Earthquakes (Major) where Magnitude is at least 8."), `describeFilter` in `lib/filter.js`, with the numbers on their own line at the right ("60 shown, 889 hidden, out of 949"). Filter 1.4 (5.0.0-beta.61): that line, and is greater than / is less than in the short list of number conditions.
+
+Test: `tests/live-filter-plain.py`.
 
 ## Accessibility: messages that wait, the page's name, state by more than colour (5.0.0-beta.59)
 
@@ -105,66 +177,6 @@ Corrects beta.52. The compass is hidden only while a table or the elevation char
 ## The compass hides with the tools (5.0.0-beta.52)
 
 When the tools are hidden (Hide tools, or while a table or the elevation chart is open), the compass is hidden too, so the map has the space. Show tools brings both back. The scale bar stays. Hide the toolbar 1.3.
-
-## Link preview says Atlas (5.0.0-beta.72)
-
-The page description in `index.html`, which Teams, Slack and similar apps show when the link is pasted, said "version of the MapMaker classroom map app"; it now says "Atlas". Apps keep their own copy of a preview for a while, so the old text can show until theirs refreshes.
-
-## Pop-ups on fills laid on the ground in 3D; docked pop-ups stay docked (5.0.0-beta.71)
-
-Reported. A sketched area with a pencil (or hatch or land-use) fill, given a pop-up, opened nothing when clicked in 3D: the fill's picture is a layer of its own on top, and the 3D view's hit test finds only it there (tried: a near-invisible fill above it isn't found either). Inside such an area the click is now taken by the app: the pop-up opens on whatever else is at that spot (found with the picture left out) and the sketched areas, the one drawn last first. Enter at the centre of the map does the same. And a pop-up docked in one view came up floating in the other (each view has its own pop-up); docked or not now goes across, whether a pop-up is open or not. 2D to 3D 1.6. Tests: `tests/live-fills-3d.py`, `tests/live-3d-switch.py`.
-
-## Pop-ups follow into the other view; opening a map ends Add data (5.0.0-beta.70)
-
-From a review of workflows like the 3D bug above (13 tried in Chromium; the rest behaved). A pop-up open when 2D or 3D is chosen was left behind in the hidden view and came back on returning; now it is closed there and opened again in the view switched to, on the same feature, at the same place (2D to 3D 1.5). Not when a map's 2D and 3D versions are swapped (different layers), and not for a cluster's summary. And opening a map while Add data or Change style was open left the panel open with nothing behind it (a style button then gave a script error); it now closes, as Measure does. Test: `tests/live-3d-switch.py`.
-
-## Fixed: 3D too close after opening a map, and Measure left on (5.0.0-beta.69)
-
-Reported: use Measure in 2D and 3D, go back to 2D, open Real-Time Earthquakes; Measure was still on, and 3D came down at street level over Laos instead of showing the region. The Measure part had nothing to do with it: 3D, then 2D, then opening any map was enough. The 3D view made earlier is hidden while the 2D map is on screen; given the place to look at in the same moment it is shown again, the SDK worked out the camera as if the view were tiny (1:59,000 for a 1:70 million world map). Given the same place two frames later it is right, so it now waits two frames (2D to 3D 1.4). And opening a map now closes Measure, the Elevation profile and Filter, which work on the map that was on screen. Test: `tests/live-3d-switch.py`.
-
-## Rows placed by country in Add data (lab 5.0.0-beta.67, the main app since beta.68)
-
-`features.countryData`, on by default (Countries 1.0, CSV 3.7); `config/classic.json` turns it off. A CSV file with no latitude and longitude but a column of countries is placed by country.
-
-- **Which column:** one headed Country (or Nation, ISO, País…) with at least one country in it, otherwise the column where 70% or more of the cells are countries. If none is found, the column picker offers "Country column" as well as latitude and longitude. A file that has coordinates is placed by them, as before.
-- **Which country:** `lib/countries.js` compares names without case, accents, dots or "the" ("D.R.C." = "drc"), reads names written round a comma or with brackets ("Congo, Dem. Rep.", "Bolivia (Plurinational State of)"), and takes two- and three-letter codes. The list, `lib/countries-data.js`, is made by `tools/countries.mjs`: the countries, codes and names shown are those of Esri's World Countries (Generalized) layer; names in English, Spanish, French, German, Portuguese and Arabic come from the i18n-iso-countries package (MIT, ISO 3166-1); everyday and data-table spellings are added by hand in the tool. A name two countries share ("Korea", "Virgin Islands") is not matched. Plain "Congo" is the Republic of the Congo, its ISO name, and the panel says so. The layer has no outline for Taiwan, Hong Kong, Macao, Kosovo, Western Sahara or Åland, so those are not matched.
-- **What the student is told:** how many rows were placed, and the names that weren't.
-- **Point or outline:** "Show each country as: A point / Its outline". A point is inside the country's largest part. An outline makes a layer of areas, with its own styles: Areas (one colour), By type, and By number (shaded: a choropleth). Change style, the legend, the filter, saving and 3D work as for any spreadsheet layer.
-- **Outlines:** asked of the Esri layer when a file needs them (only the countries in the file), thinned in `simplifyRings` so they are small enough to keep in a map file (11 countries: about 50 KB; the whole world: about 700 KB), and kept for the rest of the visit.
-
-To remake the list: `npm install --no-save i18n-iso-countries && node tools/countries.mjs`. Tests: `tests/countries.test.mjs`, `tests/live-countries.py`.
-
-## Pens on an iPad (5.0.0-beta.66)
-
-Safari reports an Apple Pencil (and a Logitech Crayon, which uses the same technology) as a pen, and the SDK handles pens itself: a pen must move a few pixels before it drags, as a finger must, and its double taps use the mouse's limits. Tried with a simulated pen in Chromium: panning, tapping a feature for its pop-up, the toolbar, Sketch points, areas and freehand, and the Elevation profile all work as with a mouse. One change, Elevation profile 3.5: a pen is now told to tap and double-tap, as a finger is, where it was given the mouse's "Click… Double-click". Test: `tests/live-touch.py`.
-
-## The keyboard's ring and cross on the map: only after the keyboard (5.0.0-beta.65)
-
-Keyboard on the map 1.1. The ring round the map and the cross at its centre (5.0.0-beta.57) were shown whenever the browser said the map had a visible focus (`:focus-visible`). Browsers also say so when code gives the map the focus after a click on something that can't take the focus, and the SDK gives the map the focus when Sketch starts drawing. In Safari a tap on a button counts as such a click, so on an iPad the ring and cross showed after using Sketch, with no keyboard. Now the app keeps track itself: any key (not Shift, Ctrl, Alt or Cmd alone) counts as the keyboard, any press of a pointer or finger as not, and the ring and cross show only when the map has the focus and the keyboard was the last thing used. Seen in Chromium by clicking the header and then starting Sketch; Safari wasn't available to test here. Test: `tests/live-keyboard.py`.
-
-## In the main app since 5.0.0-beta.64: the plain Filter panel and styled fills laid on the ground in 3D
-
-`features.plainFilter` and `features.drapeFills` are on by default (Filter 1.5, 2D to 3D 1.3). `config/classic.json` turns both off; the tests of the Filter panel and of fills as they were use it. Seen with a hatch, a land-use and a pencil fill: the swatch's clear edge and border are now left off each repeat, which showed as seams.
-
-## Sketched areas with a styled fill, in 3D (5.0.0-beta.63)
-
-The 3D view draws a hatch, land-use or pencil fill as a thin outline only. From 2D to 3D 1.2, each such area gets a helper drawing in 3D that is the view's own (`syncFills3d` in `src/view-mode.js`): a thicker outline and a light tint. Nothing is added to the sketch, the layer list or a saved file, and it is taken away on going back to 2D.
-
-**Lab** (`features.drapeFills`): the fill itself is drawn into a picture cut to the area's shape and laid on the ground (a MediaLayer the list doesn't show; sizes from `drapeSize` in `lib/threed.js`). The pattern is fixed to the ground (about six repeats across the area), where 2D keeps it the same size on screen, so it grows and softens as you zoom in. At most 40 areas get a picture.
-
-Test: `tests/live-fills-3d.py`.
-
-## Lab: the Filter panel in plain words (5.0.0-beta.60)
-
-Lab config only (`?config=lab`, `features.plainFilter`, Filter 1.3). The main app keeps the panel it had. For students:
-
-- the heading names the layer ("Show Earthquakes (Major) where"); "Add another condition"; "has a value" / "has no value";
-- a label that can be seen above each box (Look at, Keep where it, Number / Words / Any of these, From, To), and each box's own name starts with those words (WCAG 2.5.3);
-- the conditions offered first are the few most used (number: greater than, less than, at least, at most, between, is; text: is, is one of, includes), with More… for the rest (`SIMPLE_OPERATORS`);
-- "Histogram" is "Chart of values", with a caption that says what the bars are, the average marked on the chart, the value shown over the slider's handle, and the word histogram given at the end;
-- the filter is said back as a sentence ("Showing Earthquakes (Major) where Magnitude is at least 8."), `describeFilter` in `lib/filter.js`, with the numbers on their own line at the right ("60 shown, 889 hidden, out of 949"). Filter 1.4 (5.0.0-beta.61): that line, and is greater than / is less than in the short list of number conditions.
-
-Test: `tests/live-filter-plain.py`.
 
 ## Lab: fish in the sea of an elevation profile (5.0.0-beta.51)
 
@@ -272,35 +284,7 @@ All configs. From use on an iPad.
 
 **No visible change.** `app.js` was one file of 4,790 lines. It is now a short file that starts the app, and the code is in `src/`, one file for each of the sections the old file was labelled with. The code inside each file is unchanged apart from `import` and `export` lines; a script did the split from the code's own scopes, and the linter confirms that no name is missing or imported without being used.
 
-| File | What it holds | Lines |
-|---|---|---|
-| `src/state.js` | What the files share and set (Code structure 2.0) | 42 |
-| `src/config.js` | Config (a start-up file) | 74 |
-| `src/branding.js` | Branding and text (a start-up file) | 134 |
-| `src/sdk.js` | ArcGIS SDK (a start-up file) | 82 |
-| `src/views.js` | Map, views and widgets (a start-up file) | 174 |
-| `src/session.js` | The open map: changed or saved, its title, its lists of layers | 89 |
-| `src/ui.js` | Toast, panels, modals | 137 |
-| `src/popups.js` | Pop-ups | 15 |
-| `src/sketch.js` | Sketch | 660 |
-| `src/legend-basemaps-measure.js` | Legend, basemaps, measure | 611 |
-| `src/view-mode.js` | 2D / 3D | 206 |
-| `src/maps.js` | Maps and layers | 404 |
-| `src/data-layers.js` | Data layers | 85 |
-| `src/layers-panel.js` | Map layers panel | 466 |
-| `src/filter-panel.js` | Filter | 301 |
-| `src/bookmarks.js` | Bookmarks | 75 |
-| `src/topics.js` | Topics | 33 |
-| `src/collection.js` | Collection browser | 369 |
-| `src/item-info.js` | Map and item information | 46 |
-| `src/csv-import.js` | CSV import | 350 |
-| `src/drag-drop.js` | Drag and drop | 39 |
-| `src/local-files.js` | Local save and open | 213 |
-| `src/saved-maps.js` | Saved maps on this device | 116 |
-| `src/print.js` | Print | 28 |
-| `src/arcgis-online.js` | ArcGIS Online: sign in, save, update | 277 |
-| `src/versions.js` | Versions | 56 |
-| `src/startup.js` | Start-up | 30 |
+The table of files that was here is now [Modules in DEVELOPING.md](DEVELOPING.md#modules), made from the code itself so it stays current (5.0.0-beta.73).
 
 How the files are loaded, and why:
 

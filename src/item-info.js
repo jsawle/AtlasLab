@@ -1,11 +1,19 @@
-// ============================================================ Map and item information (ⓘ)
-import "./collection.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.72";
-import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.72";
-import { currentTitle } from "./session.js?v=5.0.0-beta.72";
-import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.72";
+// ============================================================ Map information and lesson questions
+// The ⓘ dialog: the open map's summary, description (with only safe HTML kept), credits and a link to its item. And a
+// lesson's questions beside the map, read from the map's description (features.lessonQuestions; lib/questions.js).
+import "./collection.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.73";
+import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.73";
+import { currentTitle } from "./session.js?v=5.0.0-beta.73";
+import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.73";
 
+/**
+ * An item's description (HTML from ArcGIS Online) made safe to show: only plain formatting elements and attributes are
+ * kept, links open in a new tab, and images only from https.
+ * @param {string} html
+ * @returns {DocumentFragment}
+ */
 export function safeFragment(html) {
   const src = new DOMParser().parseFromString(String(html || ""), "text/html").body;
   const frag = document.createDocumentFragment();
@@ -46,7 +54,7 @@ function fillInfo(item) {
 const showInfo = () => { fillInfo(state.currentSource ? state.currentSource.item : null); openModal("infoModal"); };
 $("infoBtn").addEventListener("click", showInfo);
 
-// A lesson's questions beside the map (lab: features.lessonQuestions; lib/questions.js). A map's author puts them in
+// A lesson's questions beside the map (features.lessonQuestions, on by default; lib/questions.js). A map's author puts them in
 // the item's description under a heading "Questions"; the item's summary, when it is a question, leads. A Questions
 // button then shows beside the map's title, and the panel opens with the map when there is a list of questions (once
 // for each map opened: closing it is respected). With neither, there is no button.

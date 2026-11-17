@@ -1,24 +1,35 @@
 // ============================================================ Maps and layers
-import "./view-mode.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.72";
-import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.72";
+// Opening a map: a web map or web scene from ArcGIS Online or from a file, or a new blank map. Opening one clears the
+// work on screen (resetWorkspace), after asking about unsaved changes; a saved map then puts its own sketches,
+// spreadsheets and added layers back. Between 2D and 3D, and between the two versions of a paired map, the sketch layers
+// go across (setActiveMap). Also the order of the map's layers, the time slider, the toolbar badges, and adding or
+// removing a layer from the collection.
+import "./view-mode.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, ITEM_LAYER_PREFIX, isOwnLayerJson, readWebMap, isSketchKey, TWO_D_ONLY_PROP, saved3dCamera, readWebScene } from "../lib/doc.js?v=5.0.0-beta.73";
+import { pairOf, savedPair } from "../lib/pairs.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { cfg, APP_VERSION, $, HEX32, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { WebMap, WebScene, Camera, Basemap, Layer, restGet } from "./sdk.js?v=5.0.0-beta.73";
 import { graphicsLayer, defaultBasemap, sketchLayers, isSketch, sketchLayerByKey, sketchCount, localMap, takePreloaded, startCenter, setViewMap,
-  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.72";
-import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.72";
+  startZoom, mapView, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, portalLayers, unbindFile, markDirty, markClean, confirmDiscard, setTitle, titleFromFileName } from "./session.js?v=5.0.0-beta.73";
+import { toast, openPanelName, closePanels, closeModal } from "./ui.js?v=5.0.0-beta.73";
 import { addSketchGraphic, syncSketchLayerPicker, newSketchLayer, nextSketchLayerName, setActiveSketch, removeSketchLayer, updatePinned,
-  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.72";
-import { legend } from "./legend-basemaps-measure.js?v=5.0.0-beta.72";
-import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.72";
-import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.72";
-import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.72";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.72";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.72";
-import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.72";
+  setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.73";
+import { legend } from "./legend-basemaps.js?v=5.0.0-beta.73";
+import { idleMap, sourceBms, partnerFor, usePair, isScene, has2dOnlyTag, syncViewLocks, setMode } from "./view-mode.js?v=5.0.0-beta.73";
+import { addDataLayer } from "./data-layers.js?v=5.0.0-beta.73";
+import { chartNoteWhenLoaded, chartNote, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.73";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.73";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.73";
+import { previewLayer, removePreview } from "./csv-import.js?v=5.0.0-beta.73";
 
+/**
+ * Shows a map in the views, bringing the sketch layers along on top, and brings the toolbar badges, time slider and
+ * 2D/3D locks up to date. A web scene is shown in 3D only.
+ * @param {WebMap|WebScene|Map} m
+ * @param {object} opts { keep2d: the 2D view keeps its map (a pair's web map), not3d: the 3D view is given nothing }
+ */
 export function setActiveMap(m, opts) {
   const old = state.view.map;
   endLayerTools(null);
@@ -74,7 +85,10 @@ function syncTimeBar() {
     Promise.resolve(bar.componentOnReady && bar.componentOnReady()).then(one).catch(() => {});
   }
 }
-// The time settings to save: the map's own, with where the slider is now.
+/**
+ * The time settings to save: the map's own, with where the slider is now.
+ * @returns {object|null} the web map's timeSlider settings, or null when the map has no time
+ */
 export function timeWidgetsJson() {
   const ts = timeSettings(state.view && state.view.map);
   if (!ts) return null;
@@ -88,19 +102,31 @@ export function timeWidgetsJson() {
   if (te && (start || te.end)) props.currentTimeExtent = [start ? start.getTime() : null, te.end ? te.end.getTime() : null];
   return { timeSlider: { properties: props } };
 }
-// Toolbar badges, as MapMaker shows them: the number of layers on Map layers, and a dot on Bookmarks when the map has
-// bookmarks. The count is the map's top-level layers as Map layers lists them (a group counts once, as in MapMaker:
-// 6 for "1777-1778 Revolutionary Battles", which has 4 layers and 2 groups); the sketch layer and a CSV preview don't count.
-// The map on show, read from the views themselves so that watchers follow it: the 3D view's when it holds a web scene
-// (which the 2D view never shows), otherwise the 2D view's. (Before beta.3 the layer count and the basemap gallery
-// looked at the 2D view only, so in a scene the count stayed at 0.)
+/**
+ * Toolbar badges, as MapMaker shows them: the number of layers on Map layers, and a dot on Bookmarks when the map has
+ * bookmarks. The count is the map's top-level layers as Map layers lists them (a group counts once, as in MapMaker:
+ * 6 for "1777-1778 Revolutionary Battles", which has 4 layers and 2 groups); the sketch layer and a CSV preview don't
+ * count.
+ * The map on show, read from the views themselves so that watchers follow it: the 3D view's when it holds a web scene
+ * (which the 2D view never shows), otherwise the 2D view's. (Before beta.3 the layer count and the basemap gallery
+ * looked at the 2D view only, so in a scene the count stayed at 0.)
+ * @returns {Map}
+ */
 export function shownMap() { return state.sceneView && isScene(state.sceneView.map) ? state.sceneView.map : mapView && mapView.map; }
+/**
+ * How many layers Map layers lists for the map on screen (top-level layers that are not hidden from the list).
+ * @returns {number}
+ */
 export function listedLayerCount() {
   const m = shownMap();
   let n = 0;
   if (m) m.layers.forEach((l) => { if (l.listMode !== "hide" && l !== previewLayer) n++; });
   return n;
 }
+/**
+ * Brings the toolbar badges up to date: the layer count on Map layers (also said to screen readers) and the dot on
+ * Bookmarks.
+ */
 export function updateToolBadges() {
   const n = listedLayerCount(), b = $("layersBadge");
   b.textContent = n > 99 ? "99+" : String(n); b.hidden = !n;
@@ -109,15 +135,30 @@ export function updateToolBadges() {
   $("bookmarksDot").hidden = !k;
   $("bookmarksDotSr").textContent = k ? ", " + (k === 1 ? S.bookmarksCountOne : t("bookmarksCount", { n: k })) : "";
 }
+/**
+ * Moves the pinned sketch layers back to the top of the map, after another layer was added.
+ */
 export function keepSketchOnTop() { const m = activeMap(); for (const l of state.pinnedSketch) { if (m.layers.includes(l)) { try { m.reorder(l, m.layers.length - 1); } catch (e) { /* ok */ } } } }
-// Put the map's layers in a saved order (ids, bottom first). Layers the order doesn't name keep their places above.
+/**
+ * Put the map's layers in a saved order (ids, bottom first). Layers the order doesn't name keep their places above.
+ * @param {string[]} ids layer ids, bottom first
+ */
 export function applyLayerOrder(ids) {
   if (!Array.isArray(ids) || !ids.length) return;
   const m = activeMap(), named = ids.map((id) => m.layers.find((l) => l.id === id)).filter((l) => l && l !== previewLayer);
   [...new Set(named)].forEach((l, i) => { try { m.reorder(l, i); } catch (e) { /* ok */ } });
   updatePinned();
 }
+/**
+ * Takes a layer off every map the app holds (the starting map, the 2D view's and the 3D view's).
+ * @param {Layer} l
+ */
 export function removeFromMaps(l) { for (const m of new Set([localMap, mapView.map, state.sceneView && state.sceneView.map])) { if (m) { try { m.remove(l); } catch (e) { /* not there */ } } } }
+/**
+ * Clears the work on screen before another map opens: the Filter panel, data waiting in Add data, layer tools,
+ * spreadsheet layers, layers added from the collection, every sketch (back to one empty sketch layer), bookmarks, and
+ * the map and item it came from.
+ */
 export function resetWorkspace() {
   if (openPanelName === "filter") closePanels(false);
   state.addState = null; removePreview(false);
@@ -134,11 +175,25 @@ export function resetWorkspace() {
   if (!$("layersPanel").hidden) renderLayers();
   if (catalogLoaded) refreshCatalogButtons();
 }
+/**
+ * The map's own layers: the ones it came with, not the sketch, preview, spreadsheet or collection layers the app added.
+ * @returns {Layer[]}
+ */
 export function sourceLayers() {
   const own = new Set([...sketchLayers, previewLayer, ...dataLayers, ...portalLayers.values()]);
   return activeMap().layers.toArray().filter((l) => !own.has(l));
 }
+/**
+ * A saved basemap reference made into a basemap: "item:<id>" becomes the basemap of that item; anything else (an SDK
+ * basemap name) is returned as it is.
+ * @param {string} ref
+ * @returns {Basemap|string}
+ */
 export function basemapFrom(ref) { return typeof ref === "string" && ref.startsWith("item:") ? new Basemap({ portalItem: { id: ref.slice(5) } }) : ref; }
+/**
+ * How a save refers to the map's basemap: "item:<id>" when it comes from an item, otherwise null.
+ * @returns {string|null}
+ */
 export function basemapRef() { const b = activeMap().basemap; return b && b.portalItem && b.portalItem.id ? "item:" + b.portalItem.id : null; }
 
 // This app's own layers (sketches, spreadsheets) come back editable; layers it added from the collection are
@@ -161,7 +216,12 @@ function applyParsedWebMap(parsed) {
   keepSketchOnTop();
   applyLayerOrder(parsed.order);
 }
-// The sketch layers a saved map or document says it has: the first one's settings, and each further layer made again.
+/**
+ * The sketch layers a saved map or document says it has: the first one's settings, and each further layer made again.
+ * @param {object[]} metas the further layers: { key, title, visible, opacity }
+ * @param {boolean} firstVisible whether the first sketch layer is shown
+ * @param {number} firstOpacity the first sketch layer's opacity, 0 to 1
+ */
 export function restoreSketchLayers(metas, firstVisible, firstOpacity) {
   graphicsLayer.visible = firstVisible !== false;
   graphicsLayer.opacity = typeof firstOpacity === "number" ? firstOpacity : 1;
@@ -174,8 +234,14 @@ export function restoreSketchLayers(metas, firstVisible, firstOpacity) {
   }
   syncSketchLayerPicker();
 }
-// The item's details and its map JSON, as the SDK fetched them when it loaded the map. (Before 5.0.0-beta.9 the app
-// asked ArcGIS Online for both itself as well, so each was downloaded twice.) If the SDK doesn't hand them over, they are fetched.
+/**
+ * The item's details and its map JSON, as the SDK fetched them when it loaded the map. (Before 5.0.0-beta.9 the app
+ * asked ArcGIS Online for both itself as well, so each was downloaded twice.) If the SDK doesn't hand them over, they
+ * are fetched.
+ * @param {WebMap|WebScene} m the loaded map
+ * @param {string} itemId
+ * @returns {Promise<{item: object, data: object}>}
+ */
 export async function loadedItemJson(m, itemId) {
   const copy = (o) => (o && typeof o === "object" ? JSON.parse(JSON.stringify(o)) : null);
   const item = copy(m.portalItem && m.portalItem.sourceJSON), data = copy(m.resourceInfo);
@@ -183,6 +249,16 @@ export async function loadedItemJson(m, itemId) {
   const [i, d] = await Promise.all([restGet(`/sharing/rest/content/items/${itemId}`), restGet(`/sharing/rest/content/items/${itemId}/data`)]);
   return { item: i, data: d };
 }
+/**
+ * Opens a web map from ArcGIS Online in place of the map on screen, after asking about unsaved changes: clears the work
+ * on screen (resetWorkspace) and closes the tools that worked on the old map, goes to the place the map was saved
+ * looking at, and switches to 2D when the map must be seen there (after a web scene, or when its author switched 3D off
+ * or made a 3D version of its own).
+ * @param {string} itemId 32 hexadecimal characters
+ * @param {object} opts { keepWorkspace: keep the work on screen (a saved map's own layers come next), skipConfirm,
+ *   quiet: no "Opening…" message, title: for that message, pair: the pair it belongs to }
+ * @returns {Promise<boolean>} whether it opened
+ */
 export async function openWebMapItem(itemId, opts) {
   opts = opts || {};
   if (!HEX32.test(itemId || "")) return false;
@@ -239,13 +315,23 @@ function slideLayers(ws, sl) {
   const on = new Set(sl.visibleLayers.toArray().map((v) => v && v.id));
   return layersDeep(ws).filter((l) => !isSketch(l) && l !== previewLayer).map((l) => ({ id: l.id, title: l.title || "", visible: on.has(l.id) }));
 }
-// The map's data layers, with those inside group layers. Not map.allLayers: that has the basemap and the ground as well.
+/**
+ * The map's data layers, with those inside group layers. Not map.allLayers: that has the basemap and the ground as
+ * well.
+ * @param {Map} m
+ * @returns {Layer[]}
+ */
 export function layersDeep(m) {
   const out = [];
   const walk = (ls) => ls.forEach((l) => { out.push(l); if (l.type === "group" && l.layers) walk(l.layers); });
   walk(m.layers);
   return out;
 }
+/**
+ * A web scene's slides as bookmarks: each slide's camera position, title and (https or data) thumbnail.
+ * @param {WebScene} ws
+ * @returns {object[]}
+ */
 export function slidesToBookmarks(ws) {
   const out = [];
   const slides = ws.presentation && ws.presentation.slides ? ws.presentation.slides.toArray() : [];
@@ -267,6 +353,13 @@ async function showScene(ws) {
   const vp = ws.initialViewProperties && ws.initialViewProperties.viewpoint;
   if (vp) goToSafe(vp, { animate: false });
 }
+/**
+ * Opens a web scene from ArcGIS Online in place of the map on screen, in 3D, after asking about unsaved changes; its
+ * slides become bookmarks.
+ * @param {string} itemId 32 hexadecimal characters
+ * @param {object} opts { keepWorkspace, skipConfirm, quiet, title, pair } as for openWebMapItem
+ * @returns {Promise<boolean>} whether it opened
+ */
 export async function openWebSceneItem(itemId, opts) {
   opts = opts || {};
   if (!HEX32.test(itemId || "")) return false;
@@ -300,7 +393,12 @@ export async function openWebSceneItem(itemId, opts) {
     return false;
   }
 }
-// A web scene saved on this device (3.0). Every web address in it was checked by readWebScene.
+/**
+ * A web scene saved on this device (3.0). Every web address in it was checked by readWebScene.
+ * @param {string} raw the file's text
+ * @param {string} fileName
+ * @returns {Promise<boolean>} whether it opened
+ */
 export async function openWebSceneFile(raw, fileName) {
   if (F.threeD === false) { toast(S.no3d, 5000); return false; }
   const parsed = readWebScene(raw);
@@ -335,7 +433,12 @@ export async function openWebSceneFile(raw, fileName) {
     return false;
   }
 }
-// A web map saved on this device (or any web map JSON). Every web address in it was checked by readWebMap.
+/**
+ * A web map saved on this device (or any web map JSON). Every web address in it was checked by readWebMap.
+ * @param {string} raw the file's text
+ * @param {string} fileName
+ * @returns {Promise<boolean>} whether it opened
+ */
 export async function openWebMapFile(raw, fileName) {
   const parsed = readWebMap(raw);
   if (!parsed.ok) { toast(S[parsed.code] || S.cantRead, 5000); return false; }
@@ -381,6 +484,9 @@ function newerVersion(a, b) {
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0; }
   return false;
 }
+/**
+ * Starts a new, empty map (after asking about unsaved changes).
+ */
 export function newBlankMap() {
   if (!confirmDiscard()) return;
   closeModal("openModal");
@@ -392,6 +498,12 @@ export function newBlankMap() {
   toast(S.newMapStarted);
 }
 
+/**
+ * Adds a layer from an ArcGIS Online item to the map on screen, under the sketch layers, once per item.
+ * @param {object} info { itemId, type, title }
+ * @param {object} opts { visible, opacity, silent: no message and the map is not marked changed (opening a saved map) }
+ * @returns {Promise<Layer|null>} the layer, or null when it couldn't be added (the student is told)
+ */
 export async function addPortalLayer(info, opts) {
   opts = opts || {};
   if (portalLayers.has(info.itemId)) return portalLayers.get(info.itemId);
@@ -413,6 +525,10 @@ export async function addPortalLayer(info, opts) {
     return null;
   }
 }
+/**
+ * Takes a layer added from an item off every map.
+ * @param {string} itemId
+ */
 export function removePortalLayer(itemId) {
   const l = portalLayers.get(itemId);
   if (!l) return;

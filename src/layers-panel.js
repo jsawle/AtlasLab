@@ -1,20 +1,27 @@
 // ============================================================ Map layers panel
-import "./data-layers.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.72";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.72";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.72";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.72";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.72";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.72";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.72";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.72";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.72";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.72";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.72";
+// Every layer of the map, top first: show and hide, opacity, labels, reorder (by dragging or with the keys), zoom to,
+// remove, and rename for sketch layers; and each layer's tools: Swipe, the attribute table, charts, Filter and Change
+// style. Also what a saved map needs from the list: the sketch layers' names and settings, and the order of the layers.
+import "./data-layers.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.73";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.73";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.73";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.73";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.73";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.73";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.73";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.73";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.73";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.73";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.73";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
+/**
+ * Calls fn for each layer of the map on screen, top first, leaving out the Add data preview.
+ * @param {function} fn (layer, id, title)
+ */
 export function eachToggleableLayer(fn) {
   activeMap().layers.toArray().slice().reverse().forEach((l) => { if (l !== previewLayer) fn(l, l.id, l.title || l.id); });
 }
@@ -45,6 +52,11 @@ function outOfScale(l) {
   const min = l.minScale || 0, max = l.maxScale || 0;
   return (min > 0 && s > min) || (max > 0 && s < max);
 }
+/**
+ * Whether a layer has labels that can be turned on and off (sketch layers do not).
+ * @param {Layer} l
+ * @returns {boolean}
+ */
 export function hasLabels(l) { const li = l.labelingInfo; return !isSketch(l) && !!li && li.length > 0; }
 // The layers listed at one level, top first (as drawn), and the collection that holds them.
 function siblingsOf(owner) {
@@ -63,6 +75,9 @@ function moveLayer(l, owner, to) {
   renderLayers({ focusKey: keyOf(l) + ":move" });
   $("layersLive").textContent = t("layerMoved", { title: l.title || "", n: to + 1, total: sibs.length });
 }
+/**
+ * Ends Swipe, if it is on.
+ */
 export function endSwipe() {
   if (!swipe) return;
   dropEl(swipe.widget);
@@ -81,6 +96,11 @@ async function toggleSwipe(l) {
   } catch (e) { console.error(e); toast(S.swipeFailed); }
   renderLayers({ keepFocus: true });
 }
+/**
+ * Closes the attribute table or chart under the map, if one is open (a chart's selection on the map goes with it).
+ * @param {boolean} restoreFocus true puts the focus back on that layer's Table (or Chart) button in Map layers, when
+ *   the panel is open
+ */
 export function closeTable(restoreFocus) {
   if (!table) return;
   const l = table.layer, kind = table.kind || "table";
@@ -135,6 +155,11 @@ function setDockHeight(dock, px, remember) {
   layoutBottom();
 }
 // when a dock opens (or changes from table to chart): the height last chosen for its kind, else the stylesheet's
+/**
+ * Sets the height of the table or chart under the map when it opens (or changes from one to the other): the height last
+ * chosen for that kind, or the stylesheet's.
+ * @param {HTMLElement} dock
+ */
 export function syncDockHeight(dock) { const k = dockHeights[dockKind(dock)]; if (k) setDockHeight(dock, k, false); else { dock.style.height = ""; setDockHeight(dock, dock.getBoundingClientRect().height, false); dock.style.height = ""; } }
 for (const grip of document.querySelectorAll(".dock-grip")) {
   const dock = grip.parentElement; let start = null;
@@ -159,6 +184,13 @@ window.addEventListener("resize", () => { for (const d of document.querySelector
 // for those. The opening message is given at once as before, and given again with the chart note if the map's feature
 // layers turn out to have charts once they have loaded (waiting up to 8 seconds).
 const layersOf = (x) => (x && x.allLayers ? x.allLayers.toArray() : []);
+/**
+ * Once a newly opened map's layers have loaded (8 seconds at most), says it has charts if they were not known when it
+ * opened, and redraws Map layers if it is open.
+ * @param {Map} map the map that opened; nothing is said if another has opened since
+ * @param {function} say says the note
+ * @returns {Promise<void>}
+ */
 export async function chartNoteWhenLoaded(map, say) {
   const fl = layersOf(map).filter((l) => l && l.type === "feature");
   if (!fl.length) return;
@@ -200,10 +232,18 @@ async function openChart(l, index) {
 }
 $("chartPick").addEventListener("change", () => { if (table && table.kind === "chart") openChart(table.layer, Number($("chartPick").value)); });
 // a map that has charts says so when it opens, since they are found in Map layers
+/**
+ * " This map has charts." (in the app's language, with how many) when the map on screen has charts, which are found in
+ * Map layers; otherwise "".
+ * @returns {string}
+ */
 export function chartNote() {
   try { const n = shownMap().allLayers.filter((l) => chartsOf(l).length > 0).length; return n ? " " + (n === 1 ? S.mapHasChart : t("mapHasCharts", { n })) : ""; } catch (e) { return ""; }
 }
-// Anything that ends with a layer gone (removed, a new map) also ends its swipe and table.
+/**
+ * Anything that ends with a layer gone (removed, a new map) also ends its swipe and table.
+ * @param {Layer|null} l the layer that has gone; null ends them whatever their layer
+ */
 export function endLayerTools(l) {
   const within = (x) => x && (x === l || (isGroup(l) && l.allLayers && l.allLayers.includes(x)));
   if (!l || within(swipe && swipe.layer)) endSwipe();
@@ -365,10 +405,18 @@ function layerRow(l, owner, depth, pos, count) {
 // Remove on the sketch layer deletes every sketch. Sketches can't be added again as a layer from the collection can,
 // so it asks first.
 // What a save records about the sketch layers: the first one (its name only if renamed), then each further one.
+/**
+ * The sketch layers as a saved map lists them: each one's key, its name (none for the first while it has its default
+ * name), whether it is shown and its opacity.
+ * @returns {object[]}
+ */
 export function sketchLayersMeta() {
   return sketchLayers.map((l) => ({ key: sketchKeyOfLayer(l), title: l === graphicsLayer && l.title === S.sketchLayer ? null : (l.title || null), visible: l.visible !== false, opacity: typeof l.opacity === "number" ? l.opacity : 1 }));
 }
-// The map's layers as drawn, bottom first, sketch layers among them.
+/**
+ * The map's layers as drawn, bottom first, sketch layers among them.
+ * @returns {string[]}
+ */
 export function layerOrderIds() {
   return activeMap().layers.toArray().filter((l) => l !== previewLayer).map((l) => l.id);
 }
@@ -451,6 +499,11 @@ function startDrag(e, l, owner, li) {
 }
 function updateScaleStates() { rowRefs.forEach((f) => f()); }
 export let sketchRowShown = false;
+/**
+ * Draws the Map layers list again from the map on screen, keeping the keyboard's place in it.
+ * @param {object} opts { focusKey: the row to focus, keepFocus: keep the focus on the same row even if it is not in the
+ *   list now }
+ */
 export function renderLayers(opts) {
   { const ra = $("layersRemoveAll"); if (ra) ra.hidden = F.removeAllLayers === false || !siblingsOf("map").some((l) => !isSketch(l)); }
   opts = opts || {};

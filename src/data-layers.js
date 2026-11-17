@@ -1,14 +1,23 @@
-// ============================================================ Data layers (CSV) — client-side FeatureLayers
-import "./maps.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { columnScale } from "../lib/csv.js?v=5.0.0-beta.72";
-import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.72";
-import { state } from "./state.js?v=5.0.0-beta.72";
-import { F } from "./config.js?v=5.0.0-beta.72";
-import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.72";
-import { activeMap } from "./views.js?v=5.0.0-beta.72";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.72";
-import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.72";
+// ============================================================ Spreadsheet layers
+// The layers made from a spreadsheet in Add data: a feature layer kept in the browser, made from the definition
+// lib/csv.js writes and saved with the map, placed under the sketches; and, in 3D, columns standing on its points
+// (features.columns3d).
+import "./maps.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { columnScale } from "../lib/csv.js?v=5.0.0-beta.73";
+import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.73";
+import { state } from "./state.js?v=5.0.0-beta.73";
+import { F } from "./config.js?v=5.0.0-beta.73";
+import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.73";
+import { activeMap } from "./views.js?v=5.0.0-beta.73";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.73";
+import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.73";
 
+/**
+ * A client-side feature layer from a spreadsheet layer's saved definition: its fields, features, renderer, labels and
+ * pop-up. The definition is kept on the layer as _srcDef, so it can be saved and restyled.
+ * @param {object} ld the layer definition (lib/csv.js makes it)
+ * @returns {FeatureLayer}
+ */
 export function buildDataLayer(ld) {
   const gtype = ld.geometryType || "point";
   const rawFields = (ld.fields || []).slice();
@@ -41,7 +50,7 @@ export function buildDataLayer(ld) {
   syncColumns(fl);
   return fl;
 }
-// Columns in 3D (lab, features.columns3d): a spreadsheet layer sized by a number column can stand a column on each point
+// Columns in 3D (features.columns3d, on by default): a spreadsheet layer sized by a number column can stand a column on each point
 // in the 3D view, its height showing the number. The layer's saved style stays the 2D one (By size and so on); the
 // columns are a way of drawing it in 3D, so 2D, the saved file and other apps are unchanged.
 export const COLUMNS_VERSION = "0.4";   // 0.4: kept in a saved file. 0.2: the Size slider sets how thick the columns are. 0.3: the choice is offered in the 3D view only
@@ -64,6 +73,11 @@ function columnRenderer(fl) {
   ]);
   return r;
 }
+/**
+ * Draws a spreadsheet layer as 3D columns in the 3D view when its style asks for them (features.columns3d), and flat in
+ * 2D.
+ * @param {FeatureLayer} fl a spreadsheet layer
+ */
 export function syncColumns(fl) {
   if (!fl || !fl._renderer2d) return;
   let r = null;
@@ -72,6 +86,12 @@ export function syncColumns(fl) {
   if (r || fl._columnsOn) fl.renderer = want;
   fl._columnsOn = !!r;
 }
+/**
+ * Puts a spreadsheet layer on the map, under the sketch layers.
+ * @param {object} def the layer definition, with visible and opacity
+ * @param {object} opts { silent: the map is not marked changed (opening a saved map) }
+ * @returns {FeatureLayer}
+ */
 export function addDataLayer(def, opts) {
   const fl = buildDataLayer(def);
   if (def.visible === false) fl.visible = false;

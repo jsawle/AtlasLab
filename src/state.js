@@ -1,7 +1,9 @@
+// ============================================================ Shared state
 // What the parts of the app share and change. Each part of the app is its own file in src/; a value that more than one
 // of them sets lives here, so every part sees the same one. Read and set them as state.name. A value only one part sets
-// stays in that part (other files can import and read it, but cannot set it).
-export const STATE_VERSION = "3.0";   // 1.0 (5.0.0-beta.39): shared state. 2.0 (5.0.0-beta.40): the code split into the files of src/. 3.0 (5.0.0-beta.41): built into one file for publishing
+// stays in that part (other files can import and read it, but cannot set it). `late` holds the few functions the
+// start-up files call before the files that define them have loaded.
+export const STATE_VERSION = "3.1";   // 1.0 (5.0.0-beta.39): shared state. 2.0 (5.0.0-beta.40): the code split into the files of src/. 3.0 (5.0.0-beta.41): built into one file for publishing. 3.1 (5.0.0-beta.73): every file and exported function described; the module index made from the code
 
 export const state = {
   // --- the map on screen

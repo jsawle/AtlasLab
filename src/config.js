@@ -1,11 +1,16 @@
-// Atlas: a white-label build of the MapMaker classroom map app.
-// ArcGIS Maps SDK for JavaScript 5.2. Everything a distributor changes lives in config/<name>.json.
-// Created by Jason Sawle.
-// Each ?v= is the app version, so a new release never runs beside a cached older module (tests/run.mjs checks they match).
-import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.72";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.72";
+// ============================================================ Config, wording and version numbers
+// The first file app.js loads. It reads the config the link asks for (config/<name>.json, an ArcGIS Online item with
+// ?appid=, or the manager app's preview; lib/config.js), lays it over DEFAULT_CONFIG, and builds the wording (S, t) from
+// lib/strings.js, the language file and the config. It also holds the app's version numbers, the feature switches (F),
+// what was kept across an ArcGIS Online sign-in (authStash), and small helpers every file uses ($, fmt, HEX32).
+// Atlas is a white-label build of the MapMaker classroom map app, on the ArcGIS Maps SDK for JavaScript 5.2: everything
+// a distributor changes lives in a config. Created by Jason Sawle.
+// Each ?v= on an import is the app version, so a new release never runs beside a cached older module
+// (tests/structure.test.mjs checks they match).
+import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.73";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.73";
 
-export const APP_VERSION = "5.0.0-beta.72";
+export const APP_VERSION = "5.0.0-beta.73";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.5";   // 3.5 (5.0.0-beta.66): a pen is told "tap", as a finger is
@@ -102,7 +107,12 @@ cfgName = loaded.name;
 export const rawCfg = loaded.raw, cfgChain = loaded.chain, configMissing = loaded.missing, localeFile = loaded.localeFile, localeMissing = loaded.localeMissing;
 export const cfgItem = loaded.item || null;   // the ArcGIS Online item the config came from, if it did
 if (configMissing) console.warn("Config not found:", configMissing);
-// Puts this config's choice into a link the app makes (Share, the logo, coming back from sign-in), so the link opens the same settings.
+/**
+ * Puts this config's choice into a link the app makes (Share, the logo, coming back from sign-in), so the link opens
+ * the same settings.
+ * @param {URLSearchParams} searchParams the query of the link being made; changed in place
+ * @returns {URLSearchParams} the same object
+ */
 export function keepConfig(searchParams) {
   if (cfgItem) searchParams.set("appid", cfgItem.id);
   else if (cfgName !== "default" && cfgName !== "preview") searchParams.set("config", cfgName);

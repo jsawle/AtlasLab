@@ -1,20 +1,25 @@
-// ============================================================ Toast, panels, modals (keyboard accessible)
-import "./session.js?v=5.0.0-beta.72";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.72";
-import { $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.72";
-import { need } from "./sdk.js?v=5.0.0-beta.72";
-import { syncToolsToggles } from "./views.js?v=5.0.0-beta.72";
-import { layoutBottom } from "./session.js?v=5.0.0-beta.72";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.72";
-import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.72";
-import { ensureLegend, ensureGallery, stopMeasuring, ensureProfile, stopProfile, closeToolMenu } from "./legend-basemaps-measure.js?v=5.0.0-beta.72";
-import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.72";
-import { endFilter } from "./filter-panel.js?v=5.0.0-beta.72";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.72";
-import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.72";
-import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.72";
-import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.72";
-import { renderVersions } from "./versions.js?v=5.0.0-beta.72";
+// ============================================================ Messages, panels and dialogs
+// How every tool talks to the student and opens its controls: short messages at the bottom of the map (toast), also
+// read by screen readers and listed in Recent messages; the side panels, one open at a time, with the keyboard's focus
+// moved in and back; and dialogs that keep the keyboard inside them until they close.
+import "./session.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.73";
+import { $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
+import { need } from "./sdk.js?v=5.0.0-beta.73";
+import { syncToolsToggles } from "./views.js?v=5.0.0-beta.73";
+import { layoutBottom } from "./session.js?v=5.0.0-beta.73";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.73";
+import { selectForEdit, sketchToolsOn } from "./sketch.js?v=5.0.0-beta.73";
+import { ensureLegend, ensureGallery } from "./legend-basemaps.js?v=5.0.0-beta.73";
+import { stopMeasuring, closeToolMenu } from "./measure.js?v=5.0.0-beta.73";
+import { ensureProfile, stopProfile } from "./profile.js?v=5.0.0-beta.73";
+import { closeTable, syncDockHeight, renderLayers } from "./layers-panel.js?v=5.0.0-beta.73";
+import { endFilter } from "./filter-panel.js?v=5.0.0-beta.73";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.73";
+import { backToLayers, removePreview, leaveData } from "./csv-import.js?v=5.0.0-beta.73";
+import { unsavedLayers } from "./local-files.js?v=5.0.0-beta.73";
+import { renderAgol, closeUserMenu } from "./arcgis-online.js?v=5.0.0-beta.73";
+import { renderVersions } from "./versions.js?v=5.0.0-beta.73";
 late.toast = toast;   // for the start-up files, which run before this one (see late in state.js)
 
 // Messages (2.0, 5.0.0-beta.58). A message used to be gone after a few seconds whatever the reader was doing (WCAG 2.2.1,
@@ -29,6 +34,12 @@ function renderMessages() {
   const ul = $("recentMsgs"); if (!ul) return;
   ul.replaceChildren(...(recentMessages.length ? recentMessages : [{ msg: S.noMessages }]).map((m) => { const li = document.createElement("li"); if (m.at) { const tm = document.createElement("time"); tm.textContent = m.at.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); li.append(tm, " "); } li.append(m.msg); return li; }));
 }
+/**
+ * Shows a short message at the bottom of the map (also read by screen readers) and adds it to Recent messages. It stays
+ * while the pointer or focus is on it, or until closed when Keep messages is on.
+ * @param {string} msg "" hides the message
+ * @param {number} ms how long it shows; 3.4 seconds when left out
+ */
 export function toast(msg, ms) {
   const el = $("toast"); el.textContent = msg; clearTimeout(toastTimer); toastTimer = 0;
   if (!msg) return;
@@ -51,7 +62,10 @@ function toastSeries(list, delay) {
   let at = delay || 0;
   for (const [msg, ms] of list) { setTimeout(() => toast(msg, ms), at); at += ms + 300; }
 }
-// What a save left out, said after the "saved" message has been read.
+/**
+ * What a save left out, said after the "saved" message has been read.
+ * @param {boolean} toFile true for a save to a file, false for ArcGIS Online
+ */
 export function saveNotes(toFile) {
   const notes = [];
   if (unsavedLayers) notes.push([t("layersNotSaved", { n: unsavedLayers }), 5000]);
@@ -78,6 +92,12 @@ function setExpanded(name) {
   if (el) { if (el.getAttribute("aria-haspopup") === "menu") el.classList.add("active"); else el.setAttribute("aria-expanded", "true"); }
   $("menuMeasure").classList.toggle("active", name === "measure"); $("menuProfile").classList.toggle("active", name === "profile");
 }
+/**
+ * Opens one of the side panels (closing any other), runs what that panel needs on opening, and moves the keyboard's
+ * focus into it.
+ * @param {string} name a key of PANELS, e.g. "layers"
+ * @param {object} opts { focus: false } leaves the focus where it is
+ */
 export function openPanel(name, opts) {
   if (openPanelName && openPanelName !== name) panelClosing(openPanelName);
   for (const [k, id] of Object.entries(PANELS)) $(id).hidden = k !== name;
@@ -87,6 +107,11 @@ export function openPanel(name, opts) {
   updatePopupEnabled();
   if (!opts || opts.focus !== false) { const h = $(PANELS[name]).querySelector("h2"); if (h) h.focus(); }
 }
+/**
+ * Closes the open panel, running what that panel needs on closing.
+ * @param {boolean} restoreFocus false leaves the focus where it is; otherwise, if the focus was in the panel, it goes
+ *   back to the panel's toolbar button
+ */
 export function closePanels(restoreFocus) {
   const name = openPanelName;
   if (!name) return;
@@ -99,6 +124,10 @@ export function closePanels(restoreFocus) {
   updatePopupEnabled();
   if (restoreFocus !== false && hadFocus && $(TRIGGERS[name])) $(TRIGGERS[name]).focus();
 }
+/**
+ * Opens a panel, or closes it if it is already open. Opening first asks about unfinished Add data.
+ * @param {string} name a key of PANELS
+ */
 export function togglePanel(name) { if (openPanelName === name) closePanels(); else leaveData(() => openPanel(name)); }
 function panelOpening(name) {
   if (name === "sketch") { state.sketchPanelOpen = true; sketchToolsOn(true); selectForEdit(null); need("curves").catch(() => {}); }
@@ -129,6 +158,11 @@ document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("cli
 $("verBtn").addEventListener("click", () => togglePanel("about"));
 
 const modalStack = [];
+/**
+ * Opens a dialog over the page, keeping the keyboard inside it; Escape and closeModal close it and give the focus back.
+ * @param {string} id the dialog element's id
+ * @param {HTMLElement} focusEl what gets the focus first; the dialog's first control when left out
+ */
 export function openModal(id, focusEl) {
   const m = $(id);
   if (!m.hidden) return;
@@ -136,6 +170,10 @@ export function openModal(id, focusEl) {
   m.hidden = false;
   setTimeout(() => { const f = focusEl || m.querySelector("h2"); if (f) f.focus(); }, 0);
 }
+/**
+ * Closes a dialog opened with openModal and gives the focus back to where it was.
+ * @param {string} id
+ */
 export function closeModal(id) {
   const m = $(id);
   if (!m || m.hidden) return;

@@ -78,5 +78,5 @@ const missing = Object.keys(require("i18n-iso-countries/langs/en.json").countrie
 console.log(out.length + " countries, " + out.reduce((a, c) => a + c[3].length + 1, 0) + " names.");
 console.log("Left out (two countries share the name): " + [...clash].filter(([k]) => !owner.has(k)).map(([k, v]) => k + " (" + v.join("/") + ")").join(", "));
 console.log("ISO codes the layer has no outline for: " + missing.join(", "));
-const head = "// Made by tools/countries.mjs: do not edit by hand. The countries in Esri's World Countries (Generalized) layer:\n// [two-letter code, three-letter code, the name shown, the other names it is known by].\n";
+const head = "// ============================================================ Countries data\n// Made by tools/countries.mjs: do not edit by hand. The countries in Esri's World Countries (Generalized) layer:\n// [two-letter code, three-letter code, the name shown, the other names it is known by].\n";
 writeFileSync(new URL("../lib/countries-data.js", import.meta.url), head + "export const COUNTRY_DATA_DATE = " + JSON.stringify(new Date().toISOString().slice(0, 10)) + ";\nexport const NO_OUTLINE = " + JSON.stringify(missing) + ";\nexport const COUNTRIES = [\n" + out.map((c) => JSON.stringify(c)).join(",\n") + "\n];\n");
