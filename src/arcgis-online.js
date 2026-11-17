@@ -2,21 +2,21 @@
 // Signing in to ArcGIS Online (the map being worked on is kept across the sign-in page and put back), the signed-in
 // student's menu, and saving the map as a web map item: Save overwrites the student's own item, Save as makes a new
 // one, with a picture of the map as its thumbnail. Also the tips on the sign-in tiles and each tool's tooltip.
-import "./print.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.73";
-import { state, late } from "./state.js?v=5.0.0-beta.73";
-import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.73";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.73";
-import { activeMap } from "./views.js?v=5.0.0-beta.73";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.73";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.73";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.73";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.73";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.73";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.73";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.73";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.73";
+import "./print.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.74";
+import { state, late } from "./state.js?v=5.0.0-beta.74";
+import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.74";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.74";
+import { activeMap } from "./views.js?v=5.0.0-beta.74";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.74";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.74";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.74";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.74";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.74";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.74";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.74";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.74";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.74";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};

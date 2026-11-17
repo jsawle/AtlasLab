@@ -2,23 +2,23 @@
 // Add data: a spreadsheet saved as CSV is read (lib/csv.js), placed by its coordinates or by the countries it names
 // (features.countryData; lib/countries.js), shown on the map as a preview while it is styled, and added. Change style
 // opens the same panel for a spreadsheet layer already on the map. Leaving with data not yet added asks first.
-import "./item-info.js?v=5.0.0-beta.73";   // first: keeps the files running in the order they were written in (see app.js)
+import "./item-info.js?v=5.0.0-beta.74";   // first: keeps the files running in the order they were written in (see app.js)
 import { PALETTE_HEX, COLOR_RAMPS, DATA_STYLES, SHAPES, readCsv, buildLayerData, styleAvailable, pickAutoStyle, pickAutoFields, aliasOf,
-  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX, isAreas } from "../lib/csv.js?v=5.0.0-beta.73";
-import { countryIndex, detectCountryColumn, matchRows, normCountry, simplifyRings, insidePoint } from "../lib/countries.js?v=5.0.0-beta.73";
-import { COUNTRIES } from "../lib/countries-data.js?v=5.0.0-beta.73";
-import { FeatureLayer } from "./sdk.js?v=5.0.0-beta.73";
-import { state } from "./state.js?v=5.0.0-beta.73";
-import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.73";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.73";
-import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.73";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.73";
-import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.73";
-import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.73";
-import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.73";
-import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.73";
-import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.73";
-import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.73";
+  buildLayerDef, stateFromLayerDef, pieFields, PIE_MIN, PIE_MAX, isAreas } from "../lib/csv.js?v=5.0.0-beta.74";
+import { countryIndex, detectCountryColumn, matchRows, normCountry, simplifyRings, insidePoint } from "../lib/countries.js?v=5.0.0-beta.74";
+import { COUNTRIES } from "../lib/countries-data.js?v=5.0.0-beta.74";
+import { FeatureLayer } from "./sdk.js?v=5.0.0-beta.74";
+import { state } from "./state.js?v=5.0.0-beta.74";
+import { SDK_VERSION, $, cfg, F, S, t } from "./config.js?v=5.0.0-beta.74";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.74";
+import { activeMap, frameTarget, goToSafe } from "./views.js?v=5.0.0-beta.74";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.74";
+import { toast, openPanelName, openPanel, closePanels, openModal, closeModal } from "./ui.js?v=5.0.0-beta.74";
+import { COLOUR_NAMES } from "./sketch.js?v=5.0.0-beta.74";
+import { keepSketchOnTop, removeFromMaps } from "./maps.js?v=5.0.0-beta.74";
+import { buildDataLayer, addDataLayer } from "./data-layers.js?v=5.0.0-beta.74";
+import { endLayerTools } from "./layers-panel.js?v=5.0.0-beta.74";
+import { handleDroppedFile } from "./drag-drop.js?v=5.0.0-beta.74";
 
 export let previewLayer = null, previewTimer = 0, prePreviewCam = null, dataLayerSeq = 0;
 const STYLE_TEXT_AREAS = { simple: ["styleAreaSimple", "styleAreaSimpleHint"], categorical: ["styleAreaType", "styleAreaTypeHint"], area_color: ["styleAreaColor", "styleAreaColorHint"] };
