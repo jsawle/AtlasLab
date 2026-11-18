@@ -5,17 +5,17 @@
 // The filter is saved as the layer's definitionExpression (lib/filter.js), which is how Map Viewer saves one.
 // While the panel is open the map previews the conditions through the layer view (no data is fetched again as a
 // slider moves), and the layer itself shows everything, so the histogram, value lists and counts cover all the data.
-import "./layers-panel.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.75";
-import { state } from "./state.js?v=5.0.0-beta.75";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.75";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
-import { isSketch, growControls } from "./views.js?v=5.0.0-beta.75";
-import { markDirty } from "./session.js?v=5.0.0-beta.75";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.75";
-import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.75";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.75";
+import "./layers-panel.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { SIMPLE_OPERATORS, describeFilter, MAX_CONDITIONS, OPERATORS, DEFAULT_OPERATOR, fieldKind, needsValue, conditionComplete, buildWhere, parseWhere, filterFields, isListOp } from "../lib/filter.js?v=5.0.0-beta.76";
+import { state } from "./state.js?v=5.0.0-beta.76";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.76";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
+import { isSketch, growControls } from "./views.js?v=5.0.0-beta.76";
+import { markDirty } from "./session.js?v=5.0.0-beta.76";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.76";
+import { calIcon, TABLE_TYPES, keyOf, isGroup } from "./layers-panel.js?v=5.0.0-beta.76";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.76";
 
 const FILTER_ON = F.filter !== false;
 let filterState = null;
@@ -278,7 +278,7 @@ function conditionCard(c, i) {
   }
   return card;
 }
-// Big controls for fingers on a tablet (lab: features.tabletLayout, 5.0.0-beta.75): every Calcite control the panel draws,
+// Big controls for fingers on a tablet (features.tabletLayout, 5.0.0-beta.75; main app from 5.0.0-beta.76): every Calcite control the panel draws,
 // whenever it draws one, is scale "l" (44 pixels) there.
 if (F.tabletLayout) new MutationObserver(() => growControls($("filterPanel"))).observe($("filterPanel"), { childList: true, subtree: true });
 function renderFilter(opts) {

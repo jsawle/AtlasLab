@@ -3,11 +3,11 @@
 // map and the first sketch layer, and puts the app's controls on each view: search, home, zoom, the compass rose, the
 // scale bar. Starts downloading the map named in the link early. Holds what the rest of the app uses to work with
 // whichever view is on screen: activeMap, onViews, goToSafe, frameTarget.
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.75";
-import { state, late } from "./state.js?v=5.0.0-beta.75";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.75";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.76";
+import { state, late } from "./state.js?v=5.0.0-beta.76";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.76";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });
@@ -58,7 +58,18 @@ export async function componentView(tag, hostId, props) {
   await el.viewOnReady();
   viewEls.set(el.view, el);
   roundMeasurements(el);
+  popupFits(el.view);
   return el.view;
+}
+// Pop-ups on small screens (5.0.0-beta.76). The SDK docks a pop-up once the view is 544 pixels wide or less (a phone held
+// upright); a phone on its side is wide but short, so its pop-up floated above the feature and ran off the top of the map,
+// title and all. It now docks there too. Whether a docked pop-up sits at the bottom is noted on the page (pop-docked-bottom)
+// so the compass can stand aside for it on a phone (index.html).
+function popupFits(v) {
+  reactiveUtils.whenOnce(() => v.popup).then((p) => { p.dockOptions = { ...p.dockOptions, breakpoint: { width: 544, height: 544 } }; }).catch(() => {});
+  reactiveUtils.watch(() => [v.popup && v.popup.visible, v.popup && v.popup.currentDockPosition], ([shown, pos]) => {
+    if (state.view === v) $("app").classList.toggle("pop-docked-bottom", !!shown && /^bottom/.test(pos || ""));
+  });
 }
 // Measurements with no decimal places (5.0.0-beta.8). The Sketch tools show lengths and areas to two decimal places
 // ("1,199.31 km") in their tooltips and segment labels, and the SDK has no setting for that: its value options choose
@@ -126,7 +137,7 @@ export function onViews(evt, fn) { viewHandlers.push([evt, fn]); mapView.on(evt,
 export function activeMap() { return state.view.map; }
 export let startDone = null;
 const started = new Promise((res) => { startDone = res; });   // the app has started, and a map opened from a link is in
-// Bigger buttons for fingers (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). On a device with a touch screen at
+// Bigger buttons for fingers (features.tabletLayout, Tablets 1.0, 5.0.0-beta.75; main app from 5.0.0-beta.76). On a device with a touch screen at
 // least 641 pixels wide the map library's own buttons (Search, Home, Zoom, the 3D navigation toggle, the Sketch tools)
 // are made 44 pixels, from 32, with the components' visualScale "l" (SDK 5.0; the Sketch tools in sketch.js, as far as
 // they fit); the app's own are made bigger in

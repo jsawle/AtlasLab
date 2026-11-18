@@ -5,22 +5,22 @@
 // (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text (and, in the
 // lab, for a point's symbol: features.pointRotation). Also the
 // sketch layers: the first always exists, and a student can make more (features.sketchLayers).
-import "./popups.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.75";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.75";
-import { state } from "./state.js?v=5.0.0-beta.75";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.75";
+import "./popups.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.76";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.76";
+import { state } from "./state.js?v=5.0.0-beta.76";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.76";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.75";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap, bigTargets } from "./views.js?v=5.0.0-beta.75";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.75";
-import { toast } from "./ui.js?v=5.0.0-beta.75";
-import { handWords, onHandChange } from "./popups.js?v=5.0.0-beta.75";
-import { sketchUnits } from "./measure.js?v=5.0.0-beta.75";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.75";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.75";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.75";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.76";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap, bigTargets } from "./views.js?v=5.0.0-beta.76";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.76";
+import { toast } from "./ui.js?v=5.0.0-beta.76";
+import { handWords, onHandChange } from "./popups.js?v=5.0.0-beta.76";
+import { sketchUnits } from "./measure.js?v=5.0.0-beta.76";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.76";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.76";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.76";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited
@@ -37,7 +37,7 @@ let sketchPlaced = null;
 const sketchOnPage = new Promise((res) => { sketchPlaced = res; });
 function placeSketch() { if (!sketch.isConnected) { $("sketchBar").appendChild(sketch); sketchPlaced(); } }
 // Settings go on once the component is ready: set earlier, some are lost when it starts up.
-// For fingers on a tablet (lab: features.tabletLayout, 5.0.0-beta.75) the tools are the biggest size whose whole column
+// For fingers on a tablet (features.tabletLayout, 5.0.0-beta.75; main app from 5.0.0-beta.76) the tools are the biggest size whose whole column
 // fits between the top of the map and the toolbar: 44 pixels on an upright iPad, 32 on its side (24 there before). The
 // column's heights, every tool shown, measured in SDK 5.0: 692 pixels at "l", 516 at "m".
 const SKETCH_COLUMN = { l: 692, m: 516 };
@@ -686,7 +686,7 @@ let toolWatch = 0, toolSeen = null;
  * @param {boolean} on
  */
 export function sketchToolsOn(on) {
-  if (on) { placeSketch(); sizeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }   // sizeSketch: big tools for fingers on a tablet (lab), as far as they fit
+  if (on) { placeSketch(); sizeSketch(); showSketchView("main"); sketchReady.then(syncSnapSources); }   // sizeSketch: big tools for fingers on a tablet, as far as they fit
   // the panel follows the tool chosen on the toolbar
   clearInterval(toolWatch); toolWatch = 0;
   if (on) toolWatch = setInterval(() => {

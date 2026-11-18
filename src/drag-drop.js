@@ -1,12 +1,12 @@
 // ============================================================ Drag and drop
 // A file dropped on the page: a saved map opens, a CSV goes to Add data, a spreadsheet in another format gets a message
 // saying to save it as CSV, and anything else a message saying what can be dropped.
-import "./csv-import.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { $, F, S } from "./config.js?v=5.0.0-beta.75";
-import { bindOpened, confirmDiscard } from "./session.js?v=5.0.0-beta.75";
-import { toast } from "./ui.js?v=5.0.0-beta.75";
-import { handleCsvText } from "./csv-import.js?v=5.0.0-beta.75";
-import { openDocText } from "./local-files.js?v=5.0.0-beta.75";
+import "./csv-import.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { $, F, S } from "./config.js?v=5.0.0-beta.76";
+import { bindOpened, confirmDiscard } from "./session.js?v=5.0.0-beta.76";
+import { toast } from "./ui.js?v=5.0.0-beta.76";
+import { handleCsvText } from "./csv-import.js?v=5.0.0-beta.76";
+import { openDocText } from "./local-files.js?v=5.0.0-beta.76";
 
 const dtHasFiles = (e) => !!(e.dataTransfer && e.dataTransfer.types && [...e.dataTransfer.types].includes("Files"));
 let dropDepth = 0;

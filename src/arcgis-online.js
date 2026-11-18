@@ -2,22 +2,22 @@
 // Signing in to ArcGIS Online (the map being worked on is kept across the sign-in page and put back), the signed-in
 // student's menu, and saving the map as a web map item: Save overwrites the student's own item, Save as makes a new
 // one, with a picture of the map as its thumbnail. Also the tips on the sign-in tiles and each tool's tooltip.
-import "./print.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.75";
-import { state, late } from "./state.js?v=5.0.0-beta.75";
-import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.75";
-import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.75";
-import { activeMap } from "./views.js?v=5.0.0-beta.75";
-import { handWords, usesTouch } from "./popups.js?v=5.0.0-beta.75";
-import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.75";
-import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.75";
-import { sourceLayers } from "./maps.js?v=5.0.0-beta.75";
-import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.75";
-import { filterJson } from "./filter-panel.js?v=5.0.0-beta.75";
-import { forgetThumbs } from "./topics.js?v=5.0.0-beta.75";
-import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.75";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.75";
-import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.75";
+import "./print.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { AUTHORING_APP, isOwnLayerJson, xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.76";
+import { state, late } from "./state.js?v=5.0.0-beta.76";
+import { AUTH_STASH, $, cfgName, cfgItem, cfg, F, S, t, PORTAL } from "./config.js?v=5.0.0-beta.76";
+import { IdentityManager, OAuthInfo, Portal, esriRequest, restGet } from "./sdk.js?v=5.0.0-beta.76";
+import { activeMap } from "./views.js?v=5.0.0-beta.76";
+import { handWords, usesTouch } from "./popups.js?v=5.0.0-beta.76";
+import { markClean, currentTitle, setTitle } from "./session.js?v=5.0.0-beta.76";
+import { toast, saveNotes, openModal, closeModal } from "./ui.js?v=5.0.0-beta.76";
+import { sourceLayers } from "./maps.js?v=5.0.0-beta.76";
+import { isGroup, hasLabels } from "./layers-panel.js?v=5.0.0-beta.76";
+import { filterJson } from "./filter-panel.js?v=5.0.0-beta.76";
+import { forgetThumbs } from "./topics.js?v=5.0.0-beta.76";
+import { forgetBrowse, switchTab, openOpenModal } from "./collection.js?v=5.0.0-beta.76";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.76";
+import { buildDocument, buildWebMapJson } from "./local-files.js?v=5.0.0-beta.76";
 late.refreshTileTips = refreshTileTips;   // for the start-up files, which run before this one (see late in state.js)
 
 const SIGN = cfg.signIn || {};
@@ -174,7 +174,7 @@ if (F.toolTips) {
   const usable = (el) => tipsOn && el.getBoundingClientRect().width > 0 && el.getAttribute("aria-disabled") !== "true" && !!S[el.dataset.tipKey];      // a tool that is unavailable keeps its own tooltip, which says why
   const show = (el) => { if (el.isConnected && usable(el)) placeTip(el, handWords(el.dataset.tipKey)); };   // "tap" for a finger or pen (5.0.0-beta.75)
   const stop = (now) => { clearTimeout(wait); if (tipFor && tipFor.dataset && tipFor.dataset.tipKey) hideTileTip(now); };
-  // Press and hold (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). A finger or a pen doesn't rest on a tool the
+  // Press and hold (features.tabletLayout, Tablets 1.0, 5.0.0-beta.75; main app from 5.0.0-beta.76). A finger or a pen doesn't rest on a tool the
   // way a mouse pointer does, so the tips never showed on an iPad, where most tools are icons. Holding a tool for half a
   // second shows its name and its tip, and the tool is not used when the finger lifts; a quick tap uses it, as before.
   // Moving the finger, as when scrolling the toolbar, lets it go. The tip stays four seconds, or until the next touch.

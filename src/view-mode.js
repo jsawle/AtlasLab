@@ -3,26 +3,26 @@
 // profile's line go across (Measure stops), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its
 // quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which
 // views a map allows, and paired 2D and 3D maps (features.pairs).
-import "./profile.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.75";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.75";
-import { state } from "./state.js?v=5.0.0-beta.75";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.75";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.75";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.75";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.75";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.75";
-import { legend, gallery, syncGallerySelection, renderGallery } from "./legend-basemaps.js?v=5.0.0-beta.75";
-import { coordWidget, stopMeasuring } from "./measure.js?v=5.0.0-beta.75";
-import { PROF_KEYS, profActive, profShow, ensureProfile, syncDraftButtons } from "./profile.js?v=5.0.0-beta.75";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.75";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.75";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.75";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.75";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.75";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.75";
+import "./profile.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.76";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.76";
+import { state } from "./state.js?v=5.0.0-beta.76";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.76";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.76";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.76";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.76";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.76";
+import { legend, gallery, syncGallerySelection, renderGallery } from "./legend-basemaps.js?v=5.0.0-beta.76";
+import { coordWidget, stopMeasuring } from "./measure.js?v=5.0.0-beta.76";
+import { PROF_KEYS, profActive, profShow, ensureProfile, syncDraftButtons } from "./profile.js?v=5.0.0-beta.76";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.76";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.76";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.76";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.76";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.76";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.76";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less

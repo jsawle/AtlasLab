@@ -7,10 +7,10 @@
 // Chrome empties a file as soon as it's picked in the save dialog (File System Access spec), before the app sees which
 // file it was. So the text of each locked file opened is kept: if it's picked, it's written straight back, unchanged.
 // (A locked file that wasn't opened in this session can't be put back: see README, Known limits.)
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.75";
-import { state, late } from "./state.js?v=5.0.0-beta.75";
-import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.75";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.75";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.76";
+import { state, late } from "./state.js?v=5.0.0-beta.76";
+import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.76";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.76";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)
@@ -126,12 +126,18 @@ export function layoutBottom() {
   if (!v || !stack) return;
   // Lift the compass and scale bar above the toolbar where the toolbar runs into them (5.0.0-beta.75). The view's
   // padding was meant to do it (until 5.0.0-beta.74), but it never found them in the map component's slot (see stackOf):
-  // on an upright iPad the scale bar sat under the toolbar's left end and the compass touched it. Phones (640 pixels
-  // wide or less) are left as they are for now: their layout is to be reworked.
+  // on an upright iPad the scale bar sat under the toolbar's left end and the compass touched it. Phones too since
+  // 5.0.0-beta.76: there the scale bar was under the toolbar, and in 3D the compass sat on it.
   stack.style.translate = "";
-  const own = stack.getBoundingClientRect(), under = tb.width > 0 && own.width > 0 && window.innerWidth > 640
+  const own = stack.getBoundingClientRect(), under = tb.width > 0 && own.width > 0
     && Math.min(own.right, tb.right) - Math.max(own.left, tb.left) > 4 && own.bottom > tb.top - 6;
   stack.style.translate = under ? "0 " + -Math.ceil(own.bottom - tb.top + 8) + "px" : "";
+  // On a small screen (where pop-ups dock) the map's own working area stops above the toolbar (5.0.0-beta.76): a pop-up
+  // docked at the bottom ended under the toolbar, its last line and "1 of 19" hidden. The view's padding is what the SDK
+  // keeps a docked pop-up and the centre of the map clear of; elsewhere it is left as it was.
+  const small = window.innerWidth <= 544 || window.innerHeight <= 544, wrap = $("mapWrap").getBoundingClientRect();
+  const pad = small && tb.height > 0 ? Math.max(0, Math.ceil(wrap.bottom - tb.top) + 6) : 0;
+  if ((v.padding && v.padding.bottom || 0) !== pad) { try { v.padding = { ...(v.padding || {}), bottom: pad }; } catch (e) { /* the SDK's own */ } }
 }
 const bottomObserver = window.ResizeObserver ? new ResizeObserver(() => layoutBottom()) : null;
 /**

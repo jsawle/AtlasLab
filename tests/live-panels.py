@@ -83,7 +83,10 @@ with sync_playwright() as p:
         page.evaluate("document.querySelectorAll('#layersPanel [aria-expanded=\"false\"]').forEach(b => { if (b.querySelector('calcite-icon[icon=\"chevron-right\"]')) b.click(); })"); page.wait_for_timeout(800)
         page.evaluate("(() => { const b = document.querySelector('#layersPanel [data-key$=\":chart\"]'); if (b) b.click(); })()"); page.wait_for_timeout(4000)
         r = page.evaluate(RECT, "#layersPanel"); m = page.evaluate("(() => { const r = document.getElementById('mapWrap').getBoundingClientRect(); return Math.round(r.height); })()")
-        check(r and r["h"] >= min(m - 60, 400) * 0.75, f"Map layers over a chart uses the map's height: {r and r['h']}px of a {m}px map")
+        if W <= 640:   # a phone: the chart closes Map layers, so the map can be seen (5.0.0-beta.76)
+            check(not r and page.is_visible("#tableDock"), f"{name}: opening a chart closes Map layers, so the map can be seen above it")
+        else:
+            check(r and r["h"] >= min(m - 60, 400) * 0.75, f"Map layers over a chart uses the map's height: {r and r['h']}px of a {m}px map")
         page.close()
     # Safari: the area fixed elements fill made 150 px shorter than the window, as Safari's toolbars can
     for (W, H) in [(1148, 790), (390, 800)]:

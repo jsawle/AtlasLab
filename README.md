@@ -1,6 +1,6 @@
 # Atlas 5.0 (beta)
 
-**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.75**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
+**Atlas 5.0** is the white-label Atlas / MapMaker app with local save, adding your own data, filtering and Map Viewer's sketch tools. The MapMaker that is live today (the Atlas Instant App) is 4.0. This repository is 5.0, version **5.0.0-beta.76**, on ArcGIS Maps SDK for JavaScript 5.2. Until beta.29 it was the `atlas-sketch/` folder of [jsawle/localmapsave](https://github.com/jsawle/localmapsave); its history came with it. It grew from a lab copy of the earlier white-label app (`localmapsave/atlas/`, 1.14.8, kept there as the demo copy): Sketch uses the SDK's Sketch component, which is Map Viewer's drawing toolbar, instead of the app's own tool buttons. The full description, versions table and known limits are in the `sketch-mapviewer` branch's `atlas/README.md` (pull request #27).
 
 | Link | What you get |
 |---|---|
@@ -8,13 +8,30 @@
 | `…/AtlasLab/?config=mapmaker` | MapMaker's groups, units, colours and wording |
 | `…/AtlasLab/?config=test` | The same as `mapmaker` (kept so earlier links still work) |
 | `…/AtlasLab/?config=mapmaker-live` | The MapMaker config reading the **live** MapMaker group (`36443e9570294a1f883b5d2c5abfe6b5`), for comparing with what is live |
-| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile, a Rotation slider for a point's symbol, and the tablet layout (tool names, bigger buttons for fingers, press and hold) |
+| `…/AtlasLab/?config=lab` | The MapMaker config with lab features switched on. Now: fish in the sea of an elevation profile, and a Rotation slider for a point's symbol |
 | `…/AtlasLab/?config=example-es` | Spanish-language version: a 37-line config plus the shared `locales/es.json` |
 | `…/AtlasLab/?appid=<item ID>` | A partner's version, its config kept in an ArcGIS Online item of the education team's (5.0.0-beta.58) |
 
 Apart from Sketch, the two apps are the same: CSV 3.4, the Coordinates fixes, and saving (1.14.5 / 1.15.0-sketch.6). **Lab only for now (1.15.0-sketch.7): locked maps.** *Save a locked copy* writes a map that Save in this app never changes (a teacher's class map, a student's hand-in); the mark is inside the file. Opening one is just looking; Save makes your own copy. Any other map file saves back to itself on any device. 1.15.0-sketch.8 rewords the message after saving a locked copy: it used to say nobody could save over it, but Save as can still replace a locked map that wasn't opened in that session. Two people saving the same unlocked map on a shared drive: whoever saves last wins, with no warning. 1.15.0-sketch.9: picking a file in the save box that Chrome can't write (someone else's, or read-only) used to do nothing at all, because Chrome reports it the same way as Cancel. The app now says nothing was saved and to choose another name or folder. Found by the simulated Chromebook test (`localmapsave/atlas/tests/chromebook-sim/`). 1.15.0-sketch.10 (with main 1.14.7): the Save panel's notes become explanations on each tile, and Sign in is a tile beside Print. The main app gets this in its own pull request once it's been tried here.
 
 1.15.0-sketch.11 has the same code-review fixes as the main app's 1.14.8 (a message when the map library doesn't load, save notes shown one after the other, the close-tab warning for an unadded spreadsheet).
+
+## The tablet layout in the main app, and phone fixes (5.0.0-beta.76)
+
+**Tablets 1.1.** The tablet layout from beta.75 is now in the main app, after testing on an iPad: tool names under the icons on an upright iPad, 44-pixel buttons for fingers on a touch screen, and press and hold for a tool's name. `features.tabletLayout` is on by default; the classic config turns it off.
+
+**Phones (Small screens and zoom 1.1), in the main app.** Fixes for things that were broken, from the review of phones and tablets:
+
+- **A docked pop-up ended under the toolbar** on an upright phone, its last line and "1 of 19" hidden, with the compass over its text. On a small screen (where pop-ups dock) the map's working area now stops above the toolbar (the view's padding, which the SDK keeps a docked pop-up and the centre of the map clear of), and the compass and scale bar stand aside while a pop-up is docked at the bottom.
+- **On a phone on its side the pop-up ran off the top of the map**, title and all: it floated beside the feature in a map too short for it. It now docks there too (the SDK docks below 544 pixels wide; the app adds below 544 pixels tall). Tapping the map away from a feature closes it, as before.
+- **The compass and scale bar sat on the toolbar** on a phone (the scale bar underneath it in 2D, the compass on it in 3D). They are lifted above it, as on tablets since beta.75.
+- **Opening a layer's table or chart closes Map layers on a phone**: together they left a strip of map.
+
+An upright iPad and wider screens are as they were: pop-ups float beside the feature and the view keeps no padding.
+
+Not changed yet: in testing, a pop-up docked on a phone on its side showed its title and the button to undock it, but not its close button. Tapping the map closes it. This needs checking on a real phone. The phone layout itself (a shorter header with the map's title, a toolbar with a More button, panels that leave the map visible) is next, in the lab.
+
+Tests: `python3 tests/live-phone.py` (14 checks), in the CI matrix; `live-tablet.py` now checks the main app, and the classic config for the old behaviour.
 
 ## Tablets: tool names, bigger buttons for fingers, press and hold (5.0.0-beta.75)
 
