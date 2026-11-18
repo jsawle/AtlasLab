@@ -737,7 +737,7 @@
       .modal-card, .modal .card{ max-height:100%; overflow-y:auto; }
       .dock{ height:62vh; height:62dvh; }
     }
-    /* Tablets (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75). #app.tablet is set where the config turns it on.
+    /* Tablets (features.tabletLayout, Tablets 1.0, 5.0.0-beta.75; main app from 5.0.0-beta.76). #app.tablet is set where the config turns it on.
        1. Tool names under the icons on an upright iPad (641 to 1024 pixels wide). They were hidden at these widths, leaving
           icons only, and the tips that name a tool need a mouse resting on it. At 12px every name fits on one or two lines
           and the whole toolbar fits on an iPad mini (744 wide), a word only broken where one is too long for a tool. Not on a short screen: a phone on its side keeps its icons. */
@@ -765,6 +765,8 @@
             bring up the system's menu */
       #app.tablet [data-tip-key]{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
     }
+    /* a pop-up docked at the bottom of a phone's map: the compass and scale bar stand aside (5.0.0-beta.76; views.js) */
+    @media (max-width:640px){ #app.pop-docked-bottom .ll-stack{ visibility:hidden; } }
     /* the toolbar scrolls sideways when it does not fit: its edge fades where there are more tools that way */
     .toolbar.more-right{ -webkit-mask-image:linear-gradient(to left, transparent 0, #000 34px); mask-image:linear-gradient(to left, transparent 0, #000 34px); }
     .toolbar.more-left{ -webkit-mask-image:linear-gradient(to right, transparent 0, #000 34px); mask-image:linear-gradient(to right, transparent 0, #000 34px); }
@@ -1218,6 +1220,6 @@
 
   <div id="printSheet" aria-hidden="true"></div>
 
-  <script type="module" src="./app.js?v=5.0.0-beta.75"></script>
+  <script type="module" src="./app.js?v=5.0.0-beta.76"></script>
 </body>
 </html>

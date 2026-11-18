@@ -2,17 +2,17 @@
 // The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate
 // components. And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed
 // with the units switch, and followed by the Sketch tools and the Elevation profile too.
-import "./legend-basemaps.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.75";
-import { state, late } from "./state.js?v=5.0.0-beta.75";
-import { $, params, cfg, S } from "./config.js?v=5.0.0-beta.75";
-import { Portal, reactiveUtils, toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.75";
-import { mapView } from "./views.js?v=5.0.0-beta.75";
-import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.75";
-import { updatePopupEnabled, handWords, onHandChange } from "./popups.js?v=5.0.0-beta.75";
-import { sketch } from "./sketch.js?v=5.0.0-beta.75";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.75";
-import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.75";
+import "./legend-basemaps.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { resolveUnits, wholeNumberText } from "../lib/units.js?v=5.0.0-beta.76";
+import { state, late } from "./state.js?v=5.0.0-beta.76";
+import { $, params, cfg, S } from "./config.js?v=5.0.0-beta.76";
+import { Portal, reactiveUtils, toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.76";
+import { mapView } from "./views.js?v=5.0.0-beta.76";
+import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.76";
+import { updatePopupEnabled, handWords, onHandChange } from "./popups.js?v=5.0.0-beta.76";
+import { sketch } from "./sketch.js?v=5.0.0-beta.76";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.76";
+import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.76";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let coordWidget = null;

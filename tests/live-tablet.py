@@ -1,11 +1,12 @@
-"""Tablets (lab: features.tabletLayout, Tablets 1.0, 5.0.0-beta.75), in Chromium against the real services.
+"""Tablets (features.tabletLayout, Tablets 1.0, 5.0.0-beta.75; in the main app from 5.0.0-beta.76), in Chromium against
+the real services.
 
 Run:  python3 tests/live-tablet.py [--shots DIR] [--proxy URL] [--axe FILE]
 Needs network access to js.arcgis.com, cdn.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
 An iPad-sized page with touch. Checks: upright, the toolbar shows each tool's name under its icon, fits without
-scrolling and keeps clear of the compass, scale bar and Hide tools (iPad mini to iPad Pro widths); the main app still
-shows icons only; the map library's buttons and the app's own small buttons are 44 pixels for fingers (Map layers,
+scrolling and keeps clear of the compass, scale bar and Hide tools (iPad mini to iPad Pro widths); the classic config
+(the switch off) still shows icons only; the map library's buttons and the app's own small buttons are 44 pixels for fingers (Map layers,
 Measure, Filter, Sketch), and stay as they were with a mouse; pressing and holding a tool shows its name and what it
 does without opening it, a quick tap opens it, and moving the finger lets it go; Measure and Sketch say "tap" after a
 finger or pen and "click" after a mouse (main app too); on its side the iPad keeps the names and the Sketch tools fit.
@@ -76,22 +77,22 @@ def main():
             cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []}); page.wait_for_timeout(700)
         def tip(page): return page.evaluate("(() => { const t = document.getElementById('tileTip'); return t.hidden ? null : { name: (t.querySelector('.tip-name') || {}).textContent || '', text: t.textContent }; })()")
 
-        print("== upright iPads, lab: the tools' names under their icons")
+        print("== upright iPads: the tools' names under their icons")
         for w, h in [(744, 1133), (810, 1080), (820, 1180), (1024, 1366)]:
-            ctx, page = open_page(w, h, "lab", webmap=False)
+            ctx, page = open_page(w, h, "mapmaker", webmap=False)
             tb = page.evaluate(TOOLBAR)
             check(all(n["shown"] and n["inside"] for n in tb["names"]) and not tb["scrolls"],
                   f"{w} wide: all {len(tb['names'])} names show, inside their tools with no word broken, and the toolbar fits without scrolling: " + ", ".join(n["text"] + ("" if n["shown"] and n["inside"] else "(!)") for n in tb["names"]))
             check(not (tb["rose"] or tb["scale"] or tb["hide"]), f"{w} wide: the toolbar is clear of the compass, the scale bar and Hide tools ({tb['rose']}, {tb['scale']}, {tb['hide']})")
             if w == 820: page.screenshot(path=str(shots / "tablet-toolbar-820.png"), clip={"x": 0, "y": h - 150, "width": w, "height": 150})
             ctx.close()
-        ctx, page = open_page(820, 1180, "mapmaker", webmap=False)
+        ctx, page = open_page(820, 1180, "classic", webmap=False)
         tb = page.evaluate(TOOLBAR)
-        check(not any(n["shown"] for n in tb["names"]), "the main app at the same size keeps icons only (the lab switch is off there)")
+        check(not any(n["shown"] for n in tb["names"]), "the classic config (the switch off) keeps icons only at the same size")
         ctx.close()
 
-        print("== big buttons for fingers, iPad upright, lab")
-        ctx, page = open_page(820, 1180, "lab"); cdp = ctx.new_cdp_session(page)
+        print("== big buttons for fingers, iPad upright")
+        ctx, page = open_page(820, 1180, "mapmaker"); cdp = ctx.new_cdp_session(page)
         sdk = page.evaluate(SDK_SIZES)
         check(all(v and v >= 44 for k, v in sdk.items() if k != "arcgis-sketch") and len(sdk) >= 3, "the map library's Search, Home and Zoom buttons are 44 pixels: " + json.dumps(sdk))
         page.locator("#tool-layers").tap(); page.wait_for_selector("#layersPanel:not([hidden])"); page.wait_for_timeout(1500)
@@ -150,7 +151,7 @@ def main():
         ctx.close()
 
         print("== the same with a mouse (no touch screen): sizes as before")
-        ctx, page = open_page(820, 1180, "lab", touch=False)
+        ctx, page = open_page(820, 1180, "mapmaker", touch=False)
         sdk = page.evaluate(SDK_SIZES)
         check(all(v and v < 40 for v in sdk.values()), "with a mouse the map library's buttons are as before (32): " + json.dumps(sdk))
         page.click("#tool-layers"); page.wait_for_selector("#layersPanel:not([hidden])"); page.wait_for_timeout(1200)
@@ -158,17 +159,17 @@ def main():
         check(lt and all(max(x) <= 34 for x in lt), "and the layer's tools as before: " + str(sorted(set(map(tuple, lt)))))
         ctx.close()
 
-        print("== the main app on an iPad: tap, not click (a bug fix, not a lab feature)")
-        ctx, page = open_page(820, 1180, "mapmaker", webmap=False)
+        print("== the classic config on an iPad: tap, not click (not behind the switch), and the old sizes")
+        ctx, page = open_page(820, 1180, "classic", webmap=False)
         page.locator("#tool-measure").tap(); page.wait_for_timeout(1000)
         if page.is_visible("#menuMeasure"): page.locator("#menuMeasure").tap(); page.wait_for_timeout(1000)
-        check("tap the map" in page.inner_text("#measureHint").lower(), "Measure says tap in the main app too: " + page.inner_text("#measureHint"))
+        check("tap the map" in page.inner_text("#measureHint").lower(), "Measure says tap with the switch off too: " + page.inner_text("#measureHint"))
         sdk = page.evaluate(SDK_SIZES)
-        check(all(v and v < 40 for v in sdk.values()), "and its buttons are as they were (the bigger ones are lab-only): " + json.dumps(sdk))
+        check(all(v and v < 40 for v in sdk.values()), "and its buttons are as they were (the bigger ones follow the switch): " + json.dumps(sdk))
         ctx.close()
 
-        print("== iPad on its side, lab")
-        ctx, page = open_page(1180, 820, "lab")
+        print("== iPad on its side")
+        ctx, page = open_page(1180, 820, "mapmaker")
         tb = page.evaluate(TOOLBAR)
         check(all(n["shown"] for n in tb["names"]) and not tb["scrolls"] and not (tb["rose"] or tb["scale"] or tb["hide"]), "the names show as before, the toolbar fits and is clear of the rest: " + json.dumps({k: tb[k] for k in ("scrolls", "rose", "scale", "hide")}))
         page.locator("#tool-sketch").tap(); page.wait_for_function("document.querySelector('arcgis-sketch') && document.querySelector('arcgis-sketch').state === 'ready'", timeout=120000); page.wait_for_timeout(3000)

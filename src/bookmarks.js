@@ -1,15 +1,15 @@
 // ============================================================ Bookmarks
 // The Bookmarks panel: a bookmark keeps a place, which layers are switched on and a small picture of the map. Bookmarks
 // can be made, renamed, moved to and deleted; a map's own bookmarks (or a web scene's slides) come with it.
-import "./filter-panel.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.75";
-import { $, S, t } from "./config.js?v=5.0.0-beta.75";
-import { Extent } from "./sdk.js?v=5.0.0-beta.75";
-import { isSketch, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.75";
-import { markDirty } from "./session.js?v=5.0.0-beta.75";
-import { updateToolBadges, layersDeep } from "./maps.js?v=5.0.0-beta.75";
-import { eachToggleableLayer, renderLayers } from "./layers-panel.js?v=5.0.0-beta.75";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.75";
+import "./filter-panel.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.76";
+import { $, S, t } from "./config.js?v=5.0.0-beta.76";
+import { Extent } from "./sdk.js?v=5.0.0-beta.76";
+import { isSketch, activeMap, goToSafe } from "./views.js?v=5.0.0-beta.76";
+import { markDirty } from "./session.js?v=5.0.0-beta.76";
+import { updateToolBadges, layersDeep } from "./maps.js?v=5.0.0-beta.76";
+import { eachToggleableLayer, renderLayers } from "./layers-panel.js?v=5.0.0-beta.76";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.76";
 
 let bmEditIndex = -1;
 function layerSnapshot() { const s = []; eachToggleableLayer((l, id, title) => s.push({ id, title, visible: l.visible !== false })); return s; }

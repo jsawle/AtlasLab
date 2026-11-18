@@ -2,8 +2,8 @@
 // Dresses the page in the config's brand: its colours (with the text colour on each worked out so it stays readable),
 // the header's logo, name and links, and every piece of wording the page shows. Draws the toolbar's built-in outline
 // icons first, then swaps in Esri's Calcite icons once the SDK has loaded them.
-import { late } from "./state.js?v=5.0.0-beta.75";
-import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.75";
+import { late } from "./state.js?v=5.0.0-beta.76";
+import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
 
 /**
  * A colour written as #rgb or #rrggbb, as [red, green, blue] from 0 to 255.
@@ -143,7 +143,7 @@ export async function upgradeIcons() {
     if (!pending.length || Date.now() - started > 120000) { clearInterval(timer); pending.forEach(({ ic }) => ic.remove()); }
   }, 400);
 }
-if (F.tabletLayout) $("app").classList.add("tablet");   // tablets (lab, 5.0.0-beta.75): index.html
+if (F.tabletLayout) $("app").classList.add("tablet");   // tablets (5.0.0-beta.75; main app from 5.0.0-beta.76): index.html
 applyTheme();
 applyStrings();
 applyHeader();

@@ -2,12 +2,12 @@
 // Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after. With the map focused,
 // Enter opens the pop-up of what is at the centre of the map, as a click there would, and a cross marks the centre
 // while the keyboard is in use (Keyboard on the map 1.1).
-import "./ui.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.75";
-import { mapView, onViews } from "./views.js?v=5.0.0-beta.75";
-import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.75";
-import { $, S } from "./config.js?v=5.0.0-beta.75";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.75";
+import "./ui.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.76";
+import { mapView, onViews } from "./views.js?v=5.0.0-beta.76";
+import { openPanelName, toast } from "./ui.js?v=5.0.0-beta.76";
+import { $, S } from "./config.js?v=5.0.0-beta.76";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
 
 /**
  * Turns pop-ups off while Sketch, Measure or the Elevation profile is in use, and back on after, in both views.

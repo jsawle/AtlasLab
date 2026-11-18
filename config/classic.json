@@ -1,5 +1,5 @@
 {
   "configVersion": 2,
   "extends": "mapmaker",
-  "features": { "plainFilter": false, "drapeFills": false, "countryData": false }
+  "features": { "plainFilter": false, "drapeFills": false, "countryData": false, "tabletLayout": false }
 }

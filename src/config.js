@@ -7,10 +7,10 @@
 // a distributor changes lives in a config. Created by Jason Sawle.
 // Each ?v= on an import is the app version, so a new release never runs beside a cached older module
 // (tests/structure.test.mjs checks they match).
-import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.75";
-import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.75";
+import { mergeConfig, loadConfig, loadItemConfig, loadPreviewConfig, buildStrings } from "../lib/config.js?v=5.0.0-beta.76";
+import { DEFAULT_STRINGS } from "../lib/strings.js?v=5.0.0-beta.76";
 
-export const APP_VERSION = "5.0.0-beta.75";
+export const APP_VERSION = "5.0.0-beta.76";
 export const COMPASS_VERSION = "1.1";
 export const CHARTS_VERSION = "1.1";
 export const PROFILE_VERSION = "3.5";   // 3.5 (5.0.0-beta.66): a pen is told "tap", as a finger is
@@ -51,7 +51,7 @@ const DEFAULT_CONFIG = {
   csvMaxRows: 1000,
   features: { openMap: true, addLayer: true, csv: true, layers: true, legend: true, basemaps: true, measure: true, sketch: true,
     bookmarks: true, threeD: true, save: true, localSave: true, screenshot: true, print: true, search: true, signIn: true, compass: true, elevationProfile: true, filter: true,
-    lockedCopy: false, profileFish: false, pointRotation: false,   /* lab (5.0.0-beta.74): a Rotation slider for a point's symbol, for arrows */ tabletLayout: false,   /* lab (5.0.0-beta.75): tablets (tool names, bigger buttons for fingers, press and hold for a tool's name) */ countryData: true,   /* Add data places rows by country: lab in 5.0.0-beta.67, the main app since beta.68 (config/classic.json turns it off) */ plainFilter: true, drapeFills: true,   /* both in the main app since 5.0.0-beta.64 (config/classic.json turns them off, for the tests of the panel and fills as they were) */   /* lab (5.0.0-beta.63): styled fills laid on the ground in 3D */   /* lab (5.0.0-beta.60): the Filter panel in plain words */   /* lab (5.0.0-beta.51): fish in the sea of an elevation profile */ columns3d: true, pairs: true, sketchLayers: true,   // in the main app since 5.0.0-beta.50
+    lockedCopy: false, profileFish: false, pointRotation: false,   /* lab (5.0.0-beta.74): a Rotation slider for a point's symbol, for arrows */ tabletLayout: true,   /* tablets (tool names, bigger buttons for fingers, press and hold for a tool's name): lab in 5.0.0-beta.75, main from 5.0.0-beta.76 */ countryData: true,   /* Add data places rows by country: lab in 5.0.0-beta.67, the main app since beta.68 (config/classic.json turns it off) */ plainFilter: true, drapeFills: true,   /* both in the main app since 5.0.0-beta.64 (config/classic.json turns them off, for the tests of the panel and fills as they were) */   /* lab (5.0.0-beta.63): styled fills laid on the ground in 3D */   /* lab (5.0.0-beta.60): the Filter panel in plain words */   /* lab (5.0.0-beta.51): fish in the sea of an elevation profile */ columns3d: true, pairs: true, sketchLayers: true,   // in the main app since 5.0.0-beta.50
     toolTips: true, tipsSwitch: false, lessonQuestions: true, hideToolbar: true, outlinePrint: true },   // lab features (5.0.0-beta.44): what each tool does, in its tooltip, with a Tips switch; a lesson's questions beside the map   // Save a locked copy: off since 5.0.0-beta.43 (it confused people shown the app). A config can turn it back on. Locked files already made are still respected.
   strings: {}
 };

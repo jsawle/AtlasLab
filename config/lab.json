@@ -1,5 +1,5 @@
 {
   "configVersion": 21,
   "extends": "mapmaker",
-  "features": { "profileFish": true, "pointRotation": true, "tabletLayout": true }
+  "features": { "profileFish": true, "pointRotation": true }
 }

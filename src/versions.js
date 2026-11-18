@@ -1,26 +1,26 @@
 // ============================================================ Versions
 // The Versions table in About: the app's version and the version of each part of it, with what changed, and where the
 // config came from (a file in config/, an ArcGIS Online item, or the manager app's preview).
-import "./arcgis-online.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.75";
-import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.75";
-import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.75";
-import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.75";
-import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.75";
-import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.75";
-import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.75";
-import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.75";
-import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.75";
-import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.75";
-import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.75";
-import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.75";
-import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.75";
-import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.75";
-import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.75";
-import { STATE_VERSION } from "./state.js?v=5.0.0-beta.75";
-import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.75";
-import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.75";
-import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.75";
+import "./arcgis-online.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { THREED_VERSION } from "../lib/threed.js?v=5.0.0-beta.76";
+import { FISH_VERSION } from "../lib/fish.js?v=5.0.0-beta.76";
+import { COUNTRIES_VERSION } from "../lib/countries.js?v=5.0.0-beta.76";
+import { COUNTRY_DATA_DATE } from "../lib/countries-data.js?v=5.0.0-beta.76";
+import { OUTLINE_VERSION } from "../lib/outline.js?v=5.0.0-beta.76";
+import { QUESTIONS_VERSION } from "../lib/questions.js?v=5.0.0-beta.76";
+import { BASEMAPS_VERSION } from "../lib/basemaps.js?v=5.0.0-beta.76";
+import { CATALOG_VERSION } from "../lib/catalog.js?v=5.0.0-beta.76";
+import { CONFIG_VERSION } from "../lib/config.js?v=5.0.0-beta.76";
+import { CSV_VERSION } from "../lib/csv.js?v=5.0.0-beta.76";
+import { DOC_VERSION, WEBMAP_WRITER_VERSION, WEBMAP_SPEC_VERSION, WEBSCENE_SPEC_VERSION } from "../lib/doc.js?v=5.0.0-beta.76";
+import { FILTER_VERSION } from "../lib/filter.js?v=5.0.0-beta.76";
+import { PAIRS_VERSION } from "../lib/pairs.js?v=5.0.0-beta.76";
+import { RECENT_VERSION } from "../lib/recent.js?v=5.0.0-beta.76";
+import { UNITS_VERSION } from "../lib/units.js?v=5.0.0-beta.76";
+import { STATE_VERSION } from "./state.js?v=5.0.0-beta.76";
+import { APP_VERSION, COMPASS_VERSION, CHARTS_VERSION, PROFILE_VERSION, SKETCH_VERSION, CONFIG_SCHEMA, SDK_VERSION, $, cfgChain, cfgItem, localeFile, cfg, S } from "./config.js?v=5.0.0-beta.76";
+import { SKETCH_LAYERS_VERSION } from "./sketch.js?v=5.0.0-beta.76";
+import { COLUMNS_VERSION } from "./data-layers.js?v=5.0.0-beta.76";
 
 // Where the config came from: files in config/, an ArcGIS Online item (5.0.0-beta.58), or the manager's preview.
 function configSource() {
@@ -58,8 +58,8 @@ export function renderVersions() {
     ["Hide the toolbar", "1.4", "1.4: the compass is hidden only while a table or the elevation chart is open and has taken the tools away; Hide tools on the full map leaves it. 1.2: the button is at the bottom right, level with the toolbar; the version button moved to the header. 1.1: in the main app; the button reads Hide tools or Show tools. 1.0: A Tools button at the bottom left of the map hid the row of tools at any time, to give the map the whole screen, and brings it back. Without it, the toolbar is only tucked away while a table or the elevation chart is open."],
     ["Messages", "2.0", "The short messages over the map. 2.0: a message waits while the pointer is on it or the keyboard is in it, and has a Close button; a setting below keeps every message until it is closed; the last ten are listed below."],
     ["Keyboard on the map", "1.1", "1.1: the ring and the cross show only when the keyboard was the last thing used (they showed on an iPad after Sketch, with no keyboard). With the map focused (it shows a ring, and a cross at its centre): the arrow keys move it, + and - zoom, Enter opens the pop-up for what is at the centre and Escape closes it. In Elevation, Space or the Add point at map centre button puts a point of the line at the centre, and Finish line ends it. Measure and Sketch still need a pointer."],
-    ["Small screens and zoom", "1.0", "On a short screen, or any screen zoomed a long way in (a 1280 x 1024 screen at 400% is 320 x 256), the header and toolbar shrink, the compass is left out, a panel or the Open map window takes the whole screen and scrolls up and down only, and the toolbar's edge fades where more tools are off to the side."],
-    ["Tablets", "1.0", "1.0 (5.0.0-beta.75). In the lab (features.tabletLayout): on an upright iPad each tool's name shows under its icon, as it does on a wider screen; on a touch screen the app's small buttons and the map's own (Search, Home, Zoom, the Sketch tools as far as they fit) are 44 pixels for fingers, from 32; pressing and holding a tool shows its name and what it does without opening it. In every config: Measure, Sketch and the tool tips say tap, not click, after a finger or a pen; the compass and scale bar are lifted above the toolbar where it ran into them (an upright iPad, a narrow window)."],
+    ["Small screens and zoom", "1.1", "On a short screen, or any screen zoomed a long way in (a 1280 x 1024 screen at 400% is 320 x 256), the header and toolbar shrink, the compass is left out, a panel or the Open map window takes the whole screen and scrolls up and down only, and the toolbar's edge fades where more tools are off to the side. 1.1 (5.0.0-beta.76), phones: a pop-up docked at the bottom stops above the toolbar and the compass stands aside for it; a phone on its side docks its pop-up too, as its map is too short for one beside the feature; the compass and scale bar are lifted above the toolbar, in 3D as well; opening a table or chart closes Map layers."],
+    ["Tablets", "1.1", "1.0 (5.0.0-beta.75), in the lab: on an upright iPad each tool's name shows under its icon; on a touch screen the app's small buttons and the map's own (Search, Home, Zoom, the Sketch tools as far as they fit) are 44 pixels for fingers, from 32; pressing and holding a tool shows its name and what it does without opening it. Measure, Sketch and the tool tips say tap, not click, after a finger or a pen; the compass and scale bar are lifted above the toolbar where it ran into them. 1.1 (5.0.0-beta.76): all of it in the main app."],
     ["2D to 3D", THREED_VERSION, "1.6: a sketched area with a fill laid on the ground opens its pop-up when clicked in 3D (the picture took the click); a docked pop-up stays docked in the other view. 1.5: a pop-up open when the view is switched opens again in the other view, on the same feature. 1.4: after a map was opened in 2D, a 3D view used earlier in the visit came down about a thousand times too close; it now waits until it is drawn again before taking the place to look at. 1.3: a sketched area's styled fill is laid on the ground as a picture in 3D in the main app (was lab); no seams between repeats. 1.2: a sketched area with a styled fill (hatch, land use, pencil), which 3D draws as a thin outline only, gets a thicker outline and a light tint in 3D; in the lab config the fill itself is laid on the ground as a picture. What happens to a map when 3D is pressed. The camera tilts by how far out the map is (none looking at a continent, the config's angle at town scale); the scale is corrected for latitude so a place stays the same size; a web map seen from far out is drawn without haze; map notes, which the 3D view cannot show as a layer, are drawn on the view; and a note says when layers will look different, with the reason in Map layers."],
     ["Countries by name", COUNTRIES_VERSION, "In the main app since 5.0.0-beta.68. Add data places a row by the country it names, as a point in the country or as its outline. Names are matched in English, Spanish, French, German, Portuguese and Arabic, with everyday and data-table spellings and two- and three-letter codes (list of " + COUNTRY_DATA_DATE + "). Outlines: Esri World Countries (Generalized), thinned to about a 400th of each country's width."],
     ["Fish in the profile (lab)", FISH_VERSION, "Only where a config turns it on (features.profileFish). A few small fish wander at random in the upper water of an elevation profile that goes below sea level. For fun: they are not to scale and are not data. A Fish button turns them on and off; they start off where the device asks for less motion, and keep still while a place on the line is being read."],

@@ -2,20 +2,20 @@
 // Every layer of the map, top first: show and hide, opacity, labels, reorder (by dragging or with the keys), zoom to,
 // remove, and rename for sketch layers; and each layer's tools: Swipe, the attribute table, charts, Filter and Change
 // style. Also what a saved map needs from the list: the sketch layers' names and settings, and the order of the layers.
-import "./data-layers.js?v=5.0.0-beta.75";   // first: keeps the files running in the order they were written in (see app.js)
-import { state, late } from "./state.js?v=5.0.0-beta.75";
-import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.75";
-import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.75";
-import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.75";
-import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.75";
-import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.75";
-import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.75";
-import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.75";
-import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.75";
-import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.75";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.75";
-import { safeFragment } from "./item-info.js?v=5.0.0-beta.75";
-import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.75";
+import "./data-layers.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
+import { state, late } from "./state.js?v=5.0.0-beta.76";
+import { $, fmt, F, S, t } from "./config.js?v=5.0.0-beta.76";
+import { layerDiffers3d } from "../lib/threed.js?v=5.0.0-beta.76";
+import { toolEl, dropEl } from "./sdk.js?v=5.0.0-beta.76";
+import { graphicsLayer, sketchLayers, isSketch, sketchKeyOfLayer, sketchListed, viewEls, mapView, activeMap, syncToolsToggles, goToSafe } from "./views.js?v=5.0.0-beta.76";
+import { dataLayers, portalLayers, markDirty, layoutBottom } from "./session.js?v=5.0.0-beta.76";
+import { toast, openPanelName, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.76";
+import { SKETCH_LAYERS_ON, syncSketchLayerPicker, removeSketchLayer, updatePinned, setSelection, endSketchOps } from "./sketch.js?v=5.0.0-beta.76";
+import { shownMap, updateToolBadges, removeFromMaps } from "./maps.js?v=5.0.0-beta.76";
+import { filterable, hasFilter, openFilter } from "./filter-panel.js?v=5.0.0-beta.76";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.76";
+import { safeFragment } from "./item-info.js?v=5.0.0-beta.76";
+import { previewLayer, editDataLayer } from "./csv-import.js?v=5.0.0-beta.76";
 late.updateScaleStates = updateScaleStates;   // for the start-up files, which run before this one (see late in state.js)
 
 /**
@@ -122,9 +122,13 @@ function nameTableProgress(el, tries = 0) {
   if (bar) { if (!bar.label) bar.label = S.filterLoading || "Loading"; return; }
   if (el.isConnected && tries < 20) setTimeout(() => nameTableProgress(el, tries + 1), 300);
 }
+// On a phone the table or chart and Map layers can't both be open: together they left a strip of map (5.0.0-beta.76), so
+// opening one closes the panel. The table's own heading says which layer it is.
+const narrow = () => window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
 async function openTable(l) {
   if (table && table.layer === l && table.kind !== "chart") { closeTable(true); return; }
   if (openPanelName === "profile") { closePanels(false); openPanel("layers", { focus: false }); }
+  if (narrow() && openPanelName === "layers") closePanels(false);
   if (table) closeTable(false);
   try {
     const c = document.createElement("div"); c.className = "table-host";
@@ -207,6 +211,7 @@ async function openChart(l, index) {
   if (!charts.length) return;
   if (table && table.layer === l && table.kind === "chart" && index === undefined) { closeTable(true); return; }
   if (openPanelName === "profile") { closePanels(false); openPanel("layers", { focus: false }); }
+  if (narrow() && openPanelName === "layers") closePanels(false);
   if (table) closeTable(false);
   const i = Math.min(charts.length - 1, Math.max(0, index || 0));
   try {
