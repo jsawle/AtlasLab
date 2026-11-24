@@ -5,10 +5,10 @@
 // needs their token: it used to go on the end of the address as a query parameter, written into the page as the card's
 // background, where it could be read from the page, from server and proxy logs, and from a copied address. It now travels
 // in a request header, and the picture is shown from a blob address that holds no token. Signing out forgets the pictures.
-import "./bookmarks.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
-import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.77";
-import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.77";
-import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.77";
+import "./bookmarks.js?v=5.0.0-beta.78";   // first: keeps the files running in the order they were written in (see app.js)
+import { buildTopicTree } from "../lib/catalog.js?v=5.0.0-beta.78";
+import { cfg, PORTAL } from "./config.js?v=5.0.0-beta.78";
+import { IdentityManager, restGet } from "./sdk.js?v=5.0.0-beta.78";
 
 let topicTreePromise = null;
 /**

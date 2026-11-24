@@ -5,22 +5,22 @@
 // (title, description, picture), colour and size, symbols, line and fill styles, and rotation for text (and, in the
 // lab, for a point's symbol: features.pointRotation). Also the
 // sketch layers: the first always exists, and a student can make more (features.sketchLayers).
-import "./popups.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
-import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.77";
-import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.77";
-import { state } from "./state.js?v=5.0.0-beta.77";
-import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.77";
-import { hexToRgb } from "./branding.js?v=5.0.0-beta.77";
+import "./popups.js?v=5.0.0-beta.78";   // first: keeps the files running in the order they were written in (see app.js)
+import { PALETTE_HEX } from "../lib/csv.js?v=5.0.0-beta.78";
+import { SHAPE_NAME, ARROWS, TEXT_FONTS, textFont, SKETCH_LAYER_PREFIX, isSketchKey } from "../lib/doc.js?v=5.0.0-beta.78";
+import { state } from "./state.js?v=5.0.0-beta.78";
+import { $, fmt, cfg, F, S, t } from "./config.js?v=5.0.0-beta.78";
+import { hexToRgb } from "./branding.js?v=5.0.0-beta.78";
 import { GraphicsLayer, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, densifyOperator, WebStyleSymbol, cimSymbolUtils,
-  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.77";
-import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap, bigTargets } from "./views.js?v=5.0.0-beta.77";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.77";
-import { toast } from "./ui.js?v=5.0.0-beta.77";
-import { handWords, onHandChange } from "./popups.js?v=5.0.0-beta.77";
-import { sketchUnits } from "./measure.js?v=5.0.0-beta.77";
-import { removeFromMaps } from "./maps.js?v=5.0.0-beta.77";
-import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.77";
-import { previewLayer } from "./csv-import.js?v=5.0.0-beta.77";
+  need, restGetUrl } from "./sdk.js?v=5.0.0-beta.78";
+import { graphicsLayer, sketchLayers, isSketch, sketchLayerByKey, activeMap, bigTargets } from "./views.js?v=5.0.0-beta.78";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.78";
+import { toast } from "./ui.js?v=5.0.0-beta.78";
+import { handWords, onHandChange } from "./popups.js?v=5.0.0-beta.78";
+import { sketchUnits } from "./measure.js?v=5.0.0-beta.78";
+import { removeFromMaps } from "./maps.js?v=5.0.0-beta.78";
+import { swipe, endLayerTools, sketchRowShown, renderLayers } from "./layers-panel.js?v=5.0.0-beta.78";
+import { previewLayer } from "./csv-import.js?v=5.0.0-beta.78";
 
 export const COLOUR_NAMES = String(S.colourNames || "").split(",");
 let selectedGraphics = [], selectedFeature = null;   // selectedFeature: the one sketch whose pop-up is being edited

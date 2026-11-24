@@ -7,10 +7,10 @@
 // Chrome empties a file as soon as it's picked in the save dialog (File System Access spec), before the app sees which
 // file it was. So the text of each locked file opened is kept: if it's picked, it's written straight back, unchanged.
 // (A locked file that wasn't opened in this session can't be put back: see README, Known limits.)
-import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.77";
-import { state, late } from "./state.js?v=5.0.0-beta.77";
-import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.77";
-import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.77";
+import { isLockedText } from "../lib/doc.js?v=5.0.0-beta.78";
+import { state, late } from "./state.js?v=5.0.0-beta.78";
+import { $, S, t, cfg } from "./config.js?v=5.0.0-beta.78";
+import { unfinishedData } from "./csv-import.js?v=5.0.0-beta.78";
 late.layoutBottom = layoutBottom;   // for the start-up files, which run before this one (see late in state.js)
 
 export const dataLayers = [];              // FeatureLayers from CSV files (each keeps its definition in _srcDef)

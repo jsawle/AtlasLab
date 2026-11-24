@@ -206,7 +206,7 @@ The Legend panel (the SDK's legend component, made the first time it opens) and 
 
 ### `src/measure.js`: Measure, units and coordinates
 
-The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate components, and what Measure keeps when the view switches between 2D and 3D (lab: features.keepMeasure). And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed with the units switch, and followed by the Sketch tools and the Elevation profile too.
+The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate components, and what Measure keeps when the view switches between 2D and 3D (features.keepMeasure). And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed with the units switch, and followed by the Sketch tools and the Elevation profile too.
 
 - **Exports:** `sketchUnits()`, `takeMeasure()`, `putMeasure()`, `stopMeasuring()`, `closeToolMenu()`, `coordWidget`, `units`
 - **Uses:** `lib/units.js`, `lib/threed.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `ui.js`, `popups.js`, `sketch.js`, `csv-import.js`, `profile.js`
@@ -224,7 +224,7 @@ The Elevation tool: a line drawn on the map (or a line already there, chosen wit
 
 ### `src/view-mode.js`: 2D / 3D
 
-Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation profile's line go across (Measure stops; in the lab it goes across too, features.keepMeasure), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which views a map allows, and paired 2D and 3D maps (features.pairs).
+Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation profile's line go across, and so does Measure (features.keepMeasure; the classic config stops it instead), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which views a map allows, and paired 2D and 3D maps (features.pairs).
 
 - **Exports:** `usePair()`, `syncViewLocks()`, `setMode()`, `pairOn`, `mapPair`, `idleMap`, `sourceBms`, `partnerFor`, `isScene`, `has2dOnlyTag`
 - **Uses:** `lib/doc.js`, `lib/threed.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `session.js`, `ui.js`, `popups.js`, `sketch.js`, `legend-basemaps.js`, `measure.js`, `profile.js`, `maps.js`, `data-layers.js`, `layers-panel.js`, `bookmarks.js`, `collection.js`, `csv-import.js`
