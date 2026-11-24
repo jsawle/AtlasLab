@@ -2,15 +2,15 @@
 // The layers made from a spreadsheet in Add data: a feature layer kept in the browser, made from the definition
 // lib/csv.js writes and saved with the map, placed under the sketches; and, in 3D, columns standing on its points
 // (features.columns3d).
-import "./maps.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
-import { columnScale } from "../lib/csv.js?v=5.0.0-beta.76";
-import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.76";
-import { state } from "./state.js?v=5.0.0-beta.76";
-import { F } from "./config.js?v=5.0.0-beta.76";
-import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.76";
-import { activeMap } from "./views.js?v=5.0.0-beta.76";
-import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.76";
-import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.76";
+import "./maps.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
+import { columnScale } from "../lib/csv.js?v=5.0.0-beta.77";
+import { DATA_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.77";
+import { state } from "./state.js?v=5.0.0-beta.77";
+import { F } from "./config.js?v=5.0.0-beta.77";
+import { FeatureLayer, Graphic, Field, LabelClass, rendererJsonUtils, intl } from "./sdk.js?v=5.0.0-beta.77";
+import { activeMap } from "./views.js?v=5.0.0-beta.77";
+import { dataLayers, markDirty } from "./session.js?v=5.0.0-beta.77";
+import { keepSketchOnTop } from "./maps.js?v=5.0.0-beta.77";
 
 /**
  * A client-side feature layer from a spreadsheet layer's saved definition: its fields, features, renderer, labels and

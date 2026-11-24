@@ -26,4 +26,9 @@ ok(layerDiffers3d({ type: "feature", renderer: { symbol: cim("CIMLineSymbol") },
   ok(FILL3D.outline >= 2 && FILL3D.tint > 0 && FILL3D.tint < 0.3, "styled fills in 3D: a thicker outline and a light tint");
   const a = drapeSize(200, 100), b = drapeSize(100, 400), c = drapeSize(1000, 1);
   ok(a.w === 2048 && a.h === 1024 && b.w === 512 && b.h === 2048 && c.h === 64 && a.tile === 341, "the picture's size: longer side 2048, shorter in proportion (64 at least), about six repeats"); }
+{ const { pathIn3d, halfwayAlong, distinctPoints } = await import("../lib/threed.js");
+  ok(pathIn3d([[0, 0], [10, 0]]) === "line" && pathIn3d([[0, 0], [10, 0], [10, 0]]) === "line", "a measured path of one straight stretch goes to 3D as the 3D tool's line (a point repeated by the double-click doesn't count)");
+  ok(pathIn3d([[0, 0], [10, 0], [10, 5]]) === "fixed" && pathIn3d([[0, 0]]) === "" && pathIn3d([]) === "" && pathIn3d(null) === "", "a path with a bend is drawn as it is; no path, nothing");
+  ok(JSON.stringify(halfwayAlong([[0, 0], [10, 0], [10, 10]])) === "[10,0]" && JSON.stringify(halfwayAlong([[0, 0], [30, 0], [30, 10]])) === "[20,0]", "the label goes halfway along the path, not at a middle corner");
+  ok(JSON.stringify(halfwayAlong([[4, 4]])) === "[4,4]" && halfwayAlong([]) === null && distinctPoints([[1, 1], [1, 1], [2, 2], [1, 1]]).length === 3, "one point is its own middle; only repeats next to each other are dropped"); }
 console.log(`${n - bad}/${n} checks passed`); process.exit(bad ? 1 : 0);

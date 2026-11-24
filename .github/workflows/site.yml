@@ -107,6 +107,7 @@ jobs:
           - live-sketch-text.py
           - live-sketch3d.py
           - live-point-rotate.py
+          - live-measure-carry.py
           - live-tablet.py
           - live-phone.py
           - live-slides.py

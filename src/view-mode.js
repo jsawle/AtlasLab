@@ -1,28 +1,28 @@
 // ============================================================ 2D / 3D
 // Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation
-// profile's line go across (Measure stops), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its
+// profile's line go across (Measure stops; in the lab it goes across too, features.keepMeasure), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its
 // quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which
 // views a map allows, and paired 2D and 3D maps (features.pairs).
-import "./profile.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
-import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.76";
-import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.76";
-import { state } from "./state.js?v=5.0.0-beta.76";
-import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
-import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
-import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.76";
-import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.76";
-import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.76";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.76";
-import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.76";
-import { legend, gallery, syncGallerySelection, renderGallery } from "./legend-basemaps.js?v=5.0.0-beta.76";
-import { coordWidget, stopMeasuring } from "./measure.js?v=5.0.0-beta.76";
-import { PROF_KEYS, profActive, profShow, ensureProfile, syncDraftButtons } from "./profile.js?v=5.0.0-beta.76";
-import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.76";
-import { syncColumns } from "./data-layers.js?v=5.0.0-beta.76";
-import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.76";
-import { showBmList } from "./bookmarks.js?v=5.0.0-beta.76";
-import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.76";
-import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.76";
+import "./profile.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
+import { readWebMap } from "../lib/doc.js?v=5.0.0-beta.77";
+import { scaleTo3d, scaleTo2d, tiltForScale, hazeOn, layerDiffers3d, FILL3D, drapeSize } from "../lib/threed.js?v=5.0.0-beta.77";
+import { state } from "./state.js?v=5.0.0-beta.77";
+import { $, reduceMotion, params, cfg, F, S, t } from "./config.js?v=5.0.0-beta.77";
+import { EsriMap, WebMap, WebScene, Graphic, reactiveUtils } from "./sdk.js?v=5.0.0-beta.77";
+import { sketchLayers, componentView, viewEls, setViewMap, mapView, viewHandlers, activeMap, addViewUI, goToSafe } from "./views.js?v=5.0.0-beta.77";
+import { dataLayers, portalLayers, watchBottom } from "./session.js?v=5.0.0-beta.77";
+import { toast, openPanelName, closePanels } from "./ui.js?v=5.0.0-beta.77";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.77";
+import { sketch, sketchReady, updatePinned, endSketchOps } from "./sketch.js?v=5.0.0-beta.77";
+import { legend, gallery, syncGallerySelection, renderGallery } from "./legend-basemaps.js?v=5.0.0-beta.77";
+import { coordWidget, takeMeasure, putMeasure } from "./measure.js?v=5.0.0-beta.77";
+import { PROF_KEYS, profActive, profShow, ensureProfile, syncDraftButtons } from "./profile.js?v=5.0.0-beta.77";
+import { setActiveMap, timeBar, shownMap, listedLayerCount, updateToolBadges, loadedItemJson, slidesToBookmarks } from "./maps.js?v=5.0.0-beta.77";
+import { syncColumns } from "./data-layers.js?v=5.0.0-beta.77";
+import { table, endSwipe, endLayerTools, renderLayers } from "./layers-panel.js?v=5.0.0-beta.77";
+import { showBmList } from "./bookmarks.js?v=5.0.0-beta.77";
+import { catalogLoaded, refreshCatalogButtons } from "./collection.js?v=5.0.0-beta.77";
+import { previewLayer, renderStyleList, renderFieldRows } from "./csv-import.js?v=5.0.0-beta.77";
 
 let switching = false;
 // How much work the 3D view does (5.0.0-beta.3). "low" asks the SDK for its low quality profile (smaller textures, less
@@ -234,7 +234,8 @@ function shownAgain() {
 }
 /**
  * Switches between the 2D and 3D views: where the map is looking, the open pop-up (docked or not) and the Elevation
- * profile's line go across, the Sketch tools move to the view switched to, and Measure stops. The 3D camera tilts when
+ * profile's line go across, the Sketch tools move to the view switched to, and Measure stops (in the lab it goes
+ * across too: features.keepMeasure). The 3D camera tilts when
  * it arrives close in (lib/threed.js).
  * @param {string} m "2d" or "3d"
  * @param {object} opts { force: switch even if already there, map: show this map in the view switched to (a pair's
@@ -251,7 +252,7 @@ export async function setMode(m, opts) {
   switching = true;
   const from = state.view, vp = !opts.map && from.viewpoint ? from.viewpoint.clone() : null, curMap = opts.map || from.map;
   const popup = !opts.map ? popupToCarry(from) : null, dock = from.popup ? from.popup.dockEnabled : null;
-  stopMeasuring();
+  const measure = await takeMeasure();   // Measure stops, or in the lab is put back in the other view (below)
   endSketchOps();
   try {
     if (m === "3d") {
@@ -305,6 +306,7 @@ export async function setMode(m, opts) {
   if (gallery.items) renderGallery();   // 3D lists the group's 3D basemaps too
   if (profActive()) { for (const k of PROF_KEYS) profShow(k, null); state.profDraft = null; syncDraftButtons(); ensureProfile(); }   // the profile's line follows to the other view
   if (coordWidget) coordWidget.view = state.view;
+  putMeasure(measure);
   if (legend) legend.view = state.view;
   if (m === "3d") endSwipe();   // Swipe is for 2D maps
   if (table && table.widget) { if (table.kind === "chart") { try { const src = state.view.selectionManager && state.view.selectionManager.sources; if (src && !src.includes(table.layer)) src.add(table.layer); } catch (e) { /* no selection on this view */ } } table.widget.view = state.view; }

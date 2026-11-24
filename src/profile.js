@@ -2,16 +2,16 @@
 // The Elevation tool: a line drawn on the map (or a line already there, chosen with a click), the height of the land
 // and sea floor along it from Esri's TopoBathy elevation service, and the chart of it with sea level, the distance, and
 // total climb and descent. The tool and chart are the app's own; how and why is set out below, after the imports.
-import "./measure.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
-import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.76";
-import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.76";
-import { state } from "./state.js?v=5.0.0-beta.76";
-import { $, S, t, F } from "./config.js?v=5.0.0-beta.76";
-import { Graphic, ElevationLayer } from "./sdk.js?v=5.0.0-beta.76";
-import { sketchLayers, viewEls, mapView, onViews } from "./views.js?v=5.0.0-beta.76";
-import { openPanelName } from "./ui.js?v=5.0.0-beta.76";
-import { showCentre } from "./popups.js?v=5.0.0-beta.76";
-import { units } from "./measure.js?v=5.0.0-beta.76";
+import "./measure.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
+import { xyToLonLat } from "../lib/doc.js?v=5.0.0-beta.77";
+import { waterColumn, spawnFish, stepFish } from "../lib/fish.js?v=5.0.0-beta.77";
+import { state } from "./state.js?v=5.0.0-beta.77";
+import { $, S, t, F } from "./config.js?v=5.0.0-beta.77";
+import { Graphic, ElevationLayer } from "./sdk.js?v=5.0.0-beta.77";
+import { sketchLayers, viewEls, mapView, onViews } from "./views.js?v=5.0.0-beta.77";
+import { openPanelName } from "./ui.js?v=5.0.0-beta.77";
+import { showCentre } from "./popups.js?v=5.0.0-beta.77";
+import { units } from "./measure.js?v=5.0.0-beta.77";
 
 const TOPOBATHY_URL = "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/TopoBathy3D/ImageServer";
 // Elevation profile 3.0 (5.0.0-beta.10; 3.1 in beta.11: drawn lines are geodesic): the app's own tool and chart; before, Esri's Elevation Profile widget, which

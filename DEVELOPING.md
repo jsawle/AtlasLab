@@ -206,10 +206,10 @@ The Legend panel (the SDK's legend component, made the first time it opens) and 
 
 ### `src/measure.js`: Measure, units and coordinates
 
-The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate components. And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed with the units switch, and followed by the Sketch tools and the Elevation profile too.
+The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate components, and what Measure keeps when the view switches between 2D and 3D (lab: features.keepMeasure). And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed with the units switch, and followed by the Sketch tools and the Elevation profile too.
 
-- **Exports:** `sketchUnits()`, `stopMeasuring()`, `closeToolMenu()`, `coordWidget`, `units`
-- **Uses:** `lib/units.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `ui.js`, `popups.js`, `sketch.js`, `csv-import.js`, `profile.js`
+- **Exports:** `sketchUnits()`, `takeMeasure()`, `putMeasure()`, `stopMeasuring()`, `closeToolMenu()`, `coordWidget`, `units`
+- **Uses:** `lib/units.js`, `lib/threed.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `ui.js`, `popups.js`, `sketch.js`, `csv-import.js`, `profile.js`
 - **Used by:** `profile.js`, `sketch.js`, `ui.js`, `view-mode.js`
 - **Shared state:** sets `measureActive`; reads `mode`, `sceneView`, `view`
 
@@ -224,7 +224,7 @@ The Elevation tool: a line drawn on the map (or a line already there, chosen wit
 
 ### `src/view-mode.js`: 2D / 3D
 
-Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation profile's line go across (Measure stops), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which views a map allows, and paired 2D and 3D maps (features.pairs).
+Switching between the 2D map and the 3D view (setMode): the place looked at, the open pop-up and the Elevation profile's line go across (Measure stops; in the lab it goes across too, features.keepMeasure), and the 3D camera tilts when it arrives close in (lib/threed.js). Also what the 3D view needs that 2D does not: its quality setting, haze, map notes and styled fills drawn for 3D, a note about layers that look different there, which views a map allows, and paired 2D and 3D maps (features.pairs).
 
 - **Exports:** `usePair()`, `syncViewLocks()`, `setMode()`, `pairOn`, `mapPair`, `idleMap`, `sourceBms`, `partnerFor`, `isScene`, `has2dOnlyTag`
 - **Uses:** `lib/doc.js`, `lib/threed.js`, `state.js`, `config.js`, `sdk.js`, `views.js`, `session.js`, `ui.js`, `popups.js`, `sketch.js`, `legend-basemaps.js`, `measure.js`, `profile.js`, `maps.js`, `data-layers.js`, `layers-panel.js`, `bookmarks.js`, `collection.js`, `csv-import.js`
@@ -493,9 +493,9 @@ Every word the app shows, in English (DEFAULT_STRINGS), keyed by name. A languag
 
 Going from the 2D map to the 3D view (5.0.0-beta.54): the scale handed across, how far the camera tilts, when haze is left off, what about a layer the 3D view can't draw as 2D does, and the size of the picture a styled fill is drawn into. Plain functions with no map in them, so they can be tested. Why each is here is in the README: a review of how a selection of the collection's maps look after pressing 3D.
 
-- **Exports:** `tiltForScale()`, `layerDiffers3d()`, `drapeSize()`, `THREED_VERSION`, `scaleTo3d`, `scaleTo2d`, `TILT_FULL_SCALE`, `HAZE_SCALE`, `hazeOn`, `FILL3D`, `TILT_REGION_SCALE`
+- **Exports:** `tiltForScale()`, `layerDiffers3d()`, `drapeSize()`, `distinctPoints()`, `pathIn3d()`, `halfwayAlong()`, `THREED_VERSION`, `scaleTo3d`, `scaleTo2d`, `TILT_FULL_SCALE`, `HAZE_SCALE`, `hazeOn`, `FILL3D`, `TILT_REGION_SCALE`
 - **Uses:** no other file of the app
-- **Used by:** `layers-panel.js`, `versions.js`, `view-mode.js`
+- **Used by:** `layers-panel.js`, `measure.js`, `versions.js`, `view-mode.js`
 
 ### `lib/units.js`: Units
 
@@ -504,7 +504,7 @@ Units 1.0: which units the app starts in (kilometres and metres, or miles and fe
 2\. if the time zone is not known (missing, or plain UTC), the browser's language: a US region (en-US, es-US) means miles and feet.<br>
 The person's own choice, made with the units switch, comes before the guess; a units= link parameter before that.
 
-- **Exports:** `wholeNumberText()`, `isUSTimeZone()`, `isPlaceTimeZone()`, `guessUnits()`, `resolveUnits()`, `UNITS_VERSION`
+- **Exports:** `wholeNumberText()`, `metresOf()`, `lengthText()`, `isUSTimeZone()`, `isPlaceTimeZone()`, `guessUnits()`, `resolveUnits()`, `UNITS_VERSION`
 - **Uses:** no other file of the app
 - **Used by:** `measure.js`, `versions.js`
 
