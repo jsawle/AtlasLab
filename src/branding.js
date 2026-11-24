@@ -2,8 +2,8 @@
 // Dresses the page in the config's brand: its colours (with the text colour on each worked out so it stays readable),
 // the header's logo, name and links, and every piece of wording the page shows. Draws the toolbar's built-in outline
 // icons first, then swaps in Esri's Calcite icons once the SDK has loaded them.
-import { late } from "./state.js?v=5.0.0-beta.77";
-import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.77";
+import { late } from "./state.js?v=5.0.0-beta.78";
+import { APP_VERSION, $, keepConfig, cfg, F, S, t } from "./config.js?v=5.0.0-beta.78";
 
 /**
  * A colour written as #rgb or #rrggbb, as [red, green, blue] from 0 to 255.

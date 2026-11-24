@@ -1,19 +1,19 @@
 // ============================================================ Measure, units and coordinates
 // The Measure tool's menu: distance, area and the coordinates of a place, with the SDK's measurement and coordinate
-// components, and what Measure keeps when the view switches between 2D and 3D (lab: features.keepMeasure). And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed
+// components, and what Measure keeps when the view switches between 2D and 3D (features.keepMeasure). And the units the app shows lengths in (kilometres or miles): worked out at start (lib/units.js), changed
 // with the units switch, and followed by the Sketch tools and the Elevation profile too.
-import "./legend-basemaps.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
-import { resolveUnits, wholeNumberText, metresOf, lengthText } from "../lib/units.js?v=5.0.0-beta.77";
-import { pathIn3d, distinctPoints, halfwayAlong } from "../lib/threed.js?v=5.0.0-beta.77";
-import { state, late } from "./state.js?v=5.0.0-beta.77";
-import { $, params, cfg, F, S } from "./config.js?v=5.0.0-beta.77";
-import { Portal, reactiveUtils, toolEl, dropEl, Graphic, intl } from "./sdk.js?v=5.0.0-beta.77";
-import { mapView } from "./views.js?v=5.0.0-beta.77";
-import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.77";
-import { updatePopupEnabled, handWords, onHandChange } from "./popups.js?v=5.0.0-beta.77";
-import { sketch } from "./sketch.js?v=5.0.0-beta.77";
-import { leaveData } from "./csv-import.js?v=5.0.0-beta.77";
-import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.77";
+import "./legend-basemaps.js?v=5.0.0-beta.78";   // first: keeps the files running in the order they were written in (see app.js)
+import { resolveUnits, wholeNumberText, metresOf, lengthText } from "../lib/units.js?v=5.0.0-beta.78";
+import { pathIn3d, distinctPoints, halfwayAlong } from "../lib/threed.js?v=5.0.0-beta.78";
+import { state, late } from "./state.js?v=5.0.0-beta.78";
+import { $, params, cfg, F, S } from "./config.js?v=5.0.0-beta.78";
+import { Portal, reactiveUtils, toolEl, dropEl, Graphic, intl } from "./sdk.js?v=5.0.0-beta.78";
+import { mapView } from "./views.js?v=5.0.0-beta.78";
+import { openPanel, togglePanel } from "./ui.js?v=5.0.0-beta.78";
+import { updatePopupEnabled, handWords, onHandChange } from "./popups.js?v=5.0.0-beta.78";
+import { sketch } from "./sketch.js?v=5.0.0-beta.78";
+import { leaveData } from "./csv-import.js?v=5.0.0-beta.78";
+import { profileUnitsChanged } from "./profile.js?v=5.0.0-beta.78";
 late.portalUnits = portalUnits;   // for the start-up files, which run before this one (see late in state.js)
 
 export let coordWidget = null;
@@ -95,7 +95,7 @@ function wholeNumbers(el) {
   const watch = (root) => { seen.add(root); roots.push(root); obs.observe(root, { subtree: true, childList: true, characterData: true }); scan(root); };
   if (el.shadowRoot) watch(el.shadowRoot);
 }
-// Measurements across 2D and 3D (lab: features.keepMeasure, 2D to 3D 1.7, 5.0.0-beta.77). Switching views no longer ends
+// Measurements across 2D and 3D (features.keepMeasure: lab in 5.0.0-beta.77, 2D to 3D 1.7; the main app from 5.0.0-beta.78). Switching views no longer ends
 // Measure: the tool chosen stays chosen, and a finished measurement is measured again in the other view by the SDK's
 // component for that view, so it can still be changed there. An area is the same shape in both views, and so is a
 // distance between two points (the 3D tool's straight line). The 3D distance tool measures from one point to another
@@ -121,7 +121,7 @@ async function measuredMetres(el) {
 }
 /**
  * At a switch between 2D and 3D, before it: takes what Measure has on off this view, to be put back in the other by
- * putMeasure. Without features.keepMeasure, or with no tool chosen, Measure stops, as before.
+ * putMeasure. Without features.keepMeasure (the classic config), or with no tool chosen, Measure stops, as it did before.
  * @returns {Promise<object|null>} { kind: "distance", "area" or "coords", shape, metres }; null when Measure stopped
  */
 export async function takeMeasure() {

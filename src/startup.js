@@ -2,17 +2,17 @@
 // The last file to run. Opens the map or scene the link names (webmap=, webscene=) or the map kept across a sign-in,
 // says if the config asked for wasn't found, and then tells the rest of the app that start-up is done. From here on the
 // Map layers count follows the map on screen: layers added or removed, another map opened.
-import "./versions.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
-import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.77";
-import { state } from "./state.js?v=5.0.0-beta.77";
-import { APP_VERSION, authStash, cfgName, cfgItem, keepConfig, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.77";
-import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.77";
-import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.77";
-import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.77";
-import { toast } from "./ui.js?v=5.0.0-beta.77";
-import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.77";
-import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.77";
-import { loadDocument } from "./local-files.js?v=5.0.0-beta.77";
+import "./versions.js?v=5.0.0-beta.78";   // first: keeps the files running in the order they were written in (see app.js)
+import { sanitizeDoc } from "../lib/doc.js?v=5.0.0-beta.78";
+import { state } from "./state.js?v=5.0.0-beta.78";
+import { APP_VERSION, authStash, cfgName, cfgItem, keepConfig, configMissing, localeMissing, cfg } from "./config.js?v=5.0.0-beta.78";
+import { reactiveUtils } from "./sdk.js?v=5.0.0-beta.78";
+import { defaultBasemap, linkedScene, linkedMap, localMap, startDone } from "./views.js?v=5.0.0-beta.78";
+import { markDirty, watchBottom } from "./session.js?v=5.0.0-beta.78";
+import { toast } from "./ui.js?v=5.0.0-beta.78";
+import { updatePopupEnabled } from "./popups.js?v=5.0.0-beta.78";
+import { listedLayerCount, updateToolBadges, openWebMapItem, openWebSceneItem } from "./maps.js?v=5.0.0-beta.78";
+import { loadDocument } from "./local-files.js?v=5.0.0-beta.78";
 
 reactiveUtils.watch(listedLayerCount, updateToolBadges, { initial: true });
 state.view.when(() => {

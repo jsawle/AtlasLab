@@ -1,13 +1,14 @@
-"""Runs Measure across a switch between 2D and 3D in Atlas 5.0 (lab: features.keepMeasure) in Chromium against the real services.
+"""Runs Measure across a switch between 2D and 3D in Atlas 5.0 (features.keepMeasure: lab in 5.0.0-beta.77, the main app from
+5.0.0-beta.78) in Chromium against the real services.
 
 Run:  python3 tests/live-measure-carry.py [--shots DIR] [--proxy URL] [--axe PATH]
 Needs network access to js.arcgis.com and www.arcgis.com, and Python Playwright with Chromium.
 
-Checks, in the lab: an area measured in 2D is measured again in 3D by the 3D tool, the same shape with the same area,
+Checks, in the main app: an area measured in 2D is measured again in 3D by the 3D tool, the same shape with the same area,
 and can still be changed; and back. A distance between two points becomes the 3D tool's straight line, and back. A 2D
 path with bends is drawn in 3D with its 2D length, beside the map and on it, follows the km / mi switch, goes back to
 2D as the same path, and goes away when a new distance is measured. A measurement half drawn is left behind, and the
-same tool starts afresh. The Coordinates tool stays open. In the main app, Measure stops at a switch, as before.
+same tool starts afresh. The Coordinates tool stays open. In the classic config, Measure stops at a switch, as it did before.
 """
 import argparse, functools, glob, http.server, json, os, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
@@ -90,7 +91,7 @@ def main():
         same_part = lambda a_, b_: a_ is not None and b_ is not None and len(a_) == len(b_) and all(near(p, q) for p, q in zip(a_, b_))
 
         print("== an area")
-        page.goto(f"{base}/index.html?config=lab&units=metric")
+        page.goto(f"{base}/index.html?config=mapmaker&units=metric")
         page.wait_for_function("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000)
         page.wait_for_timeout(2500)
         open_measure()
@@ -171,8 +172,8 @@ def main():
         page.click("#mClear"); page.wait_for_timeout(500)
         check(page.evaluate(PRESSED) == [] and page.evaluate("document.querySelectorAll('#measureBody > *').length") == 0, "Clear still ends it all")
 
-        print("== the main app: Measure stops, as before")
-        page.goto(f"{base}/index.html?config=mapmaker&units=metric")
+        print("== the classic config: Measure stops, as it did before")
+        page.goto(f"{base}/index.html?config=classic&units=metric")
         page.wait_for_function("document.querySelector('arcgis-map') && document.querySelector('arcgis-map').view && document.querySelector('arcgis-map').view.ready", timeout=120000)
         page.wait_for_timeout(2500)
         open_measure()
