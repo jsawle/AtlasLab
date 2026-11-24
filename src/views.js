@@ -3,11 +3,11 @@
 // map and the first sketch layer, and puts the app's controls on each view: search, home, zoom, the compass rose, the
 // scale bar. Starts downloading the map named in the link early. Holds what the rest of the app uses to work with
 // whichever view is on screen: activeMap, onViews, goToSafe, frameTarget.
-import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.76";
-import { state, late } from "./state.js?v=5.0.0-beta.76";
-import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.76";
-import { upgradeIcons } from "./branding.js?v=5.0.0-beta.76";
-import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.76";
+import { SKETCH_LAYER_PREFIX } from "../lib/doc.js?v=5.0.0-beta.77";
+import { state, late } from "./state.js?v=5.0.0-beta.77";
+import { $, HEX32, reduceMotion, params, authStash, cfg, F, S, t } from "./config.js?v=5.0.0-beta.77";
+import { upgradeIcons } from "./branding.js?v=5.0.0-beta.77";
+import { EsriMap, WebMap, WebScene, GraphicsLayer, Basemap, intl, reactiveUtils } from "./sdk.js?v=5.0.0-beta.77";
 
 export const graphicsLayer = new GraphicsLayer({ id: "__sketch", title: S.sketchLayer, elevationInfo: { mode: "on-the-ground" }, listMode: "hide" });
 export const defaultBasemap = () => new Basemap({ portalItem: { id: cfg.defaultBasemap } });

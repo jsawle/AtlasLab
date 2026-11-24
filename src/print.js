@@ -2,14 +2,14 @@
 // Printing happens in the browser; nothing is sent to a print service. Print map lays out the map as it is on screen,
 // with its title, the layers shown and the map's credits. Print an outline map draws a blank map for a class to label
 // and colour (features.outlinePrint; lib/outline.js).
-import "./saved-maps.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
-import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.76";
-import { state } from "./state.js?v=5.0.0-beta.76";
-import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.76";
-import { isSketch } from "./views.js?v=5.0.0-beta.76";
-import { currentTitle } from "./session.js?v=5.0.0-beta.76";
-import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.76";
-import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.76";
+import "./saved-maps.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
+import { OUTLINE_MAPS, outlineUrl, outlineShapes, outlineLabel } from "../lib/outline.js?v=5.0.0-beta.77";
+import { state } from "./state.js?v=5.0.0-beta.77";
+import { $, cfg, F, S } from "./config.js?v=5.0.0-beta.77";
+import { isSketch } from "./views.js?v=5.0.0-beta.77";
+import { currentTitle } from "./session.js?v=5.0.0-beta.77";
+import { toast, openModal, closeModal } from "./ui.js?v=5.0.0-beta.77";
+import { eachToggleableLayer } from "./layers-panel.js?v=5.0.0-beta.77";
 
 $("printTile").addEventListener("click", async () => {
   try {

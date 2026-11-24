@@ -1,12 +1,12 @@
 // ============================================================ Map information and lesson questions
 // The ⓘ dialog: the open map's summary, description (with only safe HTML kept), credits and a link to its item. And a
 // lesson's questions beside the map, read from the map's description (features.lessonQuestions; lib/questions.js).
-import "./collection.js?v=5.0.0-beta.76";   // first: keeps the files running in the order they were written in (see app.js)
-import { state } from "./state.js?v=5.0.0-beta.76";
-import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.76";
-import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.76";
-import { currentTitle } from "./session.js?v=5.0.0-beta.76";
-import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.76";
+import "./collection.js?v=5.0.0-beta.77";   // first: keeps the files running in the order they were written in (see app.js)
+import { state } from "./state.js?v=5.0.0-beta.77";
+import { questionsFrom, isQuestionsHeading } from "../lib/questions.js?v=5.0.0-beta.77";
+import { $, S, F, PORTAL } from "./config.js?v=5.0.0-beta.77";
+import { currentTitle } from "./session.js?v=5.0.0-beta.77";
+import { openModal, openPanel, closePanels } from "./ui.js?v=5.0.0-beta.77";
 
 /**
  * An item's description (HTML from ArcGIS Online) made safe to show: only plain formatting elements and attributes are
